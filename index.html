@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mototaxi - Pasajero</title>
+    <style>
+        body { font-family: sans-serif; background: #f4f4f4; margin: 0; padding: 20px; text-align: center; }
+        input, button { padding: 12px; margin: 10px; width: 80%; font-size: 16px; }
+        button { background: #00b4d8; color: white; border: none; border-radius: 8px; }
+    </style>
+</head>
+<body>
+    <h2>🚖 Pedir Mototaxi</h2>
+    <input type="text" id="name" placeholder="Tu nombre"><br>
+    <input type="text" id="origin" placeholder="Dirección de recogida"><br>
+    <input type="text" id="dest" placeholder="Destino"><br>
+    <button onclick="solicitar()">Solicitar viaje</button>
+    <p id="status"></p>
+    <script>
+        function solicitar() {
+            const name = document.getElementById('name').value;
+            const origin = document.getElementById('origin').value;
+            const dest = document.getElementById('dest').value;
+            if (!name || !origin || !dest) return alert('Llena todos los campos');
+            const viaje = {
+                id: 'T' + Date.now(),
+                customer: name,
+                origin,
+                dest,
+                fare: Math.floor(Math.random() * 50) + 20,
+                status: 'Solicitado',
+                driver: null,
+                date: new Date().toLocaleString()
+            };
+            let viajes = JSON.parse(localStorage.getItem('mototaxi_pasajero_viajes') || '[]');
+            viajes.push(viaje);
+            localStorage.setItem('mototaxi_pasajero_viajes', JSON.stringify(viajes));
+            document.getElementById('status').innerHTML = '✅ Viaje solicitado. ID: ' + viaje.id;
+        }
+    </script>
+</body>
+</html>
