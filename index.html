@@ -5,261 +5,633 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <meta name="theme-color" content="#0a0a0f">
     <title>Zaachila Moto</title>
+    
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+    
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
     
     <style>
         :root {
-            --bg:#0a0a0f;--bg2:#13111a;--card:#1a1722;--acc:#6C5CE7;
-            --green:#00C897;--red:#FF4757;--warn:#FFA502;--txt:#fff;--txt2:#aaa;--txt3:#666;--bd:#252130;
-            --r:12px;--r2:18px;
+            --bg: #0a0a0f; --bg2: #13111a; --card: #1a1722; --acc: #6C5CE7;
+            --green: #00C897; --red: #FF4757; --warn: #FFA502; --txt: #fff;
+            --txt2: #aaa; --txt3: #666; --bd: #252130; --r: 12px; --r2: 18px;
         }
-        *{margin:0;padding:0;box-sizing:border-box}
-        body{font-family:'Inter','Segoe UI',sans-serif;background:#000;color:var(--txt);min-height:100vh;-webkit-tap-highlight-color:transparent}
-        .app{max-width:430px;margin:0 auto;min-height:100vh;background:var(--bg);position:relative}
-        @media(min-width:431px){body{display:flex;justify-content:center;align-items:center;padding:20px}.app{border-radius:30px;min-height:90vh;max-height:95vh;overflow-y:auto;box-shadow:0 0 50px rgba(108,92,231,.1)}}
 
-        .topbar{background:var(--bg2);padding:.7rem 1rem;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--bd);position:sticky;top:0;z-index:10}
-        .topbar h1{font-size:1rem;display:flex;align-items:center;gap:.4rem}
-        .topbar h1 span{color:var(--acc)}
-        .status{font-size:.7rem;display:flex;align-items:center;gap:.4rem;color:var(--txt2)}
-        .status::before{content:'';width:7px;height:7px;border-radius:50%;background:var(--green)}
-        .status.off::before{background:var(--red)}
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
-        .map-wrap{height:300px;position:relative}
-        #map{height:100%;width:100%}
-        .map-btns{position:absolute;top:10px;right:10px;z-index:5;display:flex;flex-direction:column;gap:5px}
-        .map-btns button{width:32px;height:32px;border-radius:8px;background:var(--card);border:1px solid var(--bd);color:var(--txt);cursor:pointer;font-size:.8rem}
+        body {
+            font-family: 'Inter', 'Segoe UI', sans-serif;
+            background: #000;
+            color: var(--txt);
+            min-height: 100vh;
+            -webkit-tap-highlight-color: transparent;
+        }
 
-        .sheet{background:var(--bg2);border-radius:var(--r2) var(--r2) 0 0;padding:1rem;margin-top:-20px;position:relative;z-index:5;border:1px solid var(--bd);border-bottom:none;min-height:250px}
-        .sheet-handle{width:35px;height:3px;background:var(--bd);border-radius:2px;margin:0 auto .8rem}
+        .app {
+            max-width: 430px;
+            margin: 0 auto;
+            min-height: 100vh;
+            background: var(--bg);
+            position: relative;
+        }
 
-        .inp-group{background:var(--card);border:1px solid var(--bd);border-radius:var(--r);padding:.7rem .9rem;margin-bottom:.6rem;display:flex;align-items:center;gap:.6rem}
-        .inp-group i{font-size:.8rem;width:20px;text-align:center}
-        .inp-group .green{color:var(--green)}.inp-group .red{color:var(--red)}
-        .inp-group input{flex:1;background:0;border:0;color:var(--txt);font-size:.85rem;outline:0}
-        .inp-group input::placeholder{color:var(--txt3)}
+        @media (min-width: 431px) {
+            body { display: flex; justify-content: center; align-items: center; padding: 20px; }
+            .app { border-radius: 30px; min-height: 90vh; max-height: 95vh; overflow-y: auto; box-shadow: 0 0 50px rgba(108,92,231,.1); }
+        }
 
-        .btn{width:100%;padding:.8rem;border-radius:var(--r);font-weight:700;font-size:.85rem;cursor:pointer;border:0;transition:.2s}
-        .btn-p{background:var(--acc);color:#fff}
-        .btn-p:disabled{opacity:.4}
-        .btn-o{background:0;border:1px solid var(--bd);color:var(--txt2)}
-        .btn-r{background:rgba(255,71,87,.1);color:var(--red);border:1px solid rgba(255,71,87,.3)}
+        /* Topbar */
+        .topbar {
+            background: var(--bg2); padding: 0.7rem 1rem;
+            display: flex; align-items: center; justify-content: space-between;
+            border-bottom: 1px solid var(--bd); position: sticky; top: 0; z-index: 10;
+        }
 
-        .drivers{margin-top:1rem}
-        .drivers h4{font-size:.7rem;color:var(--txt3);text-transform:uppercase;letter-spacing:1px;margin-bottom:.6rem}
-        .d-item{background:var(--card);border:1px solid var(--bd);border-radius:var(--r);padding:.7rem;display:flex;align-items:center;gap:.6rem;margin-bottom:.4rem}
-        .d-avatar{width:38px;height:38px;border-radius:50%;background:var(--acc);display:flex;align-items:center;justify-content:center;font-size:1rem}
-        .d-info{flex:1;min-width:0}
-        .d-name{font-size:.8rem;font-weight:600}
-        .d-meta{font-size:.65rem;color:var(--txt3)}
-        .d-badge{font-size:.6rem;padding:.2rem .5rem;border-radius:10px;background:rgba(0,200,151,.1);color:var(--green);font-weight:700}
+        .topbar h1 { font-size: 1rem; display: flex; align-items: center; gap: 0.4rem; }
+        .topbar h1 span { color: var(--acc); }
 
-        .active-card{background:var(--card);border:1px solid var(--bd);border-radius:var(--r2);padding:1rem;margin-bottom:.8rem}
-        .driver-row{display:flex;align-items:center;gap:.7rem;margin-bottom:.8rem}
-        .driver-av{width:44px;height:44px;border-radius:50%;background:var(--acc);display:flex;align-items:center;justify-content:center;font-size:1.3rem}
-        .driver-det{flex:1}
-        .driver-det .name{font-weight:700;font-size:.9rem}
-        .driver-det .sub{font-size:.7rem;color:var(--txt2)}
+        .status {
+            font-size: 0.7rem; display: flex; align-items: center; gap: 0.4rem; color: var(--txt2);
+        }
 
-        .steps{display:flex;gap:.4rem;margin:.8rem 0}
-        .step{flex:1;text-align:center;padding:.5rem;background:var(--bg2);border-radius:var(--r);border:1px solid var(--bd);font-size:.65rem}
-        .step.on{border-color:var(--acc);background:rgba(108,92,231,.1)}
-        .step.done{border-color:var(--green)}
-        .step .s-num{font-size:1rem;font-weight:700}
+        .status::before {
+            content: ''; width: 7px; height: 7px; border-radius: 50%; background: var(--green);
+        }
 
-        .info-row{display:flex;justify-content:space-around;text-align:center;margin:.8rem 0}
-        .info-row .val{font-weight:700;font-size:.9rem}
-        .info-row .lbl{font-size:.6rem;color:var(--txt3)}
+        .status.off::before { background: var(--red); }
+        .status.off { color: var(--red); }
 
-        .empty{text-align:center;color:var(--txt3);padding:2rem}
-        .empty i{font-size:2.5rem;margin-bottom:.5rem;opacity:.3}
+        /* Map */
+        .map-wrap { height: 300px; position: relative; }
+        #clientMap { height: 100%; width: 100%; }
 
-        .modal-fare{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.85);z-index:99;display:flex;align-items:center;justify-content:center}
-        .modal-fare>div{background:var(--bg2);border:1px solid var(--bd);border-radius:var(--r2);padding:1.5rem;width:90%;max-width:320px;text-align:center}
-        .modal-fare .price{font-size:2.5rem;font-weight:800;color:var(--acc);margin:.5rem 0}
+        .map-btns {
+            position: absolute; top: 10px; right: 10px; z-index: 5;
+            display: flex; flex-direction: column; gap: 5px;
+        }
 
-        .toast{position:fixed;top:20px;left:50%;transform:translateX(-50%);background:var(--card);border:1px solid var(--bd);padding:.6rem 1rem;border-radius:var(--r);z-index:200;font-size:.8rem;font-weight:600;animation:ti 2.5s ease forwards}
-        @keyframes ti{0%{opacity:0;transform:translateX(-50%) translateY(-10px)}10%{opacity:1;transform:translateX(-50%) translateY(0)}80%{opacity:1}100%{opacity:0}}
+        .map-btns button {
+            width: 32px; height: 32px; border-radius: 8px; background: var(--card);
+            border: 1px solid var(--bd); color: var(--txt); cursor: pointer; font-size: 0.8rem;
+        }
+
+        /* Bottom Sheet */
+        .sheet {
+            background: var(--bg2); border-radius: var(--r2) var(--r2) 0 0;
+            padding: 1rem; margin-top: -20px; position: relative; z-index: 5;
+            border: 1px solid var(--bd); border-bottom: none; min-height: 250px;
+        }
+
+        .sheet-handle {
+            width: 35px; height: 3px; background: var(--bd); border-radius: 2px;
+            margin: 0 auto 0.8rem;
+        }
+
+        /* Inputs */
+        .inp-group {
+            background: var(--card); border: 1px solid var(--bd); border-radius: var(--r);
+            padding: 0.7rem 0.9rem; margin-bottom: 0.6rem;
+            display: flex; align-items: center; gap: 0.6rem;
+        }
+
+        .inp-group i { font-size: 0.8rem; width: 20px; text-align: center; }
+        .inp-group .green { color: var(--green); }
+        .inp-group .red { color: var(--red); }
+
+        .inp-group input {
+            flex: 1; background: none; border: none; color: var(--txt);
+            font-size: 0.85rem; outline: none;
+        }
+
+        .inp-group input::placeholder { color: var(--txt3); }
+
+        /* Buttons */
+        .btn {
+            width: 100%; padding: 0.8rem; border-radius: var(--r); font-weight: 700;
+            font-size: 0.85rem; cursor: pointer; border: none; transition: 0.2s;
+        }
+
+        .btn-p { background: var(--acc); color: #fff; }
+        .btn-p:disabled { opacity: 0.4; cursor: not-allowed; }
+        .btn-o { background: none; border: 1px solid var(--bd); color: var(--txt2); }
+        .btn-r { background: rgba(255,71,87,.1); color: var(--red); border: 1px solid rgba(255,71,87,.3); }
+
+        /* Drivers list */
+        .drivers { margin-top: 1rem; }
+        .drivers h4 {
+            font-size: 0.7rem; color: var(--txt3); text-transform: uppercase;
+            letter-spacing: 1px; margin-bottom: 0.6rem;
+        }
+
+        .d-item {
+            background: var(--card); border: 1px solid var(--bd); border-radius: var(--r);
+            padding: 0.7rem; display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.4rem;
+        }
+
+        .d-avatar {
+            width: 38px; height: 38px; border-radius: 50%; background: var(--acc);
+            display: flex; align-items: center; justify-content: center; font-size: 1rem;
+        }
+
+        .d-info { flex: 1; min-width: 0; }
+        .d-name { font-size: 0.8rem; font-weight: 600; }
+        .d-meta { font-size: 0.65rem; color: var(--txt3); }
+
+        .d-badge {
+            font-size: 0.6rem; padding: 0.2rem 0.5rem; border-radius: 10px;
+            background: rgba(0,200,151,.1); color: var(--green); font-weight: 700;
+        }
+
+        /* Active service */
+        .active-card {
+            background: var(--card); border: 1px solid var(--bd); border-radius: var(--r2);
+            padding: 1rem; margin-bottom: 0.8rem;
+        }
+
+        .driver-row {
+            display: flex; align-items: center; gap: 0.7rem; margin-bottom: 0.8rem;
+        }
+
+        .driver-av {
+            width: 44px; height: 44px; border-radius: 50%; background: var(--acc);
+            display: flex; align-items: center; justify-content: center; font-size: 1.3rem;
+        }
+
+        .driver-det { flex: 1; }
+        .driver-det .name { font-weight: 700; font-size: 0.9rem; }
+        .driver-det .sub { font-size: 0.7rem; color: var(--txt2); }
+
+        /* Steps */
+        .steps { display: flex; gap: 0.4rem; margin: 0.8rem 0; }
+        .step {
+            flex: 1; text-align: center; padding: 0.5rem; background: var(--bg2);
+            border-radius: var(--r); border: 1px solid var(--bd); font-size: 0.65rem;
+        }
+
+        .step.on { border-color: var(--acc); background: rgba(108,92,231,.1); }
+        .step.done { border-color: var(--green); }
+        .step .s-num { font-size: 1rem; font-weight: 700; }
+
+        /* Info row */
+        .info-row {
+            display: flex; justify-content: space-around; text-align: center; margin: 0.8rem 0;
+        }
+
+        .info-row .val { font-weight: 700; font-size: 0.9rem; }
+        .info-row .lbl { font-size: 0.6rem; color: var(--txt3); }
+
+        /* Empty */
+        .empty { text-align: center; color: var(--txt3); padding: 2rem; }
+        .empty i { font-size: 2.5rem; margin-bottom: 0.5rem; opacity: 0.3; }
+
+        /* Fare Modal */
+        .modal-fare {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,.85); z-index: 99;
+            display: flex; align-items: center; justify-content: center;
+        }
+
+        .modal-fare>div {
+            background: var(--bg2); border: 1px solid var(--bd); border-radius: var(--r2);
+            padding: 1.5rem; width: 90%; max-width: 320px; text-align: center;
+        }
+
+        .modal-fare .price { font-size: 2.5rem; font-weight: 800; color: var(--acc); margin: 0.5rem 0; }
+
+        /* Toast */
+        .toast {
+            position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
+            background: var(--card); border: 1px solid var(--bd); padding: 0.6rem 1rem;
+            border-radius: var(--r); z-index: 200; font-size: 0.8rem; font-weight: 600;
+            animation: ti 2.5s ease forwards; pointer-events: none;
+        }
+
+        @keyframes ti {
+            0% { opacity: 0; transform: translateX(-50%) translateY(-10px); }
+            10% { opacity: 1; transform: translateX(-50%) translateY(0); }
+            80% { opacity: 1; }
+            100% { opacity: 0; }
+        }
     </style>
 </head>
 <body>
-<div class="app">
-    <header class="topbar">
-        <h1>🏍️ Zaachila <span>Moto</span></h1>
-        <div class="status" id="connStatus">Conectado</div>
-    </header>
+    <div class="app">
+        <!-- Topbar -->
+        <header class="topbar">
+            <h1>🏍️ Zaachila <span>Moto</span></h1>
+            <div class="status" id="connStatus">Conectado</div>
+        </header>
 
-    <div class="map-wrap">
-        <div id="map"></div>
-        <div class="map-btns">
-            <button onclick="centerMap()"><i class="fa-solid fa-location-crosshairs"></i></button>
-            <button onclick="map.zoomIn()"><i class="fa-solid fa-plus"></i></button>
-            <button onclick="map.zoomOut()"><i class="fa-solid fa-minus"></i></button>
+        <!-- Mapa -->
+        <div class="map-wrap">
+            <div id="clientMap"></div>
+            <div class="map-btns">
+                <button onclick="centerMap()"><i class="fa-solid fa-location-crosshairs"></i></button>
+                <button onclick="map.zoomIn()"><i class="fa-solid fa-plus"></i></button>
+                <button onclick="map.zoomOut()"><i class="fa-solid fa-minus"></i></button>
+            </div>
         </div>
-    </div>
 
-    <!-- SOLICITUD -->
-    <div class="sheet" id="requestSheet">
-        <div class="sheet-handle"></div>
-        <div class="inp-group">
-            <i class="fa-solid fa-circle green"></i>
-            <input id="pickup" placeholder="Tu ubicación" readonly>
-        </div>
-        <div class="inp-group">
-            <i class="fa-solid fa-location-dot red"></i>
-            <input id="destiny" placeholder="¿A dónde vas?">
-        </div>
-        <button class="btn btn-p" id="reqBtn" onclick="requestRide()">Solicitar Mototaxi</button>
+        <!-- Panel Solicitud -->
+        <div class="sheet" id="requestSheet">
+            <div class="sheet-handle"></div>
+            <div class="inp-group">
+                <i class="fa-solid fa-circle green"></i>
+                <input id="pickup" placeholder="Tu ubicación" readonly>
+            </div>
+            <div class="inp-group">
+                <i class="fa-solid fa-location-dot red"></i>
+                <input id="destiny" placeholder="¿A dónde vas?">
+            </div>
+            <button class="btn btn-p" id="reqBtn" onclick="requestRide()">Solicitar Mototaxi</button>
 
-        <div class="drivers">
-            <h4>Disponibles</h4>
-            <div id="driversList"><div class="empty"><i class="fa-solid fa-motorcycle"></i><p>Cargando...</p></div></div>
-        </div>
-    </div>
-
-    <!-- ACTIVO -->
-    <div class="sheet" id="activeSheet" style="display:none">
-        <div class="sheet-handle"></div>
-        <div class="active-card">
-            <div class="driver-row">
-                <div class="driver-av">🏍️</div>
-                <div class="driver-det">
-                    <div class="name" id="aName">---</div>
-                    <div class="sub" id="aPlate">---</div>
-                    <div class="sub" id="aRating">⭐ ---</div>
+            <div class="drivers">
+                <h4>Disponibles</h4>
+                <div id="driversList">
+                    <div class="empty"><i class="fa-solid fa-motorcycle"></i><p>Cargando...</p></div>
                 </div>
             </div>
-            <div class="steps">
-                <div class="step on" id="s1"><div class="s-num">1</div>En camino</div>
-                <div class="step" id="s2"><div class="s-num">2</div>Recogida</div>
-                <div class="step" id="s3"><div class="s-num">3</div>Destino</div>
-            </div>
-            <div class="info-row">
-                <div><div class="val" id="iEta">---</div><div class="lbl">Llegada</div></div>
-                <div><div class="val" id="iFare">$0</div><div class="lbl">Tarifa</div></div>
-                <div><div class="val" id="iDist">---</div><div class="lbl">Distancia</div></div>
-            </div>
         </div>
-        <button class="btn btn-o" onclick="chat()" style="margin-bottom:.4rem">💬 Chat</button>
-        <button class="btn btn-o" onclick="report()" style="margin-bottom:.4rem">📦 Reportar objeto</button>
-        <button class="btn btn-r" onclick="cancel()">Cancelar servicio</button>
+
+        <!-- Panel Servicio Activo -->
+        <div class="sheet" id="activeSheet" style="display:none">
+            <div class="sheet-handle"></div>
+            <div class="active-card">
+                <div class="driver-row">
+                    <div class="driver-av">🏍️</div>
+                    <div class="driver-det">
+                        <div class="name" id="aName">---</div>
+                        <div class="sub" id="aPlate">---</div>
+                        <div class="sub" id="aRating">⭐ ---</div>
+                    </div>
+                </div>
+                <div class="steps">
+                    <div class="step on" id="s1"><div class="s-num">1</div>En camino</div>
+                    <div class="step" id="s2"><div class="s-num">2</div>Recogida</div>
+                    <div class="step" id="s3"><div class="s-num">3</div>Destino</div>
+                </div>
+                <div class="info-row">
+                    <div><div class="val" id="iEta">---</div><div class="lbl">Llegada</div></div>
+                    <div><div class="val" id="iFare">$0</div><div class="lbl">Tarifa</div></div>
+                    <div><div class="val" id="iDist">---</div><div class="lbl">Distancia</div></div>
+                </div>
+            </div>
+            <button class="btn btn-o" onclick="chat()" style="margin-bottom:0.4rem">💬 Chat</button>
+            <button class="btn btn-o" onclick="report()" style="margin-bottom:0.4rem">📦 Reportar objeto</button>
+            <button class="btn btn-r" onclick="cancel()">Cancelar servicio</button>
+        </div>
     </div>
-</div>
 
-<script>
-const fb={apiKey:"AIzaSyCBXBPMz2OZ3U2KfTaU-uHCBhwmbnR7O40",authDomain:"zaachilamoto.firebaseapp.com",databaseURL:"https://zaachilamoto-default-rtdb.firebaseio.com",projectId:"zaachilamoto",storageBucket:"zaachilamoto.firebasestorage.app",messagingSenderId:"559788509526",appId:"1:559788509526:web:c751d8d22068f09041aef7"};
-firebase.initializeApp(fb);
-const auth=firebase.auth(),db=firebase.database();
-let map,um,mk=[],uid,sid,pos={lat:16.9516,lng:-96.7491},conn=true;
-const ZA=[16.9516,-96.7491];
+    <script>
+        // ========== FIREBASE ==========
+        const fb = {
+            apiKey: "AIzaSyCBXBPMz2OZ3U2KfTaU-uHCBhwmbnR7O40",
+            authDomain: "zaachilamoto.firebaseapp.com",
+            databaseURL: "https://zaachilamoto-default-rtdb.firebaseio.com",
+            projectId: "zaachilamoto",
+            storageBucket: "zaachilamoto.firebasestorage.app",
+            messagingSenderId: "559788509526",
+            appId: "1:559788509526:web:c751d8d22068f09041aef7"
+        };
 
-db.ref('.info/connected').on('value',s=>{
-    conn=s.val();
-    document.getElementById('connStatus').className='status'+(conn?'':' off');
-    document.getElementById('connStatus').textContent=conn?'Conectado':'Sin conexión';
-    if(conn)auth.signInAnonymously().then(u=>{uid=u.user.uid;loadDrivers();listenActive();});
-});
+        firebase.initializeApp(fb);
+        const auth = firebase.auth();
+        const db = firebase.database();
 
-map=L.map('map',{zoomControl:false,attributionControl:false}).setView(ZA,15);
-L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{attribution:'© CartoDB'}).addTo(map);
-um=L.marker(ZA,{icon:L.divIcon({html:'<div style="background:#6C5CE7;width:12px;height:12px;border-radius:50%;border:2px solid #fff;"></div>',iconSize:[16,16],iconAnchor:[8,8]})}).addTo(map);
+        // ========== VARIABLES ==========
+        let map, userMarker, driverMarkers = [];
+        let userId = null, serviceId = null;
+        let userPos = { lat: 16.9516, lng: -96.7491 };
+        let connected = true;
+        const ZA = [16.9516, -96.7491];
 
-if(navigator.geolocation)navigator.geolocation.getCurrentPosition(p=>{pos={lat:p.coords.latitude,lng:p.coords.longitude};map.setView([pos.lat,pos.lng],16);um.setLatLng([pos.lat,pos.lng]);document.getElementById('pickup').value='Ubicación actual';},()=>{document.getElementById('pickup').value='Villa de Zaachila';});
-
-function loadDrivers(){
-    db.ref('choferes').orderByChild('estado').equalTo('activo').on('value',s=>{
-        const d=s.val();
-        mk.forEach(m=>map.removeLayer(m));mk=[];
-        let h='';
-        if(!d||!Object.keys(d).length){document.getElementById('driversList').innerHTML='<div class="empty"><i class="fa-solid fa-motorcycle"></i><p>Sin disponibles</p></div>';return;}
-        Object.entries(d).forEach(([id,c])=>{
-            if(c.ubicacion){
-                const m=L.marker([c.ubicacion.lat,c.ubicacion.lng],{icon:L.divIcon({html:'<div style="background:#00C897;color:#000;padding:2px 6px;border-radius:10px;font-size:10px;font-weight:700;">🏍️</div>',iconSize:[28,18],iconAnchor:[14,9]})}).addTo(map);
-                m.bindPopup(`<b>${c.nombre||'Chofer'}</b><br>⭐${c.calificacion||'Nuevo'}`);
-                mk.push(m);
+        // ========== CONEXIÓN ==========
+        db.ref('.info/connected').on('value', snap => {
+            connected = snap.val();
+            const el = document.getElementById('connStatus');
+            if (connected) {
+                el.className = 'status';
+                el.textContent = 'Conectado';
+            } else {
+                el.className = 'status off';
+                el.textContent = 'Sin conexión';
             }
-            const dist=calcDist(pos.lat,pos.lng,c.ubicacion?.lat||ZA[0],c.ubicacion?.lng||ZA[1]);
-            h+=`<div class="d-item"><div class="d-avatar">🏍️</div><div class="d-info"><div class="d-name">${c.nombre||'Chofer'}</div><div class="d-meta">📍${dist.toFixed(1)}km · ⭐${c.calificacion||'Nuevo'}</div></div><span class="d-badge">DISP</span></div>`;
+            if (connected) authenticate();
         });
-        document.getElementById('driversList').innerHTML=h;
-    });
-}
 
-function requestRide(){
-    const dest=document.getElementById('destiny').value.trim();
-    if(!dest){toast('Indica tu destino');return;}
-    const btn=document.getElementById('reqBtn');btn.disabled=true;btn.textContent='Buscando...';
-    const data={clienteId:uid,origen:{lat:pos.lat,lng:pos.lng,direccion:document.getElementById('pickup').value},destino:{lat:pos.lat+.001,lng:pos.lng+.001,direccion:dest},tarifa_estimada:Math.floor(Math.random()*25)+30,estado:'buscando',timestamp:firebase.database.ServerValue.TIMESTAMP};
-    const ref=db.ref('servicios').push();sid=ref.key;
-    ref.set(data).then(()=>{
-        document.getElementById('requestSheet').style.display='none';
-        document.getElementById('activeSheet').style.display='block';
-        listenService(sid);
-        setTimeout(()=>simAccept(sid),5000);
-    }).catch(()=>{btn.disabled=false;btn.textContent='Solicitar Mototaxi';});
-}
+        function authenticate() {
+            auth.signInAnonymously()
+                .then(u => {
+                    userId = u.user.uid;
+                    console.log('✅ Auth OK');
+                    loadDrivers();
+                    listenActive();
+                })
+                .catch(e => console.error('Auth error:', e));
+        }
 
-function simAccept(id){
-    db.ref('choferes').orderByChild('estado').equalTo('activo').limitToFirst(1).once('value',s=>{
-        let cd={choferId:'def',choferNombre:'Chofer',choferPlaca:'---',choferRating:'4.5'};
-        if(s.exists()){const f=Object.entries(s.val())[0];cd={choferId:f[0],choferNombre:f[1].nombre||'Chofer',choferPlaca:f[1].placa||'---',choferRating:f[1].calificacion||'Nuevo'};}
-        db.ref(`servicios/${id}`).update({...cd,estado:'tarifa_propuesta',tarifa_propuesta:45});
-    });
-}
+        // ========== MAPA ==========
+        function initMap() {
+            if (map) return;
+            map = L.map('clientMap', { zoomControl: false, attributionControl: false }).setView(ZA, 15);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap'
+            }).addTo(map);
 
-function listenService(id){
-    db.ref(`servicios/${id}`).on('value',s=>{
-        const v=s.val();if(!v)return;
-        if(v.estado==='tarifa_propuesta'){
-            document.getElementById('aName').textContent=v.choferNombre;document.getElementById('aPlate').textContent=v.choferPlaca;document.getElementById('aRating').textContent='⭐'+v.choferRating;
-            document.getElementById('iFare').textContent='$'+(v.tarifa_propuesta||v.tarifa_estimada);
-            showFareModal(id,v);
-        }else if(v.estado==='aceptado'){document.getElementById('s1').classList.add('on');toast('✅ Chofer en camino');}
-        else if(v.estado==='en_camino'){document.getElementById('s1').className='step done';document.getElementById('s2').classList.add('on');}
-        else if(v.estado==='en_servicio'){document.getElementById('s2').className='step done';document.getElementById('s3').classList.add('on');}
-        else if(v.estado==='completado'){document.getElementById('s3').className='step done';toast('✅ Completado');setTimeout(reset,5000);}
-        else if(v.estado==='cancelado'||v.estado==='rechazado'){toast('❌ No disponible');reset();}
-    });
-}
+            userMarker = L.marker(ZA, {
+                icon: L.divIcon({
+                    html: '<div style="background:#6C5CE7;width:14px;height:14px;border-radius:50%;border:3px solid #fff;box-shadow:0 0 15px rgba(108,92,231,.6);"></div>',
+                    iconSize: [20, 20],
+                    iconAnchor: [10, 10]
+                })
+            }).addTo(map);
+        }
 
-function showFareModal(id,v){
-    const fare=v.tarifa_propuesta||v.tarifa_estimada||40;
-    const m=document.createElement('div');m.className='modal-fare';
-    m.innerHTML=`<div><div style="font-size:3rem;">🏍️</div><h3>${v.choferNombre||'Chofer'}</h3><p style="color:var(--txt2);font-size:.8rem;">${v.choferPlaca} · ⭐${v.choferRating}</p><div class="price">$${fare}<span style="font-size:.8rem;color:var(--txt2);">MXN</span></div><p style="font-size:.7rem;color:var(--warn);margin:.5rem 0;">Confirma para que vaya a recogerte</p><button class="btn btn-p" id="btnAccept">Aceptar tarifa</button><button class="btn btn-r" id="btnReject" style="margin-top:.4rem">Rechazar</button></div>`;
-    document.body.appendChild(m);
-    m.querySelector('#btnAccept').onclick=()=>{m.remove();db.ref(`servicios/${id}`).update({estado:'aceptado',cliente_acepta_tarifa:true,ts:firebase.database.ServerValue.TIMESTAMP}).then(()=>toast('✅ Aceptado'));};
-    m.querySelector('#btnReject').onclick=()=>{m.remove();db.ref(`servicios/${id}`).update({estado:'cancelado',motivo:'Cliente rechazó tarifa'}).then(()=>{toast('Cancelado');reset();});};
-}
+        function getLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    pos => {
+                        userPos = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+                        userMarker.setLatLng([userPos.lat, userPos.lng]);
+                        map.setView([userPos.lat, userPos.lng], 16);
+                        document.getElementById('pickup').value = 'Ubicación actual';
+                    },
+                    () => {
+                        document.getElementById('pickup').value = 'Villa de Zaachila, Oaxaca';
+                    },
+                    { enableHighAccuracy: true, timeout: 10000 }
+                );
+            }
+        }
 
-function listenActive(){
-    if(!uid)return;
-    db.ref('servicios').orderByChild('clienteId').equalTo(uid).limitToLast(1).on('child_added',s=>{
-        const v=s.val();if(v.estado!=='completado'&&v.estado!=='cancelado'){sid=s.key;document.getElementById('requestSheet').style.display='none';document.getElementById('activeSheet').style.display='block';listenService(sid);}
-    });
-}
+        function centerMap() {
+            map.setView([userPos.lat, userPos.lng], 16);
+        }
 
-function cancel(){
-    if(!sid)return;
-    if(confirm('¿Cancelar?')){db.ref(`servicios/${sid}`).update({estado:'cancelado',ts:firebase.database.ServerValue.TIMESTAMP}).then(()=>{toast('Cancelado');reset();});}
-}
+        // ========== CHOFERES CERCANOS ==========
+        function loadDrivers() {
+            db.ref('choferes').orderByChild('estado').equalTo('activo').on('value', snap => {
+                const drivers = snap.val();
+                driverMarkers.forEach(m => map.removeLayer(m));
+                driverMarkers = [];
 
-function chat(){const m=prompt('Mensaje:');if(m&&sid)db.ref(`chats/${sid}`).push({remitente:'cliente',userId:uid,mensaje:m,ts:firebase.database.ServerValue.TIMESTAMP}).then(()=>toast('Enviado'));}
-function report(){const d=prompt('Objeto olvidado:');if(d&&sid)db.ref('reportes/objetos_olvidados').push({servicioId:sid,clienteId:uid,descripcion:d,estado:'pendiente',ts:firebase.database.ServerValue.TIMESTAMP}).then(()=>toast('Reportado'));}
+                let html = '';
+                if (!drivers || !Object.keys(drivers).length) {
+                    document.getElementById('driversList').innerHTML =
+                        '<div class="empty"><i class="fa-solid fa-motorcycle"></i><p>Sin mototaxis disponibles</p></div>';
+                    return;
+                }
 
-function reset(){
-    sid=null;document.getElementById('requestSheet').style.display='block';document.getElementById('activeSheet').style.display='none';
-    document.getElementById('destiny').value='';document.getElementById('reqBtn').disabled=false;document.getElementById('reqBtn').textContent='Solicitar Mototaxi';
-    document.querySelectorAll('.step').forEach(s=>s.className='step');document.getElementById('s1').classList.add('on');
-}
+                Object.entries(drivers).forEach(([id, d]) => {
+                    if (d.ubicacion) {
+                        const marker = L.marker([d.ubicacion.lat, d.ubicacion.lng], {
+                            icon: L.divIcon({
+                                html: '<div style="background:#00C897;color:#000;padding:3px 7px;border-radius:10px;font-size:10px;font-weight:700;">🏍️</div>',
+                                iconSize: [28, 18],
+                                iconAnchor: [14, 9]
+                            })
+                        }).addTo(map);
+                        marker.bindPopup(`<b>${d.nombre || 'Chofer'}</b><br>⭐ ${d.calificacion || 'Nuevo'}`);
+                        driverMarkers.push(marker);
+                    }
 
-function calcDist(lat1,lon1,lat2,lon2){const R=6371,dLat=(lat2-lat1)*Math.PI/180,dLon=(lon2-lon1)*Math.PI/180;const a=Math.sin(dLat/2)**2+Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLon/2)**2;return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));}
-function centerMap(){map.setView([pos.lat,pos.lng],16);}
-function toast(m){const t=document.createElement('div');t.className='toast';t.textContent=m;document.body.appendChild(t);setTimeout(()=>t.remove(),2500);}
-</script>
+                    const dist = calcDist(userPos.lat, userPos.lng, d.ubicacion?.lat || ZA[0], d.ubicacion?.lng || ZA[1]);
+                    html += `
+                        <div class="d-item">
+                            <div class="d-avatar">🏍️</div>
+                            <div class="d-info">
+                                <div class="d-name">${d.nombre || 'Chofer'}</div>
+                                <div class="d-meta">📍 ${dist.toFixed(1)} km · ⭐ ${d.calificacion || 'Nuevo'}</div>
+                            </div>
+                            <span class="d-badge">DISP</span>
+                        </div>`;
+                });
+
+                document.getElementById('driversList').innerHTML = html;
+            });
+        }
+
+        // ========== SOLICITAR SERVICIO ==========
+        function requestRide() {
+            const dest = document.getElementById('destiny').value.trim();
+            if (!dest) { toast('Indica tu destino'); return; }
+
+            const btn = document.getElementById('reqBtn');
+            btn.disabled = true;
+            btn.textContent = 'Buscando...';
+
+            const data = {
+                clienteId: userId,
+                origen: { lat: userPos.lat, lng: userPos.lng, direccion: document.getElementById('pickup').value },
+                destino: { lat: userPos.lat + 0.001, lng: userPos.lng + 0.001, direccion: dest },
+                tarifa_estimada: Math.floor(Math.random() * 25) + 30,
+                estado: 'buscando',
+                timestamp: firebase.database.ServerValue.TIMESTAMP
+            };
+
+            const ref = db.ref('servicios').push();
+            serviceId = ref.key;
+
+            ref.set(data)
+                .then(() => {
+                    console.log('✅ Servicio:', serviceId);
+                    document.getElementById('requestSheet').style.display = 'none';
+                    document.getElementById('activeSheet').style.display = 'block';
+                    listenService(serviceId);
+                    setTimeout(() => simAccept(serviceId), 5000);
+                })
+                .catch(() => {
+                    btn.disabled = false;
+                    btn.textContent = 'Solicitar Mototaxi';
+                    toast('Error al solicitar');
+                });
+        }
+
+        function simAccept(id) {
+            db.ref('choferes').orderByChild('estado').equalTo('activo').limitToFirst(1).once('value', snap => {
+                let cd = { choferId: 'default', choferNombre: 'Chofer Zaachila', choferPlaca: '---', choferRating: '4.5' };
+                if (snap.exists()) {
+                    const first = Object.entries(snap.val())[0];
+                    cd = {
+                        choferId: first[0],
+                        choferNombre: first[1].nombre || 'Chofer',
+                        choferPlaca: first[1].placa || '---',
+                        choferRating: first[1].calificacion || 'Nuevo'
+                    };
+                }
+                db.ref(`servicios/${id}`).update({
+                    ...cd,
+                    estado: 'tarifa_propuesta',
+                    tarifa_propuesta: Math.floor(Math.random() * 20) + 35
+                });
+            });
+        }
+
+        // ========== ESCUCHAR SERVICIO ==========
+        function listenService(id) {
+            db.ref(`servicios/${id}`).on('value', snap => {
+                const s = snap.val();
+                if (!s) return;
+
+                console.log('Estado:', s.estado);
+
+                if (s.estado === 'tarifa_propuesta') {
+                    document.getElementById('aName').textContent = s.choferNombre;
+                    document.getElementById('aPlate').textContent = s.choferPlaca;
+                    document.getElementById('aRating').textContent = '⭐ ' + s.choferRating;
+                    document.getElementById('iFare').textContent = '$' + (s.tarifa_propuesta || s.tarifa_estimada);
+                    showFareModal(id, s);
+                } else if (s.estado === 'aceptado') {
+                    document.getElementById('s1').classList.add('on');
+                    document.getElementById('iEta').textContent = '3-5 min';
+                    document.getElementById('iDist').textContent = '~1 km';
+                    toast('✅ Chofer en camino');
+                } else if (s.estado === 'en_camino') {
+                    document.getElementById('s1').classList.add('done');
+                    document.getElementById('s2').classList.add('on');
+                    document.getElementById('iEta').textContent = '1-2 min';
+                } else if (s.estado === 'en_servicio') {
+                    document.getElementById('s2').classList.add('done');
+                    document.getElementById('s3').classList.add('on');
+                    document.getElementById('iEta').textContent = 'En viaje';
+                } else if (s.estado === 'completado') {
+                    document.getElementById('s3').classList.add('done');
+                    document.getElementById('iEta').textContent = 'Llegó';
+                    toast('✅ Viaje completado');
+                    setTimeout(reset, 5000);
+                } else if (s.estado === 'cancelado' || s.estado === 'rechazado') {
+                    toast('❌ Servicio no disponible');
+                    reset();
+                }
+            });
+        }
+
+        function listenActive() {
+            if (!userId) return;
+            db.ref('servicios').orderByChild('clienteId').equalTo(userId).limitToLast(1)
+                .on('child_added', snap => {
+                    const s = snap.val();
+                    if (s.estado !== 'completado' && s.estado !== 'cancelado') {
+                        serviceId = snap.key;
+                        document.getElementById('requestSheet').style.display = 'none';
+                        document.getElementById('activeSheet').style.display = 'block';
+                        listenService(serviceId);
+                    }
+                });
+        }
+
+        // ========== MODAL TARIFA ==========
+        function showFareModal(id, s) {
+            const fare = s.tarifa_propuesta || s.tarifa_estimada || 40;
+            const modal = document.createElement('div');
+            modal.className = 'modal-fare';
+            modal.innerHTML = `
+                <div>
+                    <div style="font-size:3rem;">🏍️</div>
+                    <h3>${s.choferNombre || 'Chofer'}</h3>
+                    <p style="color:var(--txt2);font-size:.8rem;">${s.choferPlaca} · ⭐ ${s.choferRating}</p>
+                    <div class="price">$${fare}<span style="font-size:.8rem;color:var(--txt2);"> MXN</span></div>
+                    <p style="font-size:.7rem;color:var(--warn);margin:.5rem 0;">Confirma para que el chofer vaya a recogerte</p>
+                    <button class="btn btn-p" id="btnOk">Aceptar tarifa</button>
+                    <button class="btn btn-r" id="btnNo" style="margin-top:.4rem">Rechazar</button>
+                </div>`;
+            document.body.appendChild(modal);
+
+            modal.querySelector('#btnOk').onclick = () => {
+                modal.remove();
+                db.ref(`servicios/${id}`).update({
+                    estado: 'aceptado',
+                    cliente_acepta_tarifa: true,
+                    timestamp_aceptacion: firebase.database.ServerValue.TIMESTAMP
+                });
+            };
+
+            modal.querySelector('#btnNo').onclick = () => {
+                modal.remove();
+                db.ref(`servicios/${id}`).update({
+                    estado: 'cancelado',
+                    motivo: 'Cliente rechazó tarifa'
+                }).then(() => {
+                    toast('Cancelado');
+                    reset();
+                });
+            };
+        }
+
+        // ========== ACCIONES ==========
+        function cancel() {
+            if (!serviceId) return;
+            if (confirm('¿Cancelar este servicio?')) {
+                db.ref(`servicios/${serviceId}`).update({
+                    estado: 'cancelado',
+                    timestamp_cancelacion: firebase.database.ServerValue.TIMESTAMP
+                }).then(() => { toast('Cancelado'); reset(); });
+            }
+        }
+
+        function chat() {
+            const m = prompt('Mensaje para el chofer:');
+            if (m && serviceId) {
+                db.ref(`chats/${serviceId}`).push({
+                    remitente: 'cliente',
+                    userId: userId,
+                    mensaje: m,
+                    timestamp: firebase.database.ServerValue.TIMESTAMP
+                }).then(() => toast('Enviado'));
+            }
+        }
+
+        function report() {
+            const d = prompt('Describe el objeto olvidado:');
+            if (d && serviceId) {
+                db.ref('reportes/objetos_olvidados').push({
+                    servicioId: serviceId,
+                    clienteId: userId,
+                    descripcion: d,
+                    estado: 'pendiente',
+                    timestamp: firebase.database.ServerValue.TIMESTAMP
+                }).then(() => toast('Reporte enviado'));
+            }
+        }
+
+        function reset() {
+            serviceId = null;
+            document.getElementById('requestSheet').style.display = 'block';
+            document.getElementById('activeSheet').style.display = 'none';
+            document.getElementById('destiny').value = '';
+            document.getElementById('reqBtn').disabled = false;
+            document.getElementById('reqBtn').textContent = 'Solicitar Mototaxi';
+            document.querySelectorAll('.step').forEach(s => s.className = 'step');
+            document.getElementById('s1').classList.add('on');
+        }
+
+        // ========== UTILIDADES ==========
+        function calcDist(lat1, lon1, lat2, lon2) {
+            const R = 6371;
+            const dLat = (lat2 - lat1) * Math.PI / 180;
+            const dLon = (lon2 - lon1) * Math.PI / 180;
+            const a = Math.sin(dLat / 2) ** 2 + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLon / 2) ** 2;
+            return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        }
+
+        function toast(m) {
+            const t = document.createElement('div');
+            t.className = 'toast';
+            t.textContent = m;
+            document.body.appendChild(t);
+            setTimeout(() => t.remove(), 2500);
+        }
+
+        // ========== INICIAR ==========
+        window.addEventListener('DOMContentLoaded', () => {
+            initMap();
+            getLocation();
+            console.log('🏍️ Zaachila Moto Cliente listo');
+        });
+    </script>
 </body>
 </html>
