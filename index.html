@@ -27,47 +27,61 @@
             font-family: 'Inter', 'Segoe UI', sans-serif;
             background: #000;
             color: var(--txt);
-            min-height: 100vh;
+            height: 100vh;
+            overflow: hidden;
             -webkit-tap-highlight-color: transparent;
         }
 
         .app {
             max-width: 430px;
             margin: 0 auto;
-            min-height: 100vh;
+            height: 100vh;
             background: var(--bg);
+            display: flex;
+            flex-direction: column;
             position: relative;
         }
 
         @media (min-width: 431px) {
             body { display: flex; justify-content: center; align-items: center; padding: 20px; }
-            .app { border-radius: 30px; min-height: 90vh; max-height: 95vh; overflow-y: auto; box-shadow: 0 0 50px rgba(108,92,231,.1); }
+            .app { border-radius: 30px; height: 90vh; max-height: 800px; box-shadow: 0 0 50px rgba(108,92,231,.1); }
         }
 
         /* Topbar */
         .topbar {
-            background: var(--bg2); padding: 0.7rem 1rem;
+            background: var(--bg2); padding: 0.6rem 1rem;
             display: flex; align-items: center; justify-content: space-between;
-            border-bottom: 1px solid var(--bd); position: sticky; top: 0; z-index: 10;
+            border-bottom: 1px solid var(--bd); flex-shrink: 0; z-index: 10;
         }
 
         .topbar h1 { font-size: 1rem; display: flex; align-items: center; gap: 0.4rem; }
         .topbar h1 span { color: var(--acc); }
 
         .status {
-            font-size: 0.7rem; display: flex; align-items: center; gap: 0.4rem; color: var(--txt2);
+            font-size: 0.65rem; display: flex; align-items: center; gap: 0.3rem; color: var(--txt2);
         }
 
         .status::before {
-            content: ''; width: 7px; height: 7px; border-radius: 50%; background: var(--green);
+            content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--green);
         }
 
         .status.off::before { background: var(--red); }
-        .status.off { color: var(--red); }
 
         /* Map */
-        .map-wrap { height: 300px; position: relative; }
-        #clientMap { height: 100%; width: 100%; }
+        .map-wrap {
+            flex: 1;
+            min-height: 0;
+            position: relative;
+            z-index: 1;
+        }
+
+        #clientMap {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
 
         .map-btns {
             position: absolute; top: 10px; right: 10px; z-index: 5;
@@ -81,38 +95,45 @@
 
         /* Bottom Sheet */
         .sheet {
-            background: var(--bg2); border-radius: var(--r2) var(--r2) 0 0;
-            padding: 1rem; margin-top: -20px; position: relative; z-index: 5;
-            border: 1px solid var(--bd); border-bottom: none; min-height: 250px;
+            background: var(--bg2);
+            border-radius: var(--r2) var(--r2) 0 0;
+            padding: 0.8rem 1rem;
+            border: 1px solid var(--bd);
+            border-bottom: none;
+            flex-shrink: 0;
+            max-height: 50vh;
+            overflow-y: auto;
+            z-index: 10;
+            position: relative;
         }
 
         .sheet-handle {
             width: 35px; height: 3px; background: var(--bd); border-radius: 2px;
-            margin: 0 auto 0.8rem;
+            margin: 0 auto 0.6rem;
         }
 
         /* Inputs */
         .inp-group {
             background: var(--card); border: 1px solid var(--bd); border-radius: var(--r);
-            padding: 0.7rem 0.9rem; margin-bottom: 0.6rem;
-            display: flex; align-items: center; gap: 0.6rem;
+            padding: 0.6rem 0.8rem; margin-bottom: 0.5rem;
+            display: flex; align-items: center; gap: 0.5rem;
         }
 
-        .inp-group i { font-size: 0.8rem; width: 20px; text-align: center; }
+        .inp-group i { font-size: 0.7rem; width: 18px; text-align: center; }
         .inp-group .green { color: var(--green); }
         .inp-group .red { color: var(--red); }
 
         .inp-group input {
             flex: 1; background: none; border: none; color: var(--txt);
-            font-size: 0.85rem; outline: none;
+            font-size: 0.8rem; outline: none;
         }
 
         .inp-group input::placeholder { color: var(--txt3); }
 
         /* Buttons */
         .btn {
-            width: 100%; padding: 0.8rem; border-radius: var(--r); font-weight: 700;
-            font-size: 0.85rem; cursor: pointer; border: none; transition: 0.2s;
+            width: 100%; padding: 0.7rem; border-radius: var(--r); font-weight: 700;
+            font-size: 0.8rem; cursor: pointer; border: none; transition: 0.2s;
         }
 
         .btn-p { background: var(--acc); color: #fff; }
@@ -120,93 +141,127 @@
         .btn-o { background: none; border: 1px solid var(--bd); color: var(--txt2); }
         .btn-r { background: rgba(255,71,87,.1); color: var(--red); border: 1px solid rgba(255,71,87,.3); }
 
-        /* Drivers list */
-        .drivers { margin-top: 1rem; }
+        /* Drivers */
+        .drivers { margin-top: 0.8rem; }
         .drivers h4 {
-            font-size: 0.7rem; color: var(--txt3); text-transform: uppercase;
-            letter-spacing: 1px; margin-bottom: 0.6rem;
+            font-size: 0.65rem; color: var(--txt3); text-transform: uppercase;
+            letter-spacing: 1px; margin-bottom: 0.5rem;
         }
 
         .d-item {
             background: var(--card); border: 1px solid var(--bd); border-radius: var(--r);
-            padding: 0.7rem; display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.4rem;
+            padding: 0.6rem; display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.3rem;
         }
 
         .d-avatar {
-            width: 38px; height: 38px; border-radius: 50%; background: var(--acc);
-            display: flex; align-items: center; justify-content: center; font-size: 1rem;
+            width: 34px; height: 34px; border-radius: 50%; background: var(--acc);
+            display: flex; align-items: center; justify-content: center; font-size: 0.9rem; flex-shrink: 0;
         }
 
         .d-info { flex: 1; min-width: 0; }
-        .d-name { font-size: 0.8rem; font-weight: 600; }
-        .d-meta { font-size: 0.65rem; color: var(--txt3); }
+        .d-name { font-size: 0.75rem; font-weight: 600; }
+        .d-meta { font-size: 0.6rem; color: var(--txt3); }
 
         .d-badge {
-            font-size: 0.6rem; padding: 0.2rem 0.5rem; border-radius: 10px;
-            background: rgba(0,200,151,.1); color: var(--green); font-weight: 700;
+            font-size: 0.55rem; padding: 0.15rem 0.4rem; border-radius: 8px;
+            background: rgba(0,200,151,.1); color: var(--green); font-weight: 700; flex-shrink: 0;
         }
 
-        /* Active service */
+        /* Active card */
         .active-card {
             background: var(--card); border: 1px solid var(--bd); border-radius: var(--r2);
-            padding: 1rem; margin-bottom: 0.8rem;
+            padding: 0.8rem; margin-bottom: 0.6rem;
         }
 
         .driver-row {
-            display: flex; align-items: center; gap: 0.7rem; margin-bottom: 0.8rem;
+            display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.6rem;
         }
 
         .driver-av {
-            width: 44px; height: 44px; border-radius: 50%; background: var(--acc);
-            display: flex; align-items: center; justify-content: center; font-size: 1.3rem;
+            width: 40px; height: 40px; border-radius: 50%; background: var(--acc);
+            display: flex; align-items: center; justify-content: center; font-size: 1.1rem; flex-shrink: 0;
         }
 
         .driver-det { flex: 1; }
-        .driver-det .name { font-weight: 700; font-size: 0.9rem; }
-        .driver-det .sub { font-size: 0.7rem; color: var(--txt2); }
+        .driver-det .name { font-weight: 700; font-size: 0.85rem; }
+        .driver-det .sub { font-size: 0.65rem; color: var(--txt2); }
 
-        /* Steps */
-        .steps { display: flex; gap: 0.4rem; margin: 0.8rem 0; }
+        .steps { display: flex; gap: 0.3rem; margin: 0.6rem 0; }
         .step {
-            flex: 1; text-align: center; padding: 0.5rem; background: var(--bg2);
-            border-radius: var(--r); border: 1px solid var(--bd); font-size: 0.65rem;
+            flex: 1; text-align: center; padding: 0.4rem; background: var(--bg2);
+            border-radius: var(--r); border: 1px solid var(--bd); font-size: 0.6rem;
         }
 
         .step.on { border-color: var(--acc); background: rgba(108,92,231,.1); }
         .step.done { border-color: var(--green); }
-        .step .s-num { font-size: 1rem; font-weight: 700; }
+        .step .s-num { font-size: 0.9rem; font-weight: 700; }
 
-        /* Info row */
         .info-row {
-            display: flex; justify-content: space-around; text-align: center; margin: 0.8rem 0;
+            display: flex; justify-content: space-around; text-align: center; margin: 0.6rem 0;
         }
 
-        .info-row .val { font-weight: 700; font-size: 0.9rem; }
-        .info-row .lbl { font-size: 0.6rem; color: var(--txt3); }
+        .info-row .val { font-weight: 700; font-size: 0.8rem; }
+        .info-row .lbl { font-size: 0.55rem; color: var(--txt3); }
 
-        /* Empty */
-        .empty { text-align: center; color: var(--txt3); padding: 2rem; }
-        .empty i { font-size: 2.5rem; margin-bottom: 0.5rem; opacity: 0.3; }
+        .empty { text-align: center; color: var(--txt3); padding: 1rem; font-size: 0.8rem; }
 
-        /* Fare Modal */
-        .modal-fare {
+        /* MODAL OVERLAY */
+        .modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,.85); z-index: 99;
+            background: rgba(0,0,0,.9); z-index: 999;
             display: flex; align-items: center; justify-content: center;
         }
 
-        .modal-fare>div {
+        .modal-box {
             background: var(--bg2); border: 1px solid var(--bd); border-radius: var(--r2);
             padding: 1.5rem; width: 90%; max-width: 320px; text-align: center;
         }
 
-        .modal-fare .price { font-size: 2.5rem; font-weight: 800; color: var(--acc); margin: 0.5rem 0; }
+        .modal-box .price { font-size: 2.2rem; font-weight: 800; color: var(--acc); margin: 0.5rem 0; }
+
+        /* CHAT MODAL */
+        .chat-modal {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,.95); z-index: 999;
+            display: flex; flex-direction: column;
+        }
+
+        .chat-header {
+            background: var(--bg2); padding: 0.8rem 1rem; display: flex;
+            align-items: center; justify-content: space-between; border-bottom: 1px solid var(--bd);
+        }
+
+        .chat-messages {
+            flex: 1; overflow-y: auto; padding: 1rem;
+            display: flex; flex-direction: column; gap: 0.6rem;
+        }
+
+        .msg {
+            max-width: 80%; padding: 0.6rem 0.8rem; border-radius: 14px; font-size: 0.8rem;
+        }
+
+        .msg.sent { background: var(--acc); align-self: flex-end; border-bottom-right-radius: 4px; }
+        .msg.recv { background: var(--card); align-self: flex-start; border-bottom-left-radius: 4px; border: 1px solid var(--bd); }
+
+        .chat-input-wrap {
+            padding: 0.6rem; display: flex; gap: 0.4rem; border-top: 1px solid var(--bd); background: var(--bg2);
+        }
+
+        .chat-input-wrap input {
+            flex: 1; padding: 0.6rem; background: var(--card); border: 1px solid var(--bd);
+            border-radius: var(--r); color: var(--txt); outline: none; font-size: 0.8rem;
+        }
+
+        .chat-input-wrap button {
+            padding: 0.6rem 1rem; background: var(--acc); color: #fff;
+            border: none; border-radius: var(--r); font-weight: 700; cursor: pointer;
+        }
 
         /* Toast */
         .toast {
             position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
-            background: var(--card); border: 1px solid var(--bd); padding: 0.6rem 1rem;
-            border-radius: var(--r); z-index: 200; font-size: 0.8rem; font-weight: 600;
+            background: var(--card); border: 1px solid var(--bd); padding: 0.5rem 0.8rem;
+            border-radius: var(--r); z-index: 9999; font-size: 0.75rem; font-weight: 600;
             animation: ti 2.5s ease forwards; pointer-events: none;
         }
 
@@ -251,9 +306,7 @@
 
             <div class="drivers">
                 <h4>Disponibles</h4>
-                <div id="driversList">
-                    <div class="empty"><i class="fa-solid fa-motorcycle"></i><p>Cargando...</p></div>
-                </div>
+                <div id="driversList"><div class="empty">Cargando...</div></div>
             </div>
         </div>
 
@@ -280,8 +333,8 @@
                     <div><div class="val" id="iDist">---</div><div class="lbl">Distancia</div></div>
                 </div>
             </div>
-            <button class="btn btn-o" onclick="chat()" style="margin-bottom:0.4rem">💬 Chat</button>
-            <button class="btn btn-o" onclick="report()" style="margin-bottom:0.4rem">📦 Reportar objeto</button>
+            <button class="btn btn-o" onclick="openChat()" style="margin-bottom:0.3rem">💬 Chat</button>
+            <button class="btn btn-o" onclick="report()" style="margin-bottom:0.3rem">📦 Reportar objeto</button>
             <button class="btn btn-r" onclick="cancel()">Cancelar servicio</button>
         </div>
     </div>
@@ -306,49 +359,40 @@
         let map, userMarker, driverMarkers = [];
         let userId = null, serviceId = null;
         let userPos = { lat: 16.9516, lng: -96.7491 };
-        let connected = true;
         const ZA = [16.9516, -96.7491];
 
         // ========== CONEXIÓN ==========
         db.ref('.info/connected').on('value', snap => {
-            connected = snap.val();
             const el = document.getElementById('connStatus');
-            if (connected) {
+            if (snap.val()) {
                 el.className = 'status';
                 el.textContent = 'Conectado';
+                authenticate();
             } else {
                 el.className = 'status off';
                 el.textContent = 'Sin conexión';
             }
-            if (connected) authenticate();
         });
 
         function authenticate() {
             auth.signInAnonymously()
-                .then(u => {
-                    userId = u.user.uid;
-                    console.log('✅ Auth OK');
-                    loadDrivers();
-                    listenActive();
-                })
-                .catch(e => console.error('Auth error:', e));
+                .then(u => { userId = u.user.uid; loadDrivers(); listenActive(); })
+                .catch(e => console.error(e));
         }
 
         // ========== MAPA ==========
         function initMap() {
-            if (map) return;
             map = L.map('clientMap', { zoomControl: false, attributionControl: false }).setView(ZA, 15);
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '© OpenStreetMap'
-            }).addTo(map);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OSM' }).addTo(map);
 
             userMarker = L.marker(ZA, {
                 icon: L.divIcon({
                     html: '<div style="background:#6C5CE7;width:14px;height:14px;border-radius:50%;border:3px solid #fff;box-shadow:0 0 15px rgba(108,92,231,.6);"></div>',
-                    iconSize: [20, 20],
-                    iconAnchor: [10, 10]
+                    iconSize: [20, 20], iconAnchor: [10, 10]
                 })
             }).addTo(map);
+
+            setTimeout(() => map.invalidateSize(), 200);
         }
 
         function getLocation() {
@@ -360,62 +404,46 @@
                         map.setView([userPos.lat, userPos.lng], 16);
                         document.getElementById('pickup').value = 'Ubicación actual';
                     },
-                    () => {
-                        document.getElementById('pickup').value = 'Villa de Zaachila, Oaxaca';
-                    },
+                    () => document.getElementById('pickup').value = 'Villa de Zaachila, Oaxaca',
                     { enableHighAccuracy: true, timeout: 10000 }
                 );
             }
         }
 
-        function centerMap() {
-            map.setView([userPos.lat, userPos.lng], 16);
-        }
+        function centerMap() { map.setView([userPos.lat, userPos.lng], 16); }
 
-        // ========== CHOFERES CERCANOS ==========
+        // ========== CHOFERES ==========
         function loadDrivers() {
             db.ref('choferes').orderByChild('estado').equalTo('activo').on('value', snap => {
                 const drivers = snap.val();
                 driverMarkers.forEach(m => map.removeLayer(m));
                 driverMarkers = [];
-
                 let html = '';
+
                 if (!drivers || !Object.keys(drivers).length) {
-                    document.getElementById('driversList').innerHTML =
-                        '<div class="empty"><i class="fa-solid fa-motorcycle"></i><p>Sin mototaxis disponibles</p></div>';
+                    document.getElementById('driversList').innerHTML = '<div class="empty">Sin mototaxis disponibles</div>';
                     return;
                 }
 
                 Object.entries(drivers).forEach(([id, d]) => {
                     if (d.ubicacion) {
-                        const marker = L.marker([d.ubicacion.lat, d.ubicacion.lng], {
+                        const mk = L.marker([d.ubicacion.lat, d.ubicacion.lng], {
                             icon: L.divIcon({
                                 html: '<div style="background:#00C897;color:#000;padding:3px 7px;border-radius:10px;font-size:10px;font-weight:700;">🏍️</div>',
-                                iconSize: [28, 18],
-                                iconAnchor: [14, 9]
+                                iconSize: [28, 18], iconAnchor: [14, 9]
                             })
                         }).addTo(map);
-                        marker.bindPopup(`<b>${d.nombre || 'Chofer'}</b><br>⭐ ${d.calificacion || 'Nuevo'}`);
-                        driverMarkers.push(marker);
+                        mk.bindPopup(`<b>${d.nombre || 'Chofer'}</b><br>⭐ ${d.calificacion || 'Nuevo'}`);
+                        driverMarkers.push(mk);
                     }
-
                     const dist = calcDist(userPos.lat, userPos.lng, d.ubicacion?.lat || ZA[0], d.ubicacion?.lng || ZA[1]);
-                    html += `
-                        <div class="d-item">
-                            <div class="d-avatar">🏍️</div>
-                            <div class="d-info">
-                                <div class="d-name">${d.nombre || 'Chofer'}</div>
-                                <div class="d-meta">📍 ${dist.toFixed(1)} km · ⭐ ${d.calificacion || 'Nuevo'}</div>
-                            </div>
-                            <span class="d-badge">DISP</span>
-                        </div>`;
+                    html += `<div class="d-item"><div class="d-avatar">🏍️</div><div class="d-info"><div class="d-name">${d.nombre || 'Chofer'}</div><div class="d-meta">📍 ${dist.toFixed(1)}km · ⭐${d.calificacion||'Nuevo'}</div></div><span class="d-badge">DISP</span></div>`;
                 });
-
                 document.getElementById('driversList').innerHTML = html;
             });
         }
 
-        // ========== SOLICITAR SERVICIO ==========
+        // ========== SOLICITAR ==========
         function requestRide() {
             const dest = document.getElementById('destiny').value.trim();
             if (!dest) { toast('Indica tu destino'); return; }
@@ -436,38 +464,25 @@
             const ref = db.ref('servicios').push();
             serviceId = ref.key;
 
-            ref.set(data)
-                .then(() => {
-                    console.log('✅ Servicio:', serviceId);
-                    document.getElementById('requestSheet').style.display = 'none';
-                    document.getElementById('activeSheet').style.display = 'block';
-                    listenService(serviceId);
-                    setTimeout(() => simAccept(serviceId), 5000);
-                })
-                .catch(() => {
-                    btn.disabled = false;
-                    btn.textContent = 'Solicitar Mototaxi';
-                    toast('Error al solicitar');
-                });
+            ref.set(data).then(() => {
+                document.getElementById('requestSheet').style.display = 'none';
+                document.getElementById('activeSheet').style.display = 'block';
+                listenService(serviceId);
+                setTimeout(() => simAccept(serviceId), 5000);
+            }).catch(() => {
+                btn.disabled = false;
+                btn.textContent = 'Solicitar Mototaxi';
+            });
         }
 
         function simAccept(id) {
             db.ref('choferes').orderByChild('estado').equalTo('activo').limitToFirst(1).once('value', snap => {
                 let cd = { choferId: 'default', choferNombre: 'Chofer Zaachila', choferPlaca: '---', choferRating: '4.5' };
                 if (snap.exists()) {
-                    const first = Object.entries(snap.val())[0];
-                    cd = {
-                        choferId: first[0],
-                        choferNombre: first[1].nombre || 'Chofer',
-                        choferPlaca: first[1].placa || '---',
-                        choferRating: first[1].calificacion || 'Nuevo'
-                    };
+                    const f = Object.entries(snap.val())[0];
+                    cd = { choferId: f[0], choferNombre: f[1].nombre || 'Chofer', choferPlaca: f[1].placa || '---', choferRating: f[1].calificacion || 'Nuevo' };
                 }
-                db.ref(`servicios/${id}`).update({
-                    ...cd,
-                    estado: 'tarifa_propuesta',
-                    tarifa_propuesta: Math.floor(Math.random() * 20) + 35
-                });
+                db.ref(`servicios/${id}`).update({ ...cd, estado: 'tarifa_propuesta', tarifa_propuesta: Math.floor(Math.random() * 20) + 35 });
             });
         }
 
@@ -476,8 +491,6 @@
             db.ref(`servicios/${id}`).on('value', snap => {
                 const s = snap.val();
                 if (!s) return;
-
-                console.log('Estado:', s.estado);
 
                 if (s.estado === 'tarifa_propuesta') {
                     document.getElementById('aName').textContent = s.choferNombre;
@@ -493,18 +506,15 @@
                 } else if (s.estado === 'en_camino') {
                     document.getElementById('s1').classList.add('done');
                     document.getElementById('s2').classList.add('on');
-                    document.getElementById('iEta').textContent = '1-2 min';
                 } else if (s.estado === 'en_servicio') {
                     document.getElementById('s2').classList.add('done');
                     document.getElementById('s3').classList.add('on');
-                    document.getElementById('iEta').textContent = 'En viaje';
                 } else if (s.estado === 'completado') {
                     document.getElementById('s3').classList.add('done');
-                    document.getElementById('iEta').textContent = 'Llegó';
                     toast('✅ Viaje completado');
                     setTimeout(reset, 5000);
                 } else if (s.estado === 'cancelado' || s.estado === 'rechazado') {
-                    toast('❌ Servicio no disponible');
+                    toast('Servicio no disponible');
                     reset();
                 }
             });
@@ -526,75 +536,92 @@
 
         // ========== MODAL TARIFA ==========
         function showFareModal(id, s) {
+            // Eliminar modal existente
+            document.querySelectorAll('.modal-overlay').forEach(m => m.remove());
+            
             const fare = s.tarifa_propuesta || s.tarifa_estimada || 40;
             const modal = document.createElement('div');
-            modal.className = 'modal-fare';
+            modal.className = 'modal-overlay';
             modal.innerHTML = `
-                <div>
+                <div class="modal-box">
                     <div style="font-size:3rem;">🏍️</div>
                     <h3>${s.choferNombre || 'Chofer'}</h3>
-                    <p style="color:var(--txt2);font-size:.8rem;">${s.choferPlaca} · ⭐ ${s.choferRating}</p>
-                    <div class="price">$${fare}<span style="font-size:.8rem;color:var(--txt2);"> MXN</span></div>
-                    <p style="font-size:.7rem;color:var(--warn);margin:.5rem 0;">Confirma para que el chofer vaya a recogerte</p>
+                    <p style="color:var(--txt2);font-size:.75rem;">${s.choferPlaca} · ⭐ ${s.choferRating}</p>
+                    <div class="price">$${fare}<span style="font-size:.7rem;color:var(--txt2);"> MXN</span></div>
+                    <p style="font-size:.65rem;color:var(--warn);margin:.4rem 0;">Confirma para que el chofer vaya</p>
                     <button class="btn btn-p" id="btnOk">Aceptar tarifa</button>
-                    <button class="btn btn-r" id="btnNo" style="margin-top:.4rem">Rechazar</button>
+                    <button class="btn btn-r" id="btnNo" style="margin-top:.3rem">Rechazar</button>
                 </div>`;
             document.body.appendChild(modal);
 
             modal.querySelector('#btnOk').onclick = () => {
                 modal.remove();
-                db.ref(`servicios/${id}`).update({
-                    estado: 'aceptado',
-                    cliente_acepta_tarifa: true,
-                    timestamp_aceptacion: firebase.database.ServerValue.TIMESTAMP
-                });
+                db.ref(`servicios/${id}`).update({ estado: 'aceptado', cliente_acepta_tarifa: true, timestamp_aceptacion: firebase.database.ServerValue.TIMESTAMP });
             };
 
             modal.querySelector('#btnNo').onclick = () => {
                 modal.remove();
-                db.ref(`servicios/${id}`).update({
-                    estado: 'cancelado',
-                    motivo: 'Cliente rechazó tarifa'
-                }).then(() => {
-                    toast('Cancelado');
-                    reset();
-                });
+                db.ref(`servicios/${id}`).update({ estado: 'cancelado', motivo: 'Cliente rechazó tarifa' }).then(() => { toast('Cancelado'); reset(); });
             };
+
+            modal.onclick = function(e) { if (e.target === modal) return; };
         }
+
+        // ========== CHAT ==========
+        function openChat() {
+            if (!serviceId) return;
+            
+            const chatDiv = document.createElement('div');
+            chatDiv.className = 'chat-modal';
+            chatDiv.innerHTML = `
+                <div class="chat-header">
+                    <span>💬 Chat con el chofer</span>
+                    <button onclick="this.closest('.chat-modal').remove()" style="background:none;border:none;color:var(--txt);font-size:1.2rem;cursor:pointer;">✕</button>
+                </div>
+                <div class="chat-messages" id="chatMessages"></div>
+                <div class="chat-input-wrap">
+                    <input type="text" id="chatInput" placeholder="Escribe un mensaje..." onkeypress="if(event.key==='Enter')sendMsg()">
+                    <button onclick="sendMsg()">Enviar</button>
+                </div>`;
+            document.body.appendChild(chatDiv);
+
+            // Cargar mensajes existentes
+            db.ref(`chats/${serviceId}`).on('child_added', snap => {
+                const msg = snap.val();
+                const div = document.createElement('div');
+                div.className = 'msg ' + (msg.remitente === 'cliente' ? 'sent' : 'recv');
+                div.textContent = msg.mensaje;
+                document.getElementById('chatMessages').appendChild(div);
+                document.getElementById('chatMessages').scrollTop = document.getElementById('chatMessages').scrollHeight;
+            });
+        }
+
+        window.sendMsg = function() {
+            const input = document.getElementById('chatInput');
+            const msg = input?.value.trim();
+            if (msg && serviceId) {
+                db.ref(`chats/${serviceId}`).push({
+                    remitente: 'cliente',
+                    userId: userId,
+                    mensaje: msg,
+                    timestamp: firebase.database.ServerValue.TIMESTAMP
+                });
+                if (input) input.value = '';
+            }
+        };
 
         // ========== ACCIONES ==========
         function cancel() {
             if (!serviceId) return;
             if (confirm('¿Cancelar este servicio?')) {
-                db.ref(`servicios/${serviceId}`).update({
-                    estado: 'cancelado',
-                    timestamp_cancelacion: firebase.database.ServerValue.TIMESTAMP
-                }).then(() => { toast('Cancelado'); reset(); });
-            }
-        }
-
-        function chat() {
-            const m = prompt('Mensaje para el chofer:');
-            if (m && serviceId) {
-                db.ref(`chats/${serviceId}`).push({
-                    remitente: 'cliente',
-                    userId: userId,
-                    mensaje: m,
-                    timestamp: firebase.database.ServerValue.TIMESTAMP
-                }).then(() => toast('Enviado'));
+                db.ref(`servicios/${serviceId}`).update({ estado: 'cancelado', timestamp_cancelacion: firebase.database.ServerValue.TIMESTAMP }).then(() => { toast('Cancelado'); reset(); });
             }
         }
 
         function report() {
             const d = prompt('Describe el objeto olvidado:');
             if (d && serviceId) {
-                db.ref('reportes/objetos_olvidados').push({
-                    servicioId: serviceId,
-                    clienteId: userId,
-                    descripcion: d,
-                    estado: 'pendiente',
-                    timestamp: firebase.database.ServerValue.TIMESTAMP
-                }).then(() => toast('Reporte enviado'));
+                db.ref('reportes/objetos_olvidados').push({ servicioId: serviceId, clienteId: userId, descripcion: d, estado: 'pendiente', timestamp: firebase.database.ServerValue.TIMESTAMP }).then(() => toast('Reporte enviado'));
             }
         }
 
@@ -630,7 +657,10 @@
         window.addEventListener('DOMContentLoaded', () => {
             initMap();
             getLocation();
-            console.log('🏍️ Zaachila Moto Cliente listo');
+        });
+
+        window.addEventListener('resize', () => {
+            if (map) setTimeout(() => map.invalidateSize(), 100);
         });
     </script>
 </body>
