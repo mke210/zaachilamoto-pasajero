@@ -2,42 +2,838 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mototaxi - Pasajero</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <title>Zaachila Moto - Cliente</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
-        body { font-family: sans-serif; background: #f4f4f4; margin: 0; padding: 20px; text-align: center; }
-        input, button { padding: 12px; margin: 10px; width: 80%; font-size: 16px; }
-        button { background: #00b4d8; color: white; border: none; border-radius: 8px; }
+        :root {
+            --primary: #FF6B35;
+            --primary-dark: #E55A2B;
+            --secondary: #2D1B69;
+            --accent: #00C9A7;
+            --dark: #1A1A2E;
+            --light: #F8F9FA;
+            --glass: rgba(255, 255, 255, 0.1);
+            --glass-border: rgba(255, 255, 255, 0.2);
+            --shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            --success: #10B981;
+            --warning: #F59E0B;
+            --danger: #EF4444;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: linear-gradient(135deg, #0F0C29, #302B63, #24243E);
+            color: #fff;
+            min-height: 100vh;
+            overflow-x: hidden;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* Mobile Container */
+        .mobile-container {
+            max-width: 430px;
+            margin: 0 auto;
+            min-height: 100vh;
+            background: linear-gradient(180deg, #1A1A2E 0%, #16213E 100%);
+            position: relative;
+            box-shadow: 0 0 50px rgba(0,0,0,0.5);
+        }
+
+        @media (min-width: 431px) {
+            body {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                padding: 20px;
+            }
+            .mobile-container {
+                border-radius: 30px;
+                min-height: 90vh;
+                max-height: 95vh;
+                overflow-y: auto;
+            }
+        }
+
+        /* Header */
+        .app-header {
+            background: linear-gradient(135deg, #FF6B35, #E55A2B);
+            padding: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .logo-text {
+            font-size: 1.3rem;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .profile-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        /* Map Container */
+        .map-wrapper {
+            height: 400px;
+            position: relative;
+        }
+
+        #clientMap {
+            height: 100%;
+            width: 100%;
+            z-index: 1;
+        }
+
+        /* Floating Action Buttons */
+        .map-overlay {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .map-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: white;
+            border: none;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            cursor: pointer;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Request Panel */
+        .request-panel {
+            background: white;
+            border-radius: 25px 25px 0 0;
+            padding: 1.5rem;
+            margin-top: -20px;
+            position: relative;
+            z-index: 2;
+            color: #333;
+            box-shadow: 0 -10px 30px rgba(0,0,0,0.2);
+        }
+
+        .input-group {
+            display: flex;
+            gap: 0.8rem;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding: 0.8rem;
+            background: #f5f5f5;
+            border-radius: 15px;
+        }
+
+        .input-group input {
+            flex: 1;
+            border: none;
+            background: transparent;
+            font-size: 1rem;
+            outline: none;
+        }
+
+        .location-dot {
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            border: 2px solid #FF6B35;
+        }
+
+        .location-dot.destiny {
+            border-color: #2D1B69;
+            background: #2D1B69;
+        }
+
+        .btn-request {
+            width: 100%;
+            padding: 1rem;
+            background: linear-gradient(135deg, #FF6B35, #E55A2B);
+            color: white;
+            border: none;
+            border-radius: 15px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 1rem;
+        }
+
+        .btn-request:active {
+            transform: scale(0.98);
+        }
+
+        .btn-request:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        /* Nearby Drivers */
+        .nearby-drivers {
+            margin-top: 1.5rem;
+        }
+
+        .driver-card {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            background: #f9f9f9;
+            border-radius: 15px;
+            margin-bottom: 0.8rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .driver-card:hover {
+            background: #fff0e8;
+            transform: translateX(5px);
+        }
+
+        .driver-photo {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: #FF6B35;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: white;
+        }
+
+        .driver-info {
+            flex: 1;
+        }
+
+        .driver-name {
+            font-weight: 700;
+            color: #333;
+        }
+
+        .driver-distance {
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .driver-rating {
+            color: #FF6B35;
+            font-weight: 600;
+        }
+
+        /* Active Service Panel */
+        .active-service {
+            background: linear-gradient(135deg, #FF6B35, #E55A2B);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 20px;
+            margin-top: 1rem;
+        }
+
+        .driver-detail {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .status-timeline {
+            display: flex;
+            justify-content: space-between;
+            margin: 1.5rem 0;
+        }
+
+        .status-step {
+            text-align: center;
+            flex: 1;
+        }
+
+        .status-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto;
+            font-size: 1.2rem;
+        }
+
+        .status-icon.active {
+            background: white;
+            color: #FF6B35;
+        }
+
+        /* Chat Bubble */
+        .chat-bubble {
+            position: fixed;
+            bottom: 80px;
+            right: 20px;
+            z-index: 1000;
+        }
+
+        .chat-btn {
+            width: 55px;
+            height: 55px;
+            border-radius: 50%;
+            background: #FF6B35;
+            border: none;
+            box-shadow: 0 5px 20px rgba(255,107,53,0.5);
+            cursor: pointer;
+            font-size: 1.5rem;
+            color: white;
+        }
+
+        /* Modal Chat */
+        .chat-modal {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            border-radius: 25px 25px 0 0;
+            z-index: 2000;
+            height: 60vh;
+            display: none;
+            flex-direction: column;
+            box-shadow: 0 -10px 40px rgba(0,0,0,0.3);
+        }
+
+        .chat-modal.active {
+            display: flex;
+        }
+
+        .chat-modal-header {
+            background: #FF6B35;
+            color: white;
+            padding: 1rem;
+            border-radius: 25px 25px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .chat-modal-body {
+            flex: 1;
+            padding: 1rem;
+            overflow-y: auto;
+            color: #333;
+        }
+
+        .chat-modal-input {
+            padding: 1rem;
+            display: flex;
+            gap: 0.5rem;
+            border-top: 1px solid #eee;
+        }
+
+        .chat-modal-input input {
+            flex: 1;
+            padding: 0.8rem;
+            border: 1px solid #ddd;
+            border-radius: 25px;
+            outline: none;
+        }
+
+        /* Emergency Button */
+        .emergency-btn {
+            background: #EF4444;
+            color: white;
+            border: none;
+            padding: 0.8rem;
+            border-radius: 15px;
+            width: 100%;
+            font-weight: 700;
+            margin-top: 1rem;
+            cursor: pointer;
+            animation: pulse-emergency 2s infinite;
+        }
+
+        @keyframes pulse-emergency {
+            0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+            70% { box-shadow: 0 0 0 15px rgba(239, 68, 68, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+        }
+
+        /* Bottom Navigation */
+        .bottom-nav {
+            display: flex;
+            justify-content: space-around;
+            padding: 0.8rem;
+            background: white;
+            border-top: 1px solid #eee;
+            position: sticky;
+            bottom: 0;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.3rem;
+            cursor: pointer;
+            color: #999;
+            transition: all 0.3s ease;
+        }
+
+        .nav-item.active {
+            color: #FF6B35;
+        }
+
+        .nav-icon {
+            font-size: 1.5rem;
+        }
+
+        /* History */
+        .history-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            background: #f9f9f9;
+            border-radius: 15px;
+            margin-bottom: 0.8rem;
+            color: #333;
+        }
+
+        /* Report Modal */
+        .report-form {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            border-radius: 25px 25px 0 0;
+            z-index: 2000;
+            padding: 1.5rem;
+            display: none;
+            color: #333;
+            box-shadow: 0 -10px 40px rgba(0,0,0,0.3);
+        }
+
+        .report-form.active {
+            display: block;
+        }
+
+        .upload-area {
+            border: 2px dashed #ddd;
+            border-radius: 15px;
+            padding: 2rem;
+            text-align: center;
+            margin: 1rem 0;
+            cursor: pointer;
+        }
+
+        /* Favorite addresses */
+        .favorite-address {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            background: #f9f9f9;
+            border-radius: 15px;
+            margin-bottom: 0.8rem;
+            cursor: pointer;
+            color: #333;
+        }
     </style>
 </head>
 <body>
-    <h2>🚖 Pedir Mototaxi</h2>
-    <input type="text" id="name" placeholder="Tu nombre"><br>
-    <input type="text" id="origin" placeholder="Dirección de recogida"><br>
-    <input type="text" id="dest" placeholder="Destino"><br>
-    <button onclick="solicitar()">Solicitar viaje</button>
-    <p id="status"></p>
+    <div class="mobile-container">
+        <!-- Header -->
+        <header class="app-header">
+            <div class="logo-text">
+                🏍️ Zaachila Moto
+            </div>
+            <div class="profile-avatar" onclick="showProfile()">
+                C
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <div id="mainScreen">
+            <!-- Map -->
+            <div class="map-wrapper">
+                <div id="clientMap"></div>
+                <div class="map-overlay">
+                    <button class="map-btn" onclick="centerMap()">📍</button>
+                    <button class="map-btn" onclick="zoomIn()">➕</button>
+                    <button class="map-btn" onclick="zoomOut()">➖</button>
+                </div>
+            </div>
+
+            <!-- Request Panel -->
+            <div class="request-panel" id="requestPanel">
+                <h3 style="color:#333;margin-bottom:1rem;">📍 Solicitar Mototaxi</h3>
+                
+                <div class="input-group">
+                    <div class="location-dot"></div>
+                    <input type="text" id="pickupInput" placeholder="¿Dónde estás?" value="Mi ubicación actual" readonly>
+                    <button style="background:none;border:none;cursor:pointer;" onclick="getCurrentLocation()">🎯</button>
+                </div>
+
+                <div class="input-group">
+                    <div class="location-dot destiny"></div>
+                    <input type="text" id="destinyInput" placeholder="¿A dónde vas?">
+                    <button style="background:none;border:none;cursor:pointer;" onclick="showFavorites()">⭐</button>
+                </div>
+
+                <button class="btn-request" id="requestBtn" onclick="requestService()">
+                    🏍️ Solicitar Ahora
+                </button>
+
+                <!-- Estimated Fare -->
+                <div id="estimatedFare" style="text-align:center;margin-top:1rem;color:#666;display:none;">
+                    Tarifa estimada: <strong style="color:#FF6B35;">$35 - $45</strong>
+                </div>
+
+                <!-- Nearby Drivers -->
+                <div class="nearby-drivers" id="nearbyDrivers">
+                    <h4 style="color:#333;margin-bottom:0.8rem;">🏍️ Mototaxis cercanos</h4>
+                    <div class="driver-card" onclick="selectDriver('001')">
+                        <div class="driver-photo">👤</div>
+                        <div class="driver-info">
+                            <div class="driver-name">Juan Pérez</div>
+                            <div class="driver-distance">📍 A 350m de ti</div>
+                            <div class="driver-rating">⭐ 4.9</div>
+                        </div>
+                        <div style="font-size:0.9rem;color:#10B981;">● Disponible</div>
+                    </div>
+
+                    <div class="driver-card" onclick="selectDriver('002')">
+                        <div class="driver-photo">👩</div>
+                        <div class="driver-info">
+                            <div class="driver-name">María López</div>
+                            <div class="driver-distance">📍 A 500m de ti</div>
+                            <div class="driver-rating">⭐ 4.7</div>
+                        </div>
+                        <div style="font-size:0.9rem;color:#10B981;">● Disponible</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Active Service Panel -->
+            <div id="activeServicePanel" style="display:none;padding:1.5rem;">
+                <div class="active-service">
+                    <h3 style="margin-bottom:1rem;">🚀 Servicio en Curso</h3>
+                    <div class="driver-detail">
+                        <div style="width:60px;height:60px;border-radius:50%;background:rgba(255,255,255,0.3);display:flex;align-items:center;justify-content:center;font-size:2rem;">👤</div>
+                        <div>
+                            <div style="font-weight:700;font-size:1.2rem;">Juan Pérez</div>
+                            <div>Moto: XYZ-123</div>
+                            <div>⭐ 4.9</div>
+                        </div>
+                    </div>
+
+                    <div class="status-timeline">
+                        <div class="status-step">
+                            <div class="status-icon active">🏍️</div>
+                            <small>En camino</small>
+                        </div>
+                        <div class="status-step">
+                            <div class="status-icon">📍</div>
+                            <small>Recogida</small>
+                        </div>
+                        <div class="status-step">
+                            <div class="status-icon">🏁</div>
+                            <small>Destino</small>
+                        </div>
+                    </div>
+
+                    <div style="background:rgba(255,255,255,0.2);padding:1rem;border-radius:10px;margin:1rem 0;">
+                        <div>🕐 Llegada estimada: <strong>3 min</strong></div>
+                        <div>💰 Tarifa: <strong>$40 MXN</strong></div>
+                    </div>
+
+                    <button class="emergency-btn" onclick="emergencyAlert()">
+                        🆘 BOTÓN DE EMERGENCIA
+                    </button>
+                </div>
+
+                <button class="btn-request" style="background:#10B981;margin-top:1rem;" onclick="reportLostItem()">
+                    📦 Reportar Objeto Olvidado
+                </button>
+            </div>
+        </div>
+
+        <!-- History Screen -->
+        <div id="historyScreen" style="display:none;padding:1.5rem;">
+            <h3 style="color:#333;margin-bottom:1rem;">📋 Historial de Viajes</h3>
+            <div class="history-item">
+                <div>🏍️</div>
+                <div style="flex:1;">
+                    <div style="font-weight:700;">Centro → Mercado</div>
+                    <div style="font-size:0.9rem;color:#666;">15 Mar 2024 - $35</div>
+                </div>
+                <div>⭐ 5</div>
+            </div>
+            <div class="history-item">
+                <div>🏍️</div>
+                <div style="flex:1;">
+                    <div style="font-weight:700;">Parque → Iglesia</div>
+                    <div style="font-size:0.9rem;color:#666;">14 Mar 2024 - $40</div>
+                </div>
+                <div>⭐ 4</div>
+            </div>
+        </div>
+
+        <!-- Bottom Navigation -->
+        <div class="bottom-nav">
+            <div class="nav-item active" onclick="switchScreen('main')">
+                <span class="nav-icon">🏠</span>
+                <small>Inicio</small>
+            </div>
+            <div class="nav-item" onclick="switchScreen('history')">
+                <span class="nav-icon">📋</span>
+                <small>Historial</small>
+            </div>
+            <div class="nav-item" onclick="showFavorites()">
+                <span class="nav-icon">⭐</span>
+                <small>Favoritos</small>
+            </div>
+            <div class="nav-item" onclick="showProfile()">
+                <span class="nav-icon">👤</span>
+                <small>Perfil</small>
+            </div>
+        </div>
+
+        <!-- Chat Modal -->
+        <div class="chat-modal" id="chatModal">
+            <div class="chat-modal-header">
+                <span>💬 Chat con Juan Pérez</span>
+                <button onclick="closeChat()" style="background:none;border:none;color:white;font-size:1.5rem;cursor:pointer;">✕</button>
+            </div>
+            <div class="chat-modal-body" id="chatBody">
+                <div style="margin-bottom:1rem;">
+                    <div style="background:#f0f0f0;padding:0.8rem;border-radius:15px;display:inline-block;max-width:80%;">
+                        Ya voy en camino 🏍️
+                    </div>
+                </div>
+            </div>
+            <div class="chat-modal-input">
+                <input type="text" id="chatMessageInput" placeholder="Escribe un mensaje...">
+                <button onclick="sendMessage()" style="background:#FF6B35;color:white;border:none;padding:0.8rem 1.2rem;border-radius:25px;cursor:pointer;">Enviar</button>
+            </div>
+        </div>
+
+        <!-- Report Form -->
+        <div class="report-form" id="reportForm">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
+                <h3>📦 Reportar Objeto Olvidado</h3>
+                <button onclick="closeReport()" style="background:none;border:none;font-size:1.5rem;cursor:pointer;">✕</button>
+            </div>
+            <div class="form-group">
+                <label>Descripción del objeto</label>
+                <textarea class="form-control" rows="3" placeholder="Describe el objeto que olvidaste..." style="width:100%;padding:0.8rem;border:1px solid #ddd;border-radius:10px;"></textarea>
+            </div>
+            <div class="upload-area" onclick="uploadPhoto()">
+                📸 Toca para subir fotos
+            </div>
+            <button class="btn-request" onclick="submitReport()">Enviar Reporte</button>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
-        function solicitar() {
-            const name = document.getElementById('name').value;
-            const origin = document.getElementById('origin').value;
-            const dest = document.getElementById('dest').value;
-            if (!name || !origin || !dest) return alert('Llena todos los campos');
-            const viaje = {
-                id: 'T' + Date.now(),
-                customer: name,
-                origin,
-                dest,
-                fare: Math.floor(Math.random() * 50) + 20,
-                status: 'Solicitado',
-                driver: null,
-                date: new Date().toLocaleString()
-            };
-            let viajes = JSON.parse(localStorage.getItem('mototaxi_pasajero_viajes') || '[]');
-            viajes.push(viaje);
-            localStorage.setItem('mototaxi_pasajero_viajes', JSON.stringify(viajes));
-            document.getElementById('status').innerHTML = '✅ Viaje solicitado. ID: ' + viaje.id;
+        // Initialize Map
+        const clientMap = L.map('clientMap').setView([16.9516, -96.7491], 15);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap'
+        }).addTo(clientMap);
+
+        // User marker
+        let userMarker = L.marker([16.9516, -96.7491], {
+            icon: L.divIcon({
+                className: 'user-marker',
+                html: '<div style="background:#FF6B35;color:white;padding:5px 10px;border-radius:20px;font-weight:700;">📍 Tú</div>',
+                iconSize: [60, 30]
+            })
+        }).addTo(clientMap);
+
+        // Nearby drivers markers
+        const nearbyDrivers = [
+            { id: 1, name: 'Juan', lat: 16.9520, lng: -96.7485, available: true },
+            { id: 2, name: 'María', lat: 16.9510, lng: -96.7498, available: true }
+        ];
+
+        nearbyDrivers.forEach(driver => {
+            L.marker([driver.lat, driver.lng], {
+                icon: L.divIcon({
+                    className: 'driver-marker',
+                    html: '<div style="background:#10B981;color:white;padding:5px;border-radius:50%;width:30px;height:30px;display:flex;align-items:center;justify-content:center;">🏍️</div>',
+                    iconSize: [30, 30]
+                })
+            }).addTo(clientMap).bindPopup(`<b>${driver.name}</b><br>Disponible`);
+        });
+
+        // Get current location
+        function getCurrentLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        const { latitude, longitude } = position.coords;
+                        clientMap.setView([latitude, longitude], 15);
+                        userMarker.setLatLng([latitude, longitude]);
+                        document.getElementById('pickupInput').value = 'Ubicación actualizada';
+                        calculateEstimatedFare();
+                    },
+                    (error) => {
+                        alert('No se pudo obtener tu ubicación. Verifica los permisos.');
+                    }
+                );
+            }
         }
+
+        // Calculate estimated fare
+        function calculateEstimatedFare() {
+            const destiny = document.getElementById('destinyInput').value;
+            if (destiny) {
+                document.getElementById('estimatedFare').style.display = 'block';
+            }
+        }
+
+        // Request service
+        function requestService() {
+            const destiny = document.getElementById('destinyInput').value;
+            if (!destiny) {
+                alert('Por favor indica tu destino');
+                return;
+            }
+
+            if (confirm('¿Confirmas solicitar mototaxi por $40 aprox.?')) {
+                document.getElementById('requestPanel').style.display = 'none';
+                document.getElementById('activeServicePanel').style.display = 'block';
+                // Simulate driver acceptance
+                setTimeout(() => {
+                    alert('✅ ¡Juan Pérez ha aceptado tu servicio!');
+                    openChat();
+                }, 3000);
+            }
+        }
+
+        // Select specific driver
+        function selectDriver(driverId) {
+            alert(`Has seleccionado al chofer #${driverId}. Indica tu destino para continuar.`);
+        }
+
+        // Open chat
+        function openChat() {
+            document.getElementById('chatModal').classList.add('active');
+        }
+
+        function closeChat() {
+            document.getElementById('chatModal').classList.remove('active');
+        }
+
+        function sendMessage() {
+            const input = document.getElementById('chatMessageInput');
+            const message = input.value.trim();
+            if (message) {
+                const chatBody = document.getElementById('chatBody');
+                chatBody.innerHTML += `
+                    <div style="margin-bottom:1rem;text-align:right;">
+                        <div style="background:#FF6B35;color:white;padding:0.8rem;border-radius:15px;display:inline-block;max-width:80%;">
+                            ${message}
+                        </div>
+                    </div>
+                `;
+                input.value = '';
+                chatBody.scrollTop = chatBody.scrollHeight;
+            }
+        }
+
+        // Emergency
+        function emergencyAlert() {
+            if (confirm('🆘 ¿Estás seguro de activar la alerta de emergencia?')) {
+                alert('🚨 Alerta enviada a las autoridades y al administrador. Mantén la calma.');
+            }
+        }
+
+        // Report lost item
+        function reportLostItem() {
+            document.getElementById('reportForm').classList.add('active');
+        }
+
+        function closeReport() {
+            document.getElementById('reportForm').classList.remove('active');
+        }
+
+        function uploadPhoto() {
+            alert('📸 Selecciona fotos del objeto (simulación)');
+        }
+
+        function submitReport() {
+            alert('✅ Reporte enviado. El chofer será notificado.');
+            closeReport();
+        }
+
+        // Switch screens
+        function switchScreen(screen) {
+            document.getElementById('mainScreen').style.display = screen === 'main' ? 'block' : 'none';
+            document.getElementById('historyScreen').style.display = screen === 'history' ? 'block' : 'none';
+            
+            document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+            event.target.closest('.nav-item').classList.add('active');
+        }
+
+        // Map controls
+        function centerMap() {
+            clientMap.setView([16.9516, -96.7491], 15);
+        }
+
+        function zoomIn() {
+            clientMap.zoomIn();
+        }
+
+        function zoomOut() {
+            clientMap.zoomOut();
+        }
+
+        // Show favorites
+        function showFavorites() {
+            alert('⭐ Direcciones favoritas:\n\n🏠 Casa: Calle Principal #123\n🏢 Trabajo: Mercado Municipal');
+        }
+
+        // Show profile
+        function showProfile() {
+            alert('👤 Mi Perfil\n\nNombre: Cliente Zaachila\nTeléfono: 951-123-4567\nViajes: 25');
+        }
+
+        // Initialize
+        getCurrentLocation();
+        document.getElementById('destinyInput').addEventListener('input', calculateEstimatedFare);
+
+        console.log('🏍️ Zaachila Moto - Cliente App Ready');
     </script>
 </body>
 </html>
