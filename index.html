@@ -1,27 +1,29 @@
-// ========== REEMPLAZAR FUNCIÓN escucharMiServicio ==========
+// ========== CLIENTE: REEMPLAZAR escucharMiServicio ==========
 function escucharMiServicio(serviceId) {
     database.ref(`servicios/${serviceId}`).on('value', (snap) => {
         const servicio = snap.val();
         if (!servicio) return;
 
-        console.log('📋 Estado:', servicio.estado);
+        console.log('📋 Estado recibido:', servicio.estado, 'Tarifa:', servicio.tarifa_propuesta);
 
         if (servicio.estado === 'tarifa_propuesta') {
-            // Chofer aceptó y propuso tarifa - mostrar al cliente
+            // Mostrar datos del chofer
             document.getElementById('activeDriverName').textContent = servicio.choferNombre || 'Chofer';
             document.getElementById('activeDriverPlate').textContent = 'Placa: ' + (servicio.choferPlaca || '---');
             document.getElementById('activeDriverRating').textContent = '⭐ ' + (servicio.choferRating || 'Nuevo');
+            
+            const tarifa = servicio.tarifa_propuesta || servicio.tarifa_estimada || 40;
+            document.getElementById('fareDisplay').textContent = '$' + tarifa;
             document.getElementById('etaDisplay').textContent = 'Por confirmar';
-            document.getElementById('fareDisplay').textContent = '$' + (servicio.tarifa_propuesta || servicio.tarifa_estimada || '40');
             document.getElementById('distanceDisplay').textContent = '~1 km';
             
-            // Mostrar modal de aceptación de tarifa
-            mostrarConfirmacionTarifa(serviceId, servicio);
+            // Mostrar confirmación de tarifa
+            mostrarConfirmacionTarifa(serviceId, servicio, tarifa);
         }
         else if (servicio.estado === 'aceptado') {
             document.getElementById('stepCircle1').classList.add('active');
             document.getElementById('etaDisplay').textContent = '3-5 min';
-            showToast('✅ Tarifa aceptada - Chofer en camino');
+            showToast('✅ Chofer en camino');
         }
         else if (servicio.estado === 'en_camino') {
             document.getElementById('stepCircle1').classList.add('completed');
@@ -39,28 +41,65 @@ function escucharMiServicio(serviceId) {
             setTimeout(resetearApp, 5000);
         }
         else if (servicio.estado === 'cancelado' || servicio.estado === 'rechazado') {
-            showToast('❌ Servicio no disponible. Busca otro mototaxi.');
+            showToast('❌ Servicio no disponible');
             resetearApp();
         }
     });
 }
 
-// ========== AGREGAR FUNCIÓN DE CONFIRMACIÓN DE TARIFA ==========
-function mostrarConfirmacionTarifa(serviceId, servicio) {
-    const tarifa = servicio.tarifa_propuesta || servicio.tarifa_estimada || 40;
+// ========== CLIENTE: AGREGAR CONFIRMACIÓN DE TARIFA CON MODAL ==========
+function mostrarConfirmacionTarifa(serviceId, servicio, tarifa) {
     const choferNombre = servicio.choferNombre || 'Chofer';
+    const choferPlaca = servicio.choferPlaca || '---';
+    const choferRating = servicio.choferRating || 'Nuevo';
     
-    if (confirm('💰 ' + choferNombre + ' aceptó tu servicio.\n\nTarifa propuesta: $' + tarifa + ' MXN\n\n¿Aceptas esta tarifa?')) {
-        // Cliente acepta la tarifa
+    // Crear modal de confirmación
+    const modal = document.createElement('div');
+    modal.style.cssText = `
+        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(0,0,0,0.85); z-index: 9999;
+        display: flex; align-items: center; justify-content: center;
+    `;
+    
+    modal.innerHTML = `
+        <div style="background:#1A1721; border:1px solid #2D2938; border-radius:20px; padding:1.5rem; width:90%; max-width:340px; text-align:center; color:#fff;">
+            <div style="font-size:3rem; margin-bottom:0.5rem;">🏍️</div>
+            <h3 style="margin-bottom:0.3rem;">${choferNombre}</h3>
+            <p style="color:#B0B0B0; font-size:0.85rem; margin-bottom:0.3rem;">${choferPlaca} · ⭐ ${choferRating}</p>
+            
+            <div style="background:#211D2A; border-radius:14px; padding:1rem; margin:1rem 0;">
+                <div style="font-size:0.8rem; color:#B0B0B0; margin-bottom:0.3rem;">TARIFA PROPUESTA</div>
+                <div style="font-size:2.2rem; font-weight:800; color:#6C5CE7;">$${tarifa} <span style="font-size:0.9rem;color:#B0B0B0;">MXN</span></div>
+                <div style="font-size:0.75rem; color:#707070; margin-top:0.3rem;">Pago en efectivo</div>
+            </div>
+            
+            <p style="font-size:0.8rem; color:#FFA502; margin-bottom:1rem;">⚠️ Confirma para que el chofer vaya a recogerte</p>
+            
+            <button id="btnAcceptFare" style="width:100%; padding:0.8rem; background:#00C897; color:#000; border:none; border-radius:12px; font-weight:700; font-size:0.9rem; cursor:pointer; margin-bottom:0.5rem;">
+                ✅ Aceptar tarifa
+            </button>
+            <button id="btnRejectFare" style="width:100%; padding:0.8rem; background:transparent; border:1px solid #FF4757; color:#FF4757; border-radius:12px; font-weight:700; font-size:0.9rem; cursor:pointer;">
+                ❌ Rechazar
+            </button>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+    
+    // Eventos de los botones
+    modal.querySelector('#btnAcceptFare').onclick = () => {
+        modal.remove();
         database.ref(`servicios/${serviceId}`).update({
             estado: 'aceptado',
             cliente_acepta_tarifa: true,
             timestamp_aceptacion: firebase.database.ServerValue.TIMESTAMP
         }).then(() => {
-            showToast('✅ Tarifa aceptada - Chofer viene en camino');
+            showToast('✅ Tarifa aceptada');
         });
-    } else {
-        // Cliente rechaza la tarifa
+    };
+    
+    modal.querySelector('#btnRejectFare').onclick = () => {
+        modal.remove();
         database.ref(`servicios/${serviceId}`).update({
             estado: 'cancelado',
             motivo: 'Cliente rechazó tarifa',
@@ -69,5 +108,12 @@ function mostrarConfirmacionTarifa(serviceId, servicio) {
             showToast('❌ Servicio cancelado');
             resetearApp();
         });
-    }
+    };
+    
+    // También cerrar al hacer clic fuera
+    modal.onclick = (e) => {
+        if (e.target === modal) {
+            // No cerrar, obligar a elegir
+        }
+    };
 }
