@@ -9,659 +9,273 @@
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
     
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
     
     <style>
-        :root {
-            --bg: #0a0a0f; --bg2: #13111a; --card: #1a1722; --acc: #6C5CE7;
-            --green: #00C897; --red: #FF4757; --warn: #FFA502; --txt: #fff;
-            --txt2: #aaa; --txt3: #666; --bd: #252130; --r: 12px; --r2: 18px;
-        }
+        :root{--bg:#0a0a0f;--bg2:#13111a;--card:#1a1722;--acc:#6C5CE7;--green:#00C897;--red:#FF4757;--warn:#FFA502;--txt:#fff;--txt2:#aaa;--txt3:#666;--bd:#252130;--r:12px;--r2:18px}
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{font-family:'Inter','Segoe UI',sans-serif;background:#000;color:var(--txt);height:100vh;overflow:hidden}
+        
+        .app{max-width:430px;margin:0 auto;height:100vh;background:var(--bg);display:flex;flex-direction:column}
+        @media(min-width:431px){body{display:flex;justify-content:center;align-items:center;padding:20px}.app{border-radius:30px;height:90vh;max-height:800px;box-shadow:0 0 50px rgba(108,92,231,.1)}}
 
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        .topbar{background:var(--bg2);padding:.5rem .8rem;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--bd);flex-shrink:0;z-index:10}
+        .topbar h1{font-size:.9rem}
+        .topbar h1 span{color:var(--acc)}
+        .status{font-size:.6rem;display:flex;align-items:center;gap:.3rem;color:var(--txt2)}
+        .status::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--green)}
+        .status.off::before{background:var(--red)}
 
-        body {
-            font-family: 'Inter', 'Segoe UI', sans-serif;
-            background: #000;
-            color: var(--txt);
-            height: 100vh;
-            overflow: hidden;
-            -webkit-tap-highlight-color: transparent;
-        }
+        .map-wrap{flex:1;min-height:0;position:relative}
+        #clientMap{width:100%;height:100%;position:absolute;top:0;left:0}
+        .map-btns{position:absolute;top:10px;right:10px;z-index:5;display:flex;flex-direction:column;gap:4px}
+        .map-btns button{width:30px;height:30px;border-radius:8px;background:var(--card);border:1px solid var(--bd);color:var(--txt);cursor:pointer;font-size:.7rem}
 
-        .app {
-            max-width: 430px;
-            margin: 0 auto;
-            height: 100vh;
-            background: var(--bg);
-            display: flex;
-            flex-direction: column;
-            position: relative;
-        }
+        .sheet{background:var(--bg2);border-radius:var(--r2) var(--r2) 0 0;padding:.7rem .9rem;border:1px solid var(--bd);border-bottom:none;flex-shrink:0;max-height:45vh;overflow-y:auto}
+        .sheet-handle{width:30px;height:3px;background:var(--bd);border-radius:2px;margin:0 auto .5rem}
 
-        @media (min-width: 431px) {
-            body { display: flex; justify-content: center; align-items: center; padding: 20px; }
-            .app { border-radius: 30px; height: 90vh; max-height: 800px; box-shadow: 0 0 50px rgba(108,92,231,.1); }
-        }
+        .inp-group{background:var(--card);border:1px solid var(--bd);border-radius:var(--r);padding:.5rem .7rem;margin-bottom:.4rem;display:flex;align-items:center;gap:.5rem}
+        .inp-group i{font-size:.7rem;width:16px;text-align:center}
+        .inp-group input{flex:1;background:0;border:0;color:var(--txt);font-size:.8rem;outline:0}
+        .inp-group input::placeholder{color:var(--txt3)}
 
-        /* Topbar */
-        .topbar {
-            background: var(--bg2); padding: 0.6rem 1rem;
-            display: flex; align-items: center; justify-content: space-between;
-            border-bottom: 1px solid var(--bd); flex-shrink: 0; z-index: 10;
-        }
+        .btn{width:100%;padding:.6rem;border-radius:var(--r);font-weight:700;font-size:.8rem;cursor:pointer;border:0;margin-top:.3rem}
+        .btn-p{background:var(--acc);color:#fff}
+        .btn-p:disabled{opacity:.4}
+        .btn-o{background:0;border:1px solid var(--bd);color:var(--txt2)}
+        .btn-r{background:rgba(255,71,87,.1);color:var(--red);border:1px solid rgba(255,71,87,.3)}
+        .btn-g{background:var(--green);color:#000}
 
-        .topbar h1 { font-size: 1rem; display: flex; align-items: center; gap: 0.4rem; }
-        .topbar h1 span { color: var(--acc); }
+        .d-item{background:var(--card);border:1px solid var(--bd);border-radius:var(--r);padding:.5rem;display:flex;align-items:center;gap:.5rem;margin-bottom:.3rem}
+        .d-avatar{width:32px;height:32px;border-radius:50%;background:var(--acc);display:flex;align-items:center;justify-content:center;font-size:.8rem;flex-shrink:0}
+        .d-info{flex:1;min-width:0}
+        .d-name{font-size:.75rem;font-weight:600}
+        .d-meta{font-size:.6rem;color:var(--txt3)}
+        .d-badge{font-size:.55rem;padding:.15rem .4rem;border-radius:8px;background:rgba(0,200,151,.1);color:var(--green);font-weight:700}
 
-        .status {
-            font-size: 0.65rem; display: flex; align-items: center; gap: 0.3rem; color: var(--txt2);
-        }
+        .steps{display:flex;gap:.3rem;margin:.5rem 0}
+        .step{flex:1;text-align:center;padding:.4rem;background:var(--bg2);border-radius:var(--r);border:1px solid var(--bd);font-size:.6rem}
+        .step.on{border-color:var(--acc);background:rgba(108,92,231,.1)}
+        .step.done{border-color:var(--green)}
+        .step .sn{font-size:.8rem;font-weight:700}
+        .info-row{display:flex;justify-content:space-around;text-align:center;margin:.5rem 0}
+        .info-row .v{font-weight:700;font-size:.8rem}
+        .info-row .l{font-size:.55rem;color:var(--txt3)}
 
-        .status::before {
-            content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--green);
-        }
+        .modal-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.9);z-index:999;display:flex;align-items:center;justify-content:center}
+        .modal-box{background:var(--bg2);border:1px solid var(--bd);border-radius:var(--r2);padding:1.2rem;width:90%;max-width:320px;text-align:center}
+        .modal-box .price{font-size:2rem;font-weight:800;color:var(--acc);margin:.4rem 0}
 
-        .status.off::before { background: var(--red); }
+        .chat-modal{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.95);z-index:999;display:flex;flex-direction:column}
+        .chat-header{background:var(--bg2);padding:.6rem .9rem;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--bd)}
+        .chat-body{flex:1;overflow-y:auto;padding:.7rem;display:flex;flex-direction:column;gap:.4rem}
+        .msg{max-width:80%;padding:.5rem .6rem;border-radius:12px;font-size:.7rem}
+        .msg.sent{background:var(--acc);align-self:flex-end}
+        .msg.recv{background:var(--card);align-self:flex-start;border:1px solid var(--bd)}
+        .chat-input-wrap{padding:.5rem;display:flex;gap:.3rem;border-top:1px solid var(--bd);background:var(--bg2)}
+        .chat-input-wrap input{flex:1;padding:.5rem;background:var(--card);border:1px solid var(--bd);border-radius:var(--r);color:var(--txt);outline:0;font-size:.75rem}
+        .chat-input-wrap button{padding:.5rem .8rem;background:var(--acc);color:#fff;border:0;border-radius:var(--r);font-weight:700;cursor:pointer}
 
-        /* Map */
-        .map-wrap {
-            flex: 1;
-            min-height: 0;
-            position: relative;
-            z-index: 1;
-        }
+        .stars{display:flex;justify-content:center;gap:.3rem;margin:.8rem 0}
+        .stars span{font-size:2rem;cursor:pointer;color:var(--bd);transition:.2s}
+        .stars span.sel{color:var(--warn)}
 
-        #clientMap {
-            width: 100%;
-            height: 100%;
-            position: absolute;
-            top: 0;
-            left: 0;
-        }
+        .toast{position:fixed;top:15px;left:50%;transform:translateX(-50%);background:var(--card);border:1px solid var(--bd);padding:.5rem .8rem;border-radius:var(--r);z-index:9999;font-size:.7rem;font-weight:600;animation:ti 2.5s ease forwards;pointer-events:none}
+        @keyframes ti{0%{opacity:0;transform:translateX(-50%) translateY(-10px)}10%{opacity:1;transform:translateX(-50%) translateY(0)}80%{opacity:1}100%{opacity:0}}
 
-        .map-btns {
-            position: absolute; top: 10px; right: 10px; z-index: 5;
-            display: flex; flex-direction: column; gap: 5px;
-        }
-
-        .map-btns button {
-            width: 32px; height: 32px; border-radius: 8px; background: var(--card);
-            border: 1px solid var(--bd); color: var(--txt); cursor: pointer; font-size: 0.8rem;
-        }
-
-        /* Bottom Sheet */
-        .sheet {
-            background: var(--bg2);
-            border-radius: var(--r2) var(--r2) 0 0;
-            padding: 0.8rem 1rem;
-            border: 1px solid var(--bd);
-            border-bottom: none;
-            flex-shrink: 0;
-            max-height: 50vh;
-            overflow-y: auto;
-            z-index: 10;
-            position: relative;
-        }
-
-        .sheet-handle {
-            width: 35px; height: 3px; background: var(--bd); border-radius: 2px;
-            margin: 0 auto 0.6rem;
-        }
-
-        /* Inputs */
-        .inp-group {
-            background: var(--card); border: 1px solid var(--bd); border-radius: var(--r);
-            padding: 0.6rem 0.8rem; margin-bottom: 0.5rem;
-            display: flex; align-items: center; gap: 0.5rem;
-        }
-
-        .inp-group i { font-size: 0.7rem; width: 18px; text-align: center; }
-        .inp-group .green { color: var(--green); }
-        .inp-group .red { color: var(--red); }
-
-        .inp-group input {
-            flex: 1; background: none; border: none; color: var(--txt);
-            font-size: 0.8rem; outline: none;
-        }
-
-        .inp-group input::placeholder { color: var(--txt3); }
-
-        /* Buttons */
-        .btn {
-            width: 100%; padding: 0.7rem; border-radius: var(--r); font-weight: 700;
-            font-size: 0.8rem; cursor: pointer; border: none; transition: 0.2s;
-        }
-
-        .btn-p { background: var(--acc); color: #fff; }
-        .btn-p:disabled { opacity: 0.4; cursor: not-allowed; }
-        .btn-o { background: none; border: 1px solid var(--bd); color: var(--txt2); }
-        .btn-r { background: rgba(255,71,87,.1); color: var(--red); border: 1px solid rgba(255,71,87,.3); }
-
-        /* Drivers */
-        .drivers { margin-top: 0.8rem; }
-        .drivers h4 {
-            font-size: 0.65rem; color: var(--txt3); text-transform: uppercase;
-            letter-spacing: 1px; margin-bottom: 0.5rem;
-        }
-
-        .d-item {
-            background: var(--card); border: 1px solid var(--bd); border-radius: var(--r);
-            padding: 0.6rem; display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.3rem;
-        }
-
-        .d-avatar {
-            width: 34px; height: 34px; border-radius: 50%; background: var(--acc);
-            display: flex; align-items: center; justify-content: center; font-size: 0.9rem; flex-shrink: 0;
-        }
-
-        .d-info { flex: 1; min-width: 0; }
-        .d-name { font-size: 0.75rem; font-weight: 600; }
-        .d-meta { font-size: 0.6rem; color: var(--txt3); }
-
-        .d-badge {
-            font-size: 0.55rem; padding: 0.15rem 0.4rem; border-radius: 8px;
-            background: rgba(0,200,151,.1); color: var(--green); font-weight: 700; flex-shrink: 0;
-        }
-
-        /* Active card */
-        .active-card {
-            background: var(--card); border: 1px solid var(--bd); border-radius: var(--r2);
-            padding: 0.8rem; margin-bottom: 0.6rem;
-        }
-
-        .driver-row {
-            display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.6rem;
-        }
-
-        .driver-av {
-            width: 40px; height: 40px; border-radius: 50%; background: var(--acc);
-            display: flex; align-items: center; justify-content: center; font-size: 1.1rem; flex-shrink: 0;
-        }
-
-        .driver-det { flex: 1; }
-        .driver-det .name { font-weight: 700; font-size: 0.85rem; }
-        .driver-det .sub { font-size: 0.65rem; color: var(--txt2); }
-
-        .steps { display: flex; gap: 0.3rem; margin: 0.6rem 0; }
-        .step {
-            flex: 1; text-align: center; padding: 0.4rem; background: var(--bg2);
-            border-radius: var(--r); border: 1px solid var(--bd); font-size: 0.6rem;
-        }
-
-        .step.on { border-color: var(--acc); background: rgba(108,92,231,.1); }
-        .step.done { border-color: var(--green); }
-        .step .s-num { font-size: 0.9rem; font-weight: 700; }
-
-        .info-row {
-            display: flex; justify-content: space-around; text-align: center; margin: 0.6rem 0;
-        }
-
-        .info-row .val { font-weight: 700; font-size: 0.8rem; }
-        .info-row .lbl { font-size: 0.55rem; color: var(--txt3); }
-
-        .empty { text-align: center; color: var(--txt3); padding: 1rem; font-size: 0.8rem; }
-
-        /* MODAL OVERLAY */
-        .modal-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,.9); z-index: 999;
-            display: flex; align-items: center; justify-content: center;
-        }
-
-        .modal-box {
-            background: var(--bg2); border: 1px solid var(--bd); border-radius: var(--r2);
-            padding: 1.5rem; width: 90%; max-width: 320px; text-align: center;
-        }
-
-        .modal-box .price { font-size: 2.2rem; font-weight: 800; color: var(--acc); margin: 0.5rem 0; }
-
-        /* CHAT MODAL */
-        .chat-modal {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,.95); z-index: 999;
-            display: flex; flex-direction: column;
-        }
-
-        .chat-header {
-            background: var(--bg2); padding: 0.8rem 1rem; display: flex;
-            align-items: center; justify-content: space-between; border-bottom: 1px solid var(--bd);
-        }
-
-        .chat-messages {
-            flex: 1; overflow-y: auto; padding: 1rem;
-            display: flex; flex-direction: column; gap: 0.6rem;
-        }
-
-        .msg {
-            max-width: 80%; padding: 0.6rem 0.8rem; border-radius: 14px; font-size: 0.8rem;
-        }
-
-        .msg.sent { background: var(--acc); align-self: flex-end; border-bottom-right-radius: 4px; }
-        .msg.recv { background: var(--card); align-self: flex-start; border-bottom-left-radius: 4px; border: 1px solid var(--bd); }
-
-        .chat-input-wrap {
-            padding: 0.6rem; display: flex; gap: 0.4rem; border-top: 1px solid var(--bd); background: var(--bg2);
-        }
-
-        .chat-input-wrap input {
-            flex: 1; padding: 0.6rem; background: var(--card); border: 1px solid var(--bd);
-            border-radius: var(--r); color: var(--txt); outline: none; font-size: 0.8rem;
-        }
-
-        .chat-input-wrap button {
-            padding: 0.6rem 1rem; background: var(--acc); color: #fff;
-            border: none; border-radius: var(--r); font-weight: 700; cursor: pointer;
-        }
-
-        /* Toast */
-        .toast {
-            position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
-            background: var(--card); border: 1px solid var(--bd); padding: 0.5rem 0.8rem;
-            border-radius: var(--r); z-index: 9999; font-size: 0.75rem; font-weight: 600;
-            animation: ti 2.5s ease forwards; pointer-events: none;
-        }
-
-        @keyframes ti {
-            0% { opacity: 0; transform: translateX(-50%) translateY(-10px); }
-            10% { opacity: 1; transform: translateX(-50%) translateY(0); }
-            80% { opacity: 1; }
-            100% { opacity: 0; }
-        }
+        .empty{text-align:center;color:var(--txt3);padding:1rem;font-size:.75rem}
+        .badge-new{background:var(--red);color:#fff;padding:2px 6px;border-radius:10px;font-size:.55rem;animation:pulse 1.5s infinite}
+        @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
     </style>
 </head>
 <body>
-    <div class="app">
-        <!-- Topbar -->
-        <header class="topbar">
-            <h1>🏍️ Zaachila <span>Moto</span></h1>
-            <div class="status" id="connStatus">Conectado</div>
-        </header>
+<div class="app">
+    <header class="topbar">
+        <h1>🏍️ Zaachila <span>Moto</span></h1>
+        <div class="status" id="connStatus">Conectado</div>
+    </header>
 
-        <!-- Mapa -->
-        <div class="map-wrap">
-            <div id="clientMap"></div>
-            <div class="map-btns">
-                <button onclick="centerMap()"><i class="fa-solid fa-location-crosshairs"></i></button>
-                <button onclick="map.zoomIn()"><i class="fa-solid fa-plus"></i></button>
-                <button onclick="map.zoomOut()"><i class="fa-solid fa-minus"></i></button>
-            </div>
-        </div>
-
-        <!-- Panel Solicitud -->
-        <div class="sheet" id="requestSheet">
-            <div class="sheet-handle"></div>
-            <div class="inp-group">
-                <i class="fa-solid fa-circle green"></i>
-                <input id="pickup" placeholder="Tu ubicación" readonly>
-            </div>
-            <div class="inp-group">
-                <i class="fa-solid fa-location-dot red"></i>
-                <input id="destiny" placeholder="¿A dónde vas?">
-            </div>
-            <button class="btn btn-p" id="reqBtn" onclick="requestRide()">Solicitar Mototaxi</button>
-
-            <div class="drivers">
-                <h4>Disponibles</h4>
-                <div id="driversList"><div class="empty">Cargando...</div></div>
-            </div>
-        </div>
-
-        <!-- Panel Servicio Activo -->
-        <div class="sheet" id="activeSheet" style="display:none">
-            <div class="sheet-handle"></div>
-            <div class="active-card">
-                <div class="driver-row">
-                    <div class="driver-av">🏍️</div>
-                    <div class="driver-det">
-                        <div class="name" id="aName">---</div>
-                        <div class="sub" id="aPlate">---</div>
-                        <div class="sub" id="aRating">⭐ ---</div>
-                    </div>
-                </div>
-                <div class="steps">
-                    <div class="step on" id="s1"><div class="s-num">1</div>En camino</div>
-                    <div class="step" id="s2"><div class="s-num">2</div>Recogida</div>
-                    <div class="step" id="s3"><div class="s-num">3</div>Destino</div>
-                </div>
-                <div class="info-row">
-                    <div><div class="val" id="iEta">---</div><div class="lbl">Llegada</div></div>
-                    <div><div class="val" id="iFare">$0</div><div class="lbl">Tarifa</div></div>
-                    <div><div class="val" id="iDist">---</div><div class="lbl">Distancia</div></div>
-                </div>
-            </div>
-            <button class="btn btn-o" onclick="openChat()" style="margin-bottom:0.3rem">💬 Chat</button>
-            <button class="btn btn-o" onclick="report()" style="margin-bottom:0.3rem">📦 Reportar objeto</button>
-            <button class="btn btn-r" onclick="cancel()">Cancelar servicio</button>
+    <div class="map-wrap">
+        <div id="clientMap"></div>
+        <div class="map-btns">
+            <button onclick="centerMap()"><i class="fa-solid fa-location-crosshairs"></i></button>
+            <button onclick="map.zoomIn()">+</button>
+            <button onclick="map.zoomOut()">-</button>
         </div>
     </div>
 
-    <script>
-        // ========== FIREBASE ==========
-        const fb = {
-            apiKey: "AIzaSyCBXBPMz2OZ3U2KfTaU-uHCBhwmbnR7O40",
-            authDomain: "zaachilamoto.firebaseapp.com",
-            databaseURL: "https://zaachilamoto-default-rtdb.firebaseio.com",
-            projectId: "zaachilamoto",
-            storageBucket: "zaachilamoto.firebasestorage.app",
-            messagingSenderId: "559788509526",
-            appId: "1:559788509526:web:c751d8d22068f09041aef7"
-        };
+    <!-- SOLICITUD -->
+    <div class="sheet" id="requestSheet">
+        <div class="sheet-handle"></div>
+        <div class="inp-group"><i class="fa-solid fa-circle" style="color:var(--green)"></i><input id="pickup" placeholder="Tu ubicación" readonly></div>
+        <div class="inp-group"><i class="fa-solid fa-location-dot" style="color:var(--red)"></i><input id="destiny" placeholder="¿A dónde vas?"></div>
+        <button class="btn btn-p" id="reqBtn" onclick="requestRide()">Solicitar Mototaxi</button>
+        <div style="margin-top:.8rem"><h4 style="font-size:.65rem;color:var(--txt3);text-transform:uppercase;letter-spacing:1px;margin-bottom:.4rem">Disponibles</h4><div id="driversList"><div class="empty">Cargando...</div></div></div>
+    </div>
 
-        firebase.initializeApp(fb);
-        const auth = firebase.auth();
-        const db = firebase.database();
+    <!-- ACTIVO -->
+    <div class="sheet" id="activeSheet" style="display:none">
+        <div class="sheet-handle"></div>
+        <div id="activeContent">
+            <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.5rem">
+                <div style="width:36px;height:36px;border-radius:50%;background:var(--acc);display:flex;align-items:center;justify-content:center;font-size:1rem">🏍️</div>
+                <div><div style="font-weight:700;font-size:.8rem" id="aName">---</div><div style="font-size:.6rem;color:var(--txt2)" id="aPlate">---</div></div>
+            </div>
+            <div class="steps">
+                <div class="step on" id="s1"><div class="sn">1</div>En camino</div>
+                <div class="step" id="s2"><div class="sn">2</div>Recogida</div>
+                <div class="step" id="s3"><div class="sn">3</div>Destino</div>
+            </div>
+            <div class="info-row">
+                <div><div class="v" id="iEta">---</div><div class="l">Llegada</div></div>
+                <div><div class="v" id="iFare">$0</div><div class="l">Tarifa</div></div>
+                <div><div class="v" id="iDist">---</div><div class="l">Distancia</div></div>
+            </div>
+        </div>
+        <button class="btn btn-o" onclick="openChat()">💬 Chat <span id="chatBadge" class="badge-new" style="display:none">Nuevo</span></button>
+        <button class="btn btn-r" onclick="cancel()">Cancelar servicio</button>
+    </div>
+</div>
 
-        // ========== VARIABLES ==========
-        let map, userMarker, driverMarkers = [];
-        let userId = null, serviceId = null;
-        let userPos = { lat: 16.9516, lng: -96.7491 };
-        const ZA = [16.9516, -96.7491];
+<script>
+const fb={apiKey:"AIzaSyCBXBPMz2OZ3U2KfTaU-uHCBhwmbnR7O40",authDomain:"zaachilamoto.firebaseapp.com",databaseURL:"https://zaachilamoto-default-rtdb.firebaseio.com",projectId:"zaachilamoto",storageBucket:"zaachilamoto.firebasestorage.app",messagingSenderId:"559788509526",appId:"1:559788509526:web:c751d8d22068f09041aef7"};
+firebase.initializeApp(fb);
+const auth=firebase.auth(),db=firebase.database(),st=firebase.storage();
+let map,um,uid,sid,pos={lat:16.9516,lng:-96.7491},drM=[],chatOpen=false,rating=0;
+const ZA=[16.9516,-96.7491];
 
-        // ========== CONEXIÓN ==========
-        db.ref('.info/connected').on('value', snap => {
-            const el = document.getElementById('connStatus');
-            if (snap.val()) {
-                el.className = 'status';
-                el.textContent = 'Conectado';
-                authenticate();
-            } else {
-                el.className = 'status off';
-                el.textContent = 'Sin conexión';
-            }
+db.ref('.info/connected').on('value',s=>{
+    const el=document.getElementById('connStatus');
+    if(s.val()){el.className='status';el.textContent='Conectado';auth.signInAnonymously().then(u=>{uid=u.user.uid;loadDrivers();listenActive()}).catch(e=>console.error(e))}
+    else{el.className='status off';el.textContent='Sin conexión'}
+});
+
+function initMap(){
+    map=L.map('clientMap',{zoomControl:false,attributionControl:false}).setView(ZA,15);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OSM'}).addTo(map);
+    um=L.marker(ZA,{icon:L.divIcon({html:'<div style="background:#6C5CE7;width:12px;height:12px;border-radius:50%;border:2px solid #fff"></div>',iconSize:[16,16],iconAnchor:[8,8]})}).addTo(map);
+    setTimeout(()=>map.invalidateSize(),200);
+}
+
+function getLoc(){
+    if(navigator.geolocation)navigator.geolocation.getCurrentPosition(p=>{pos={lat:p.coords.latitude,lng:p.coords.longitude};um.setLatLng([pos.lat,pos.lng]);map.setView([pos.lat,pos.lng],16);document.getElementById('pickup').value='Ubicación actual'},()=>document.getElementById('pickup').value='Villa de Zaachila',{enableHighAccuracy:true})
+}
+
+function centerMap(){map.setView([pos.lat,pos.lng],16)}
+
+function loadDrivers(){
+    db.ref('choferes').orderByChild('estado').equalTo('activo').on('value',s=>{
+        const d=s.val();drM.forEach(m=>map.removeLayer(m));drM=[];let h='';
+        if(!d||!Object.keys(d).length){document.getElementById('driversList').innerHTML='<div class="empty">Sin disponibles</div>';return}
+        Object.entries(d).forEach(([id,c])=>{
+            if(c.ubicacion){const m=L.marker([c.ubicacion.lat,c.ubicacion.lng],{icon:L.divIcon({html:'<div style="background:#00C897;color:#000;padding:2px 6px;border-radius:8px;font-size:10px;font-weight:700">🏍️</div>',iconSize:[26,16],iconAnchor:[13,8]})}).addTo(map);drM.push(m)}
+            const dist=calcDist(pos.lat,pos.lng,c.ubicacion?.lat||ZA[0],c.ubicacion?.lng||ZA[1]);
+            h+=`<div class="d-item"><div class="d-avatar">🏍️</div><div class="d-info"><div class="d-name">${c.nombre||'Chofer'}</div><div class="d-meta">📍${dist.toFixed(1)}km · ⭐${c.calificacion||'Nuevo'}</div></div><span class="d-badge">DISP</span></div>`
         });
+        document.getElementById('driversList').innerHTML=h
+    })
+}
 
-        function authenticate() {
-            auth.signInAnonymously()
-                .then(u => { userId = u.user.uid; loadDrivers(); listenActive(); })
-                .catch(e => console.error(e));
+function requestRide(){
+    const dest=document.getElementById('destiny').value.trim();
+    if(!dest){toast('Indica tu destino');return}
+    const btn=document.getElementById('reqBtn');btn.disabled=true;btn.textContent='Buscando...';
+    const data={clienteId:uid,origen:{lat:pos.lat,lng:pos.lng,direccion:document.getElementById('pickup').value},destino:{lat:pos.lat+.001,lng:pos.lng+.001,direccion:dest},tarifa_estimada:Math.floor(Math.random()*25)+30,estado:'buscando',timestamp:firebase.database.ServerValue.TIMESTAMP};
+    const ref=db.ref('servicios').push();sid=ref.key;
+    ref.set(data).then(()=>{
+        document.getElementById('requestSheet').style.display='none';
+        document.getElementById('activeSheet').style.display='block';
+        listenService(sid);
+    }).catch(()=>{btn.disabled=false;btn.textContent='Solicitar Mototaxi'})
+}
+
+function listenService(id){
+    db.ref(`servicios/${id}`).on('value',s=>{
+        const v=s.val();if(!v)return;
+        if(v.estado==='tarifa_propuesta'){
+            document.getElementById('aName').textContent=v.choferNombre||'Chofer';
+            document.getElementById('aPlate').textContent=v.choferPlaca||'---';
+            document.getElementById('iFare').textContent='$'+(v.tarifa_propuesta||v.tarifa_estimada);
+            showFareModal(id,v);
+        }else if(v.estado==='aceptado'){document.getElementById('s1').classList.add('on');document.getElementById('iEta').textContent='3-5 min';document.getElementById('iDist').textContent='~1 km';toast('✅ Chofer en camino')}
+        else if(v.estado==='en_camino'){document.getElementById('s1').classList.add('done');document.getElementById('s2').classList.add('on')}
+        else if(v.estado==='en_servicio'){document.getElementById('s2').classList.add('done');document.getElementById('s3').classList.add('on')}
+        else if(v.estado==='completado'){document.getElementById('s3').classList.add('done');toast('✅ Completado');showRating(id,v)}
+        else if(v.estado==='cancelado'||v.estado==='rechazado'){toast('No disponible');reset()}
+    });
+    // Chat listener
+    db.ref(`chats/${id}`).on('child_added',snap=>{
+        const m=snap.val();
+        if(m.remitente==='chofer'&&!chatOpen){
+            document.getElementById('chatBadge').style.display='inline-block';
+            playSound('msg');
         }
+    });
+}
 
-        // ========== MAPA ==========
-        function initMap() {
-            map = L.map('clientMap', { zoomControl: false, attributionControl: false }).setView(ZA, 15);
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OSM' }).addTo(map);
+function listenActive(){
+    if(!uid)return;
+    db.ref('servicios').orderByChild('clienteId').equalTo(uid).limitToLast(1).on('child_added',s=>{
+        const v=s.val();if(v.estado!=='completado'&&v.estado!=='cancelado'){sid=s.key;document.getElementById('requestSheet').style.display='none';document.getElementById('activeSheet').style.display='block';listenService(sid)}
+    })
+}
 
-            userMarker = L.marker(ZA, {
-                icon: L.divIcon({
-                    html: '<div style="background:#6C5CE7;width:14px;height:14px;border-radius:50%;border:3px solid #fff;box-shadow:0 0 15px rgba(108,92,231,.6);"></div>',
-                    iconSize: [20, 20], iconAnchor: [10, 10]
-                })
-            }).addTo(map);
+function showFareModal(id,v){
+    document.querySelectorAll('.modal-overlay').forEach(m=>m.remove());
+    const fare=v.tarifa_propuesta||v.tarifa_estimada||40;
+    const m=document.createElement('div');m.className='modal-overlay';
+    m.innerHTML=`<div class="modal-box"><div style="font-size:2.5rem">🏍️</div><h3>${v.choferNombre||'Chofer'}</h3><p style="font-size:.7rem;color:var(--txt2)">${v.choferPlaca} · ⭐${v.choferRating}</p><div class="price">$${fare}<span style="font-size:.7rem;color:var(--txt2)"> MXN</span></div><p style="font-size:.6rem;color:var(--warn);margin:.3rem 0">Confirma para que el chofer vaya</p><button class="btn btn-p" id="btnOk">Aceptar tarifa</button><button class="btn btn-r" id="btnNo" style="margin-top:.3rem">Rechazar</button></div>`;
+    document.body.appendChild(m);
+    m.querySelector('#btnOk').onclick=()=>{m.remove();db.ref(`servicios/${id}`).update({estado:'aceptado',cliente_acepta_tarifa:true,ts:firebase.database.ServerValue.TIMESTAMP})};
+    m.querySelector('#btnNo').onclick=()=>{m.remove();db.ref(`servicios/${id}`).update({estado:'cancelado',motivo:'Cliente rechazó'});reset()}
+}
 
-            setTimeout(() => map.invalidateSize(), 200);
-        }
+function showRating(id,v){
+    document.querySelectorAll('.modal-overlay').forEach(m=>m.remove());
+    const m=document.createElement('div');m.className='modal-overlay';
+    m.innerHTML=`<div class="modal-box"><h3>⭐ Califica tu viaje</h3><p style="font-size:.7rem;color:var(--txt2);margin:.3rem 0">${v.choferNombre||'Chofer'}</p><div class="stars" id="stars">${[1,2,3,4,5].map(i=>`<span onclick="setRating(${i})">☆</span>`).join('')}</div><input type="text" id="rateComment" placeholder="Comentario (opcional)" style="width:100%;padding:.5rem;background:var(--card);border:1px solid var(--bd);border-radius:var(--r);color:var(--txt);font-size:.7rem;outline:0;margin-bottom:.5rem"><button class="btn btn-p" onclick="sendRating('${id}','${v.choferId}')">Enviar</button></div>`;
+    document.body.appendChild(m);
+    window.setRating=function(r){rating=r;document.querySelectorAll('#stars span').forEach((s,i)=>{s.textContent=i<r?'★':'☆';s.classList.toggle('sel',i<r)})}
+}
 
-        function getLocation() {
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(
-                    pos => {
-                        userPos = { lat: pos.coords.latitude, lng: pos.coords.longitude };
-                        userMarker.setLatLng([userPos.lat, userPos.lng]);
-                        map.setView([userPos.lat, userPos.lng], 16);
-                        document.getElementById('pickup').value = 'Ubicación actual';
-                    },
-                    () => document.getElementById('pickup').value = 'Villa de Zaachila, Oaxaca',
-                    { enableHighAccuracy: true, timeout: 10000 }
-                );
-            }
-        }
+window.sendRating=function(id,chId){
+    if(rating===0){toast('Selecciona estrellas');return}
+    const comment=document.getElementById('rateComment')?.value||'';
+    db.ref(`servicios/${id}/calificacion`).set({puntuacion:rating,comentario:comment,ts:firebase.database.ServerValue.TIMESTAMP});
+    if(chId)db.ref(`choferes/${chId}/calificacion`).transaction(c=>((c||0)*((db.ref(`choferes/${chId}/total_servicios`).once('value').then(s=>s.val())||0)+rating)/((db.ref(`choferes/${chId}/total_servicios`).once('value').then(s=>s.val())||0)+1));
+    document.querySelector('.modal-overlay').remove();toast('⭐ ¡Gracias!');reset()
+}
 
-        function centerMap() { map.setView([userPos.lat, userPos.lng], 16); }
+function openChat(){
+    if(!sid)return;
+    document.getElementById('chatBadge').style.display='none';chatOpen=true;
+    const d=document.createElement('div');d.className='chat-modal';
+    d.innerHTML=`<div class="chat-header"><span>💬 Chat</span><button onclick="this.closest('.chat-modal').remove();chatOpen=false" style="background:0;border:0;color:var(--txt);font-size:1.1rem;cursor:pointer">✕</button></div><div class="chat-body" id="chatMsgs"></div><div class="chat-input-wrap"><input type="text" id="chatInput" placeholder="Mensaje..." onkeypress="if(event.key==='Enter')sendMsg()"><button onclick="sendMsg()">Enviar</button></div>`;
+    document.body.appendChild(d);
+    db.ref(`chats/${sid}`).on('child_added',s=>{const m=s.val();const el=document.getElementById('chatMsgs');if(el){el.innerHTML+=`<div class="msg ${m.remitente==='cliente'?'sent':'recv'}">${m.mensaje}</div>`;el.scrollTop=el.scrollHeight}})
+}
 
-        // ========== CHOFERES ==========
-        function loadDrivers() {
-            db.ref('choferes').orderByChild('estado').equalTo('activo').on('value', snap => {
-                const drivers = snap.val();
-                driverMarkers.forEach(m => map.removeLayer(m));
-                driverMarkers = [];
-                let html = '';
+window.sendMsg=function(){const i=document.getElementById('chatInput');const m=i?.value.trim();if(m&&sid){db.ref(`chats/${sid}`).push({remitente:'cliente',userId:uid,mensaje:m,ts:firebase.database.ServerValue.TIMESTAMP});i.value=''}}
 
-                if (!drivers || !Object.keys(drivers).length) {
-                    document.getElementById('driversList').innerHTML = '<div class="empty">Sin mototaxis disponibles</div>';
-                    return;
-                }
+function cancel(){if(!sid)return;if(confirm('¿Cancelar?')){db.ref(`servicios/${sid}`).update({estado:'cancelado',ts:firebase.database.ServerValue.TIMESTAMP});reset()}}
 
-                Object.entries(drivers).forEach(([id, d]) => {
-                    if (d.ubicacion) {
-                        const mk = L.marker([d.ubicacion.lat, d.ubicacion.lng], {
-                            icon: L.divIcon({
-                                html: '<div style="background:#00C897;color:#000;padding:3px 7px;border-radius:10px;font-size:10px;font-weight:700;">🏍️</div>',
-                                iconSize: [28, 18], iconAnchor: [14, 9]
-                            })
-                        }).addTo(map);
-                        mk.bindPopup(`<b>${d.nombre || 'Chofer'}</b><br>⭐ ${d.calificacion || 'Nuevo'}`);
-                        driverMarkers.push(mk);
-                    }
-                    const dist = calcDist(userPos.lat, userPos.lng, d.ubicacion?.lat || ZA[0], d.ubicacion?.lng || ZA[1]);
-                    html += `<div class="d-item"><div class="d-avatar">🏍️</div><div class="d-info"><div class="d-name">${d.nombre || 'Chofer'}</div><div class="d-meta">📍 ${dist.toFixed(1)}km · ⭐${d.calificacion||'Nuevo'}</div></div><span class="d-badge">DISP</span></div>`;
-                });
-                document.getElementById('driversList').innerHTML = html;
-            });
-        }
+function reset(){
+    sid=null;rating=0;
+    document.getElementById('requestSheet').style.display='block';document.getElementById('activeSheet').style.display='none';
+    document.getElementById('destiny').value='';document.getElementById('reqBtn').disabled=false;document.getElementById('reqBtn').textContent='Solicitar Mototaxi';
+    document.querySelectorAll('.step').forEach(s=>s.className='step');document.getElementById('s1').classList.add('on');
+}
 
-        // ========== SOLICITAR ==========
-        function requestRide() {
-            const dest = document.getElementById('destiny').value.trim();
-            if (!dest) { toast('Indica tu destino'); return; }
+function playSound(t){try{const c=new(window.AudioContext||window.webkitAudioContext)();const o=c.createOscillator(),g=c.createGain();o.connect(g);g.connect(c.destination);o.frequency.value=t==='msg'?1000:600;g.gain.value=.15;o.start();o.stop(c.currentTime+.1)}catch(e){}}
+function calcDist(lat1,lon1,lat2,lon2){const R=6371,dLat=(lat2-lat1)*Math.PI/180,dLon=(lon2-lon1)*Math.PI/180;return R*2*Math.atan2(Math.sqrt(Math.sin(dLat/2)**2+Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLon/2)**2),Math.sqrt(1-Math.sin(dLat/2)**2-Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLon/2)**2))}
+function toast(m){const t=document.createElement('div');t.className='toast';t.textContent=m;document.body.appendChild(t);setTimeout(()=>t.remove(),2500)}
 
-            const btn = document.getElementById('reqBtn');
-            btn.disabled = true;
-            btn.textContent = 'Buscando...';
-
-            const data = {
-                clienteId: userId,
-                origen: { lat: userPos.lat, lng: userPos.lng, direccion: document.getElementById('pickup').value },
-                destino: { lat: userPos.lat + 0.001, lng: userPos.lng + 0.001, direccion: dest },
-                tarifa_estimada: Math.floor(Math.random() * 25) + 30,
-                estado: 'buscando',
-                timestamp: firebase.database.ServerValue.TIMESTAMP
-            };
-
-            const ref = db.ref('servicios').push();
-            serviceId = ref.key;
-
-            ref.set(data).then(() => {
-                document.getElementById('requestSheet').style.display = 'none';
-                document.getElementById('activeSheet').style.display = 'block';
-                listenService(serviceId);
-                setTimeout(() => simAccept(serviceId), 5000);
-            }).catch(() => {
-                btn.disabled = false;
-                btn.textContent = 'Solicitar Mototaxi';
-            });
-        }
-
-        function simAccept(id) {
-            db.ref('choferes').orderByChild('estado').equalTo('activo').limitToFirst(1).once('value', snap => {
-                let cd = { choferId: 'default', choferNombre: 'Chofer Zaachila', choferPlaca: '---', choferRating: '4.5' };
-                if (snap.exists()) {
-                    const f = Object.entries(snap.val())[0];
-                    cd = { choferId: f[0], choferNombre: f[1].nombre || 'Chofer', choferPlaca: f[1].placa || '---', choferRating: f[1].calificacion || 'Nuevo' };
-                }
-                db.ref(`servicios/${id}`).update({ ...cd, estado: 'tarifa_propuesta', tarifa_propuesta: Math.floor(Math.random() * 20) + 35 });
-            });
-        }
-
-        // ========== ESCUCHAR SERVICIO ==========
-        function listenService(id) {
-            db.ref(`servicios/${id}`).on('value', snap => {
-                const s = snap.val();
-                if (!s) return;
-
-                if (s.estado === 'tarifa_propuesta') {
-                    document.getElementById('aName').textContent = s.choferNombre;
-                    document.getElementById('aPlate').textContent = s.choferPlaca;
-                    document.getElementById('aRating').textContent = '⭐ ' + s.choferRating;
-                    document.getElementById('iFare').textContent = '$' + (s.tarifa_propuesta || s.tarifa_estimada);
-                    showFareModal(id, s);
-                } else if (s.estado === 'aceptado') {
-                    document.getElementById('s1').classList.add('on');
-                    document.getElementById('iEta').textContent = '3-5 min';
-                    document.getElementById('iDist').textContent = '~1 km';
-                    toast('✅ Chofer en camino');
-                } else if (s.estado === 'en_camino') {
-                    document.getElementById('s1').classList.add('done');
-                    document.getElementById('s2').classList.add('on');
-                } else if (s.estado === 'en_servicio') {
-                    document.getElementById('s2').classList.add('done');
-                    document.getElementById('s3').classList.add('on');
-                } else if (s.estado === 'completado') {
-                    document.getElementById('s3').classList.add('done');
-                    toast('✅ Viaje completado');
-                    setTimeout(reset, 5000);
-                } else if (s.estado === 'cancelado' || s.estado === 'rechazado') {
-                    toast('Servicio no disponible');
-                    reset();
-                }
-            });
-        }
-
-        function listenActive() {
-            if (!userId) return;
-            db.ref('servicios').orderByChild('clienteId').equalTo(userId).limitToLast(1)
-                .on('child_added', snap => {
-                    const s = snap.val();
-                    if (s.estado !== 'completado' && s.estado !== 'cancelado') {
-                        serviceId = snap.key;
-                        document.getElementById('requestSheet').style.display = 'none';
-                        document.getElementById('activeSheet').style.display = 'block';
-                        listenService(serviceId);
-                    }
-                });
-        }
-
-        // ========== MODAL TARIFA ==========
-        function showFareModal(id, s) {
-            // Eliminar modal existente
-            document.querySelectorAll('.modal-overlay').forEach(m => m.remove());
-            
-            const fare = s.tarifa_propuesta || s.tarifa_estimada || 40;
-            const modal = document.createElement('div');
-            modal.className = 'modal-overlay';
-            modal.innerHTML = `
-                <div class="modal-box">
-                    <div style="font-size:3rem;">🏍️</div>
-                    <h3>${s.choferNombre || 'Chofer'}</h3>
-                    <p style="color:var(--txt2);font-size:.75rem;">${s.choferPlaca} · ⭐ ${s.choferRating}</p>
-                    <div class="price">$${fare}<span style="font-size:.7rem;color:var(--txt2);"> MXN</span></div>
-                    <p style="font-size:.65rem;color:var(--warn);margin:.4rem 0;">Confirma para que el chofer vaya</p>
-                    <button class="btn btn-p" id="btnOk">Aceptar tarifa</button>
-                    <button class="btn btn-r" id="btnNo" style="margin-top:.3rem">Rechazar</button>
-                </div>`;
-            document.body.appendChild(modal);
-
-            modal.querySelector('#btnOk').onclick = () => {
-                modal.remove();
-                db.ref(`servicios/${id}`).update({ estado: 'aceptado', cliente_acepta_tarifa: true, timestamp_aceptacion: firebase.database.ServerValue.TIMESTAMP });
-            };
-
-            modal.querySelector('#btnNo').onclick = () => {
-                modal.remove();
-                db.ref(`servicios/${id}`).update({ estado: 'cancelado', motivo: 'Cliente rechazó tarifa' }).then(() => { toast('Cancelado'); reset(); });
-            };
-
-            modal.onclick = function(e) { if (e.target === modal) return; };
-        }
-
-        // ========== CHAT ==========
-        function openChat() {
-            if (!serviceId) return;
-            
-            const chatDiv = document.createElement('div');
-            chatDiv.className = 'chat-modal';
-            chatDiv.innerHTML = `
-                <div class="chat-header">
-                    <span>💬 Chat con el chofer</span>
-                    <button onclick="this.closest('.chat-modal').remove()" style="background:none;border:none;color:var(--txt);font-size:1.2rem;cursor:pointer;">✕</button>
-                </div>
-                <div class="chat-messages" id="chatMessages"></div>
-                <div class="chat-input-wrap">
-                    <input type="text" id="chatInput" placeholder="Escribe un mensaje..." onkeypress="if(event.key==='Enter')sendMsg()">
-                    <button onclick="sendMsg()">Enviar</button>
-                </div>`;
-            document.body.appendChild(chatDiv);
-
-            // Cargar mensajes existentes
-            db.ref(`chats/${serviceId}`).on('child_added', snap => {
-                const msg = snap.val();
-                const div = document.createElement('div');
-                div.className = 'msg ' + (msg.remitente === 'cliente' ? 'sent' : 'recv');
-                div.textContent = msg.mensaje;
-                document.getElementById('chatMessages').appendChild(div);
-                document.getElementById('chatMessages').scrollTop = document.getElementById('chatMessages').scrollHeight;
-            });
-        }
-
-        window.sendMsg = function() {
-            const input = document.getElementById('chatInput');
-            const msg = input?.value.trim();
-            if (msg && serviceId) {
-                db.ref(`chats/${serviceId}`).push({
-                    remitente: 'cliente',
-                    userId: userId,
-                    mensaje: msg,
-                    timestamp: firebase.database.ServerValue.TIMESTAMP
-                });
-                if (input) input.value = '';
-            }
-        };
-
-        // ========== ACCIONES ==========
-        function cancel() {
-            if (!serviceId) return;
-            if (confirm('¿Cancelar este servicio?')) {
-                db.ref(`servicios/${serviceId}`).update({ estado: 'cancelado', timestamp_cancelacion: firebase.database.ServerValue.TIMESTAMP }).then(() => { toast('Cancelado'); reset(); });
-            }
-        }
-
-        function report() {
-            const d = prompt('Describe el objeto olvidado:');
-            if (d && serviceId) {
-                db.ref('reportes/objetos_olvidados').push({ servicioId: serviceId, clienteId: userId, descripcion: d, estado: 'pendiente', timestamp: firebase.database.ServerValue.TIMESTAMP }).then(() => toast('Reporte enviado'));
-            }
-        }
-
-        function reset() {
-            serviceId = null;
-            document.getElementById('requestSheet').style.display = 'block';
-            document.getElementById('activeSheet').style.display = 'none';
-            document.getElementById('destiny').value = '';
-            document.getElementById('reqBtn').disabled = false;
-            document.getElementById('reqBtn').textContent = 'Solicitar Mototaxi';
-            document.querySelectorAll('.step').forEach(s => s.className = 'step');
-            document.getElementById('s1').classList.add('on');
-        }
-
-        // ========== UTILIDADES ==========
-        function calcDist(lat1, lon1, lat2, lon2) {
-            const R = 6371;
-            const dLat = (lat2 - lat1) * Math.PI / 180;
-            const dLon = (lon2 - lon1) * Math.PI / 180;
-            const a = Math.sin(dLat / 2) ** 2 + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLon / 2) ** 2;
-            return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-        }
-
-        function toast(m) {
-            const t = document.createElement('div');
-            t.className = 'toast';
-            t.textContent = m;
-            document.body.appendChild(t);
-            setTimeout(() => t.remove(), 2500);
-        }
-
-        // ========== INICIAR ==========
-        window.addEventListener('DOMContentLoaded', () => {
-            initMap();
-            getLocation();
-        });
-
-        window.addEventListener('resize', () => {
-            if (map) setTimeout(() => map.invalidateSize(), 100);
-        });
-    </script>
+window.addEventListener('DOMContentLoaded',()=>{initMap();getLoc()});
+window.addEventListener('resize',()=>{if(map)setTimeout(()=>map.invalidateSize(),100)});
+</script>
 </body>
 </html>
