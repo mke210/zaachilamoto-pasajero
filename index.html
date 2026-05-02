@@ -3,9 +3,6 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="theme-color" content="#FF6B35">
     <title>Zaachila Moto - Cliente</title>
     
     <!-- Firebase SDKs -->
@@ -20,31 +17,20 @@
     <style>
         :root {
             --primary: #FF6B35;
-            --primary-dark: #E55A2B;
-            --secondary: #2D1B69;
-            --accent: #00C9A7;
             --dark: #1A1A2E;
-            --light: #F8F9FA;
             --success: #10B981;
-            --warning: #F59E0B;
             --danger: #EF4444;
         }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
-            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            font-family: 'Segoe UI', system-ui, sans-serif;
             background: #1a1a2e;
             color: #fff;
             min-height: 100vh;
-            -webkit-tap-highlight-color: transparent;
         }
 
-        /* Mobile Container */
         .mobile-container {
             max-width: 430px;
             margin: 0 auto;
@@ -69,7 +55,6 @@
             }
         }
 
-        /* Header */
         .app-header {
             background: linear-gradient(135deg, #FF6B35, #E55A2B);
             padding: 1rem 1.2rem;
@@ -98,12 +83,8 @@
             color: white;
             font-size: 1.3rem;
             cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
         }
 
-        /* Map Container */
         .map-wrapper {
             height: 350px;
             position: relative;
@@ -112,7 +93,6 @@
         #clientMap {
             height: 100%;
             width: 100%;
-            z-index: 1;
         }
 
         .map-overlay {
@@ -134,12 +114,8 @@
             box-shadow: 0 2px 10px rgba(0,0,0,0.3);
             cursor: pointer;
             font-size: 1.1rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
         }
 
-        /* Request Panel */
         .request-panel {
             background: white;
             border-radius: 25px 25px 0 0;
@@ -160,7 +136,6 @@
             padding: 0.9rem;
             background: #f5f5f5;
             border-radius: 15px;
-            cursor: pointer;
         }
 
         .input-group input {
@@ -195,7 +170,6 @@
             font-size: 1.1rem;
             font-weight: 700;
             cursor: pointer;
-            transition: all 0.3s ease;
             margin-top: 1rem;
         }
 
@@ -208,7 +182,6 @@
             cursor: not-allowed;
         }
 
-        /* Nearby Drivers */
         .nearby-drivers {
             margin-top: 1.5rem;
         }
@@ -226,13 +199,6 @@
             background: #f9f9f9;
             border-radius: 15px;
             margin-bottom: 0.8rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .driver-card:hover {
-            background: #fff0e8;
-            transform: translateX(5px);
         }
 
         .driver-photo {
@@ -271,10 +237,19 @@
         .driver-status {
             font-size: 0.85rem;
             font-weight: 600;
+            color: #10B981;
         }
 
-        /* Active Service Panel */
-        .active-service {
+        /* Active Service */
+        .active-service-panel {
+            display: none;
+        }
+
+        .active-service-panel.active {
+            display: block;
+        }
+
+        .active-service-card {
             background: linear-gradient(135deg, #FF6B35, #E55A2B);
             color: white;
             padding: 1.5rem;
@@ -312,7 +287,7 @@
             font-size: 0.85rem;
         }
 
-        .status-icon {
+        .status-icon-step {
             width: 40px;
             height: 40px;
             border-radius: 50%;
@@ -324,7 +299,7 @@
             font-size: 1.2rem;
         }
 
-        .status-icon.active {
+        .status-icon-step.active {
             background: white;
             color: #FF6B35;
             animation: pulse-icon 1.5s infinite;
@@ -333,6 +308,13 @@
         @keyframes pulse-icon {
             0%, 100% { box-shadow: 0 0 0 0 rgba(255,255,255,0.7); }
             50% { box-shadow: 0 0 0 10px rgba(255,255,255,0); }
+        }
+
+        .service-info-box {
+            background: rgba(255,255,255,0.2);
+            padding: 1rem;
+            border-radius: 10px;
+            margin: 1rem 0;
         }
 
         .emergency-btn {
@@ -355,18 +337,6 @@
             100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
         }
 
-        .service-info {
-            background: rgba(255,255,255,0.2);
-            padding: 1rem;
-            border-radius: 10px;
-            margin: 1rem 0;
-        }
-
-        .service-info div {
-            margin-bottom: 0.3rem;
-        }
-
-        /* Buttons row */
         .btn-row {
             display: flex;
             gap: 0.8rem;
@@ -385,232 +355,8 @@
             text-align: center;
         }
 
-        /* Bottom Navigation */
-        .bottom-nav {
-            display: flex;
-            justify-content: space-around;
-            padding: 0.8rem;
-            background: white;
-            border-top: 1px solid #eee;
-            position: sticky;
-            bottom: 0;
-            z-index: 100;
-        }
-
-        .nav-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 0.3rem;
-            cursor: pointer;
-            color: #999;
-            transition: all 0.3s ease;
-            border: none;
-            background: none;
-            font-size: 0.9rem;
-        }
-
-        .nav-item.active {
-            color: #FF6B35;
-        }
-
-        .nav-icon {
-            font-size: 1.5rem;
-        }
-
-        /* History Screen */
-        .screen {
-            padding: 1.5rem;
+        .request-panel.hidden {
             display: none;
-        }
-
-        .screen.active {
-            display: block;
-        }
-
-        .history-item {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            padding: 1rem;
-            background: white;
-            border-radius: 15px;
-            margin-bottom: 0.8rem;
-            color: #333;
-        }
-
-        .history-date {
-            font-size: 0.85rem;
-            color: #666;
-        }
-
-        .history-price {
-            font-weight: 700;
-            color: #FF6B35;
-        }
-
-        /* Chat Modal */
-        .chat-modal {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: white;
-            border-radius: 25px 25px 0 0;
-            z-index: 2000;
-            height: 60vh;
-            display: none;
-            flex-direction: column;
-            box-shadow: 0 -10px 40px rgba(0,0,0,0.3);
-            color: #333;
-        }
-
-        .chat-modal.active {
-            display: flex;
-        }
-
-        .chat-header {
-            background: #FF6B35;
-            color: white;
-            padding: 1rem;
-            border-radius: 25px 25px 0 0;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .chat-body {
-            flex: 1;
-            padding: 1rem;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 0.8rem;
-        }
-
-        .chat-bubble {
-            max-width: 80%;
-            padding: 0.8rem 1rem;
-            border-radius: 18px;
-            font-size: 0.95rem;
-        }
-
-        .chat-bubble.sent {
-            background: #FF6B35;
-            color: white;
-            align-self: flex-end;
-            border-bottom-right-radius: 5px;
-        }
-
-        .chat-bubble.received {
-            background: #f0f0f0;
-            color: #333;
-            align-self: flex-start;
-            border-bottom-left-radius: 5px;
-        }
-
-        .chat-input-area {
-            padding: 1rem;
-            display: flex;
-            gap: 0.5rem;
-            border-top: 1px solid #eee;
-        }
-
-        .chat-input {
-            flex: 1;
-            padding: 0.8rem;
-            border: 1px solid #ddd;
-            border-radius: 25px;
-            outline: none;
-            font-size: 1rem;
-        }
-
-        .chat-send-btn {
-            width: 45px;
-            height: 45px;
-            border-radius: 50%;
-            background: #FF6B35;
-            color: white;
-            border: none;
-            font-size: 1.2rem;
-            cursor: pointer;
-            flex-shrink: 0;
-        }
-
-        /* Report Form */
-        .report-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.7);
-            z-index: 3000;
-            display: none;
-            justify-content: center;
-            align-items: flex-end;
-        }
-
-        .report-overlay.active {
-            display: flex;
-        }
-
-        .report-form {
-            background: white;
-            border-radius: 25px 25px 0 0;
-            padding: 1.5rem;
-            width: 100%;
-            max-width: 430px;
-            color: #333;
-            animation: slideUp 0.3s ease;
-        }
-
-        @keyframes slideUp {
-            from { transform: translateY(100%); }
-            to { transform: translateY(0); }
-        }
-
-        .report-form textarea {
-            width: 100%;
-            padding: 0.8rem;
-            border: 1px solid #ddd;
-            border-radius: 12px;
-            margin: 1rem 0;
-            font-size: 1rem;
-            resize: vertical;
-            font-family: inherit;
-        }
-
-        .upload-area {
-            border: 2px dashed #ddd;
-            border-radius: 15px;
-            padding: 2rem;
-            text-align: center;
-            margin: 1rem 0;
-            cursor: pointer;
-            color: #666;
-        }
-
-        /* Rating */
-        .rating-stars {
-            display: flex;
-            gap: 0.5rem;
-            justify-content: center;
-            margin: 1rem 0;
-        }
-
-        .star {
-            font-size: 2.5rem;
-            cursor: pointer;
-            transition: transform 0.2s;
-        }
-
-        .star:hover {
-            transform: scale(1.2);
-        }
-
-        .star.active {
-            color: #F59E0B;
         }
 
         /* Toast */
@@ -621,10 +367,11 @@
             transform: translateX(-50%);
             background: #333;
             color: white;
-            padding: 1rem 1.5rem;
+            padding: 0.8rem 1.5rem;
             border-radius: 25px;
             z-index: 5000;
             font-weight: 600;
+            font-size: 0.9rem;
             animation: fadeInOut 3s ease;
             pointer-events: none;
         }
@@ -635,202 +382,129 @@
             90% { opacity: 1; }
             100% { opacity: 0; }
         }
+
+        .loading-indicator {
+            text-align: center;
+            padding: 15px;
+            color: #999;
+        }
+
+        .error-message {
+            background: #FEE2E2;
+            color: #EF4444;
+            padding: 1rem;
+            border-radius: 12px;
+            margin: 1rem 0;
+            text-align: center;
+        }
     </style>
 </head>
 <body>
-    <div class="mobile-container" id="app">
+    <div class="mobile-container">
         <!-- Header -->
         <header class="app-header">
-            <div class="logo-text">
-                🏍️ Zaachila Moto
-            </div>
-            <button class="profile-btn" onclick="showToast('👤 Perfil de cliente')">👤</button>
+            <div class="logo-text">🏍️ Zaachila Moto</div>
+            <button class="profile-btn" onclick="showToast('👤 Cliente')">👤</button>
         </header>
 
-        <!-- Pantalla Principal -->
-        <div id="screen-main" class="screen active">
-            <!-- Mapa -->
-            <div class="map-wrapper">
-                <div id="clientMap"></div>
-                <div class="map-overlay">
-                    <button class="map-btn" onclick="centerMapOnUser()" title="Mi ubicación">📍</button>
-                    <button class="map-btn" onclick="map.zoomIn()" title="Acercar">➕</button>
-                    <button class="map-btn" onclick="map.zoomOut()" title="Alejar">➖</button>
-                </div>
+        <!-- Mapa -->
+        <div class="map-wrapper">
+            <div id="clientMap"></div>
+            <div class="map-overlay">
+                <button class="map-btn" onclick="centerMapOnUser()">📍</button>
+                <button class="map-btn" onclick="map.zoomIn()">➕</button>
+                <button class="map-btn" onclick="map.zoomOut()">➖</button>
+            </div>
+        </div>
+
+        <!-- Panel de Solicitud -->
+        <div class="request-panel" id="requestPanel">
+            <h3 style="color:#333;margin-bottom:1rem;">📍 Solicitar Mototaxi</h3>
+            
+            <div id="connectionError" class="error-message" style="display:none;">
+                ⚠️ Error de conexión con Firebase. Verifica tu conexión a internet.
             </div>
 
-            <!-- Panel de Solicitud -->
-            <div class="request-panel" id="requestPanel">
-                <h3 style="color:#333;margin-bottom:1rem;">📍 Solicitar Mototaxi</h3>
-                
-                <div class="input-group" onclick="getCurrentLocation()">
-                    <div class="location-dot"></div>
-                    <input type="text" id="pickupInput" placeholder="¿Dónde estás?" value="Obteniendo ubicación..." readonly>
-                    <span>🎯</span>
-                </div>
-
-                <div class="input-group">
-                    <div class="location-dot destiny"></div>
-                    <input type="text" id="destinyInput" placeholder="¿A dónde vas?" oninput="updateEstimatedFare()">
-                </div>
-
-                <div id="estimatedFare" style="text-align:center;margin:0.5rem 0;color:#666;display:none;">
-                    💰 Tarifa estimada: <strong style="color:#FF6B35;" id="fareAmount">$0</strong>
-                </div>
-
-                <button class="btn-request" id="requestBtn" onclick="solicitarServicio()">
-                    🏍️ Solicitar Ahora
-                </button>
-
-                <!-- Mototaxis Cercanos -->
-                <div class="nearby-drivers" id="nearbyDriversSection">
-                    <h4>🏍️ Mototaxis cercanos</h4>
-                    <div id="nearbyDriversList">
-                        <div style="text-align:center;color:#999;padding:1rem;">Cargando...</div>
-                    </div>
-                </div>
+            <div class="input-group">
+                <div class="location-dot"></div>
+                <input type="text" id="pickupInput" placeholder="Tu ubicación" value="Obteniendo ubicación..." readonly>
             </div>
 
-            <!-- Panel de Servicio Activo -->
-            <div class="request-panel" id="activeServicePanel" style="display:none;">
-                <div class="active-service">
-                    <h3 style="margin-bottom:1rem;">🚀 Servicio en Curso</h3>
-                    <div class="driver-detail">
-                        <div class="driver-avatar">🏍️</div>
-                        <div>
-                            <div style="font-weight:700;font-size:1.1rem;" id="activeDriverName">Chofer</div>
-                            <div style="font-size:0.9rem;opacity:0.9;" id="activeDriverPlate">Placa: ---</div>
-                            <div style="font-size:0.9rem;" id="activeDriverRating">⭐ --</div>
-                        </div>
-                    </div>
+            <div class="input-group">
+                <div class="location-dot destiny"></div>
+                <input type="text" id="destinyInput" placeholder="¿A dónde vas? Ej: Mercado Municipal">
+            </div>
 
-                    <div class="status-timeline">
-                        <div class="status-step">
-                            <div class="status-icon active" id="step1">🏍️</div>
-                            <small>En camino</small>
-                        </div>
-                        <div class="status-step">
-                            <div class="status-icon" id="step2">📍</div>
-                            <small>Recogida</small>
-                        </div>
-                        <div class="status-step">
-                            <div class="status-icon" id="step3">🏁</div>
-                            <small>Destino</small>
-                        </div>
-                    </div>
+            <div id="estimatedFare" style="text-align:center;margin:0.5rem 0;color:#666;display:none;">
+                💰 Tarifa estimada: <strong style="color:#FF6B35;" id="fareAmount">$0 MXN</strong>
+            </div>
 
-                    <div class="service-info">
-                        <div>🕐 Llegada: <strong id="etaDisplay">Calculando...</strong></div>
-                        <div>💰 Tarifa: <strong id="fareDisplay">$0</strong></div>
-                        <div>📏 Distancia: <strong id="distanceDisplay">--</strong></div>
-                    </div>
+            <button class="btn-request" id="requestBtn" onclick="solicitarServicio()">
+                🏍️ Solicitar Ahora
+            </button>
 
-                    <div class="btn-row">
-                        <button class="btn-outline" onclick="abrirChat()">💬 Chat</button>
-                        <button class="btn-outline" onclick="compartirUbicacion()">📤 Compartir</button>
-                    </div>
+            <!-- Mototaxis Cercanos -->
+            <div class="nearby-drivers">
+                <h4>🏍️ Mototaxis cercanos</h4>
+                <div id="nearbyDriversList">
+                    <div class="loading-indicator">Cargando mototaxis...</div>
+                </div>
+            </div>
+        </div>
 
-                    <button class="emergency-btn" onclick="emergencia()">
-                        🆘 BOTÓN DE EMERGENCIA
-                    </button>
+        <!-- Panel de Servicio Activo -->
+        <div class="request-panel active-service-panel" id="activeServicePanel">
+            <div class="active-service-card">
+                <h3 style="margin-bottom:1rem;">🚀 Servicio en Curso</h3>
+                <div class="driver-detail">
+                    <div class="driver-avatar">🏍️</div>
+                    <div>
+                        <div style="font-weight:700;font-size:1.1rem;" id="activeDriverName">---</div>
+                        <div style="font-size:0.9rem;opacity:0.9;" id="activeDriverPlate">Placa: ---</div>
+                        <div style="font-size:0.9rem;" id="activeDriverRating">⭐ ---</div>
+                    </div>
                 </div>
 
-                <button class="btn-request" style="background:#10B981;margin-top:0.8rem;" onclick="abrirReporteObjeto()">
-                    📦 Reportar Objeto Olvidado
+                <div class="status-timeline">
+                    <div class="status-step">
+                        <div class="status-icon-step" id="step1Icon">🏍️</div>
+                        <small>En camino</small>
+                    </div>
+                    <div class="status-step">
+                        <div class="status-icon-step" id="step2Icon">📍</div>
+                        <small>Recogida</small>
+                    </div>
+                    <div class="status-step">
+                        <div class="status-icon-step" id="step3Icon">🏁</div>
+                        <small>Destino</small>
+                    </div>
+                </div>
+
+                <div class="service-info-box">
+                    <div>🕐 <span id="etaDisplay">Calculando...</span></div>
+                    <div>💰 Tarifa: <strong id="fareDisplay">$0</strong></div>
+                </div>
+
+                <div class="btn-row">
+                    <button class="btn-outline" onclick="abrirChat()">💬 Chat</button>
+                    <button class="btn-outline" onclick="compartirUbicacion()">📤 Compartir</button>
+                </div>
+
+                <button class="emergency-btn" onclick="emergencia()">
+                    🆘 BOTÓN DE EMERGENCIA
                 </button>
             </div>
-        </div>
 
-        <!-- Pantalla Historial -->
-        <div id="screen-history" class="screen">
-            <h3 style="color:white;margin-bottom:1rem;">📋 Historial de Viajes</h3>
-            <div id="historyList">
-                <div style="text-align:center;color:#999;padding:2rem;">Cargando historial...</div>
-            </div>
-        </div>
-
-        <!-- Pantalla Favoritos -->
-        <div id="screen-favorites" class="screen">
-            <h3 style="color:white;margin-bottom:1rem;">⭐ Direcciones Favoritas</h3>
-            <div class="favorite-item" style="background:white;padding:1rem;border-radius:15px;margin-bottom:0.8rem;color:#333;cursor:pointer;" onclick="setDestino('Casa - Calle Principal #123')">
-                🏠 <strong>Casa</strong><br>
-                <span style="color:#666;">Calle Principal #123, Zaachila</span>
-            </div>
-            <div class="favorite-item" style="background:white;padding:1rem;border-radius:15px;margin-bottom:0.8rem;color:#333;cursor:pointer;" onclick="setDestino('Trabajo - Mercado Municipal')">
-                🏢 <strong>Trabajo</strong><br>
-                <span style="color:#666;">Mercado Municipal, Zaachila</span>
-            </div>
-            <button class="btn-request" onclick="agregarFavorito()" style="margin-top:1rem;">➕ Agregar Favorito</button>
-        </div>
-
-        <!-- Bottom Navigation -->
-        <div class="bottom-nav">
-            <button class="nav-item active" onclick="switchScreen('main', this)">
-                <span class="nav-icon">🏠</span>
-                <small>Inicio</small>
+            <button class="btn-request" style="background:#10B981;margin-top:0.8rem;" onclick="reportarObjeto()">
+                📦 Reportar Objeto Olvidado
             </button>
-            <button class="nav-item" onclick="switchScreen('history', this)">
-                <span class="nav-icon">📋</span>
-                <small>Historial</small>
-            </button>
-            <button class="nav-item" onclick="switchScreen('favorites', this)">
-                <span class="nav-icon">⭐</span>
-                <small>Favoritos</small>
-            </button>
-        </div>
-
-        <!-- Chat Modal -->
-        <div class="chat-modal" id="chatModal">
-            <div class="chat-header">
-                <span>💬 Chat con el chofer</span>
-                <button onclick="cerrarChat()" style="background:none;border:none;color:white;font-size:1.5rem;cursor:pointer;">✕</button>
-            </div>
-            <div class="chat-body" id="chatBody">
-                <div style="text-align:center;color:#999;padding:2rem;">Inicia una conversación</div>
-            </div>
-            <div class="chat-input-area">
-                <input type="text" class="chat-input" id="chatMessageInput" placeholder="Escribe un mensaje..." onkeypress="if(event.key==='Enter')enviarMensaje()">
-                <button class="chat-send-btn" onclick="enviarMensaje()">➤</button>
-            </div>
-        </div>
-
-        <!-- Reporte Overlay -->
-        <div class="report-overlay" id="reportOverlay">
-            <div class="report-form">
-                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
-                    <h3>📦 Reportar Objeto Olvidado</h3>
-                    <button onclick="cerrarReporte()" style="background:none;border:none;font-size:1.5rem;cursor:pointer;">✕</button>
-                </div>
-                <textarea rows="3" id="reportDescription" placeholder="Describe el objeto que olvidaste..."></textarea>
-                <div class="upload-area" onclick="showToast('📸 Función de foto (simulación)')">
-                    📸 Toca para subir fotos del objeto
-                </div>
-                <button class="btn-request" onclick="enviarReporte()">📤 Enviar Reporte</button>
-            </div>
-        </div>
-
-        <!-- Rating Overlay -->
-        <div class="report-overlay" id="ratingOverlay">
-            <div class="report-form">
-                <h3 style="text-align:center;">⭐ Califica tu viaje</h3>
-                <div class="rating-stars" id="ratingStars">
-                    <span class="star" onclick="setRating(1)">☆</span>
-                    <span class="star" onclick="setRating(2)">☆</span>
-                    <span class="star" onclick="setRating(3)">☆</span>
-                    <span class="star" onclick="setRating(4)">☆</span>
-                    <span class="star" onclick="setRating(5)">☆</span>
-                </div>
-                <textarea rows="2" id="ratingComment" placeholder="Comentario (opcional)"></textarea>
-                <button class="btn-request" onclick="enviarCalificacion()">✅ Enviar Calificación</button>
-            </div>
         </div>
     </div>
 
-    <!-- Toast container -->
     <div id="toastContainer"></div>
 
     <script>
-        // ========== CONFIGURACIÓN DE FIREBASE ==========
+        // ========== CONFIGURACIÓN FIREBASE ==========
         const firebaseConfig = {
             apiKey: "AIzaSyCBXBPMz2OZ3U2KfTaU-uHCBhwmbnR7O40",
             authDomain: "zaachilamoto.firebaseapp.com",
@@ -841,37 +515,60 @@
             appId: "1:559788509526:web:c751d8d22068f09041aef7"
         };
 
+        // Inicializar Firebase
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         const database = firebase.database();
 
-        // ========== VARIABLES GLOBALES ==========
+        // ========== VARIABLES ==========
         let map;
         let userMarker;
         let userLocation = { lat: 16.9516, lng: -96.7491 };
-        let currentServiceId = null;
-        let currentChoferId = null;
         let userId = null;
-        let calificacionSeleccionada = 0;
+        let currentServiceId = null;
         let driversMarkers = [];
+        let isConnected = false;
 
         const VILLA_ZAACHILA = [16.9516, -96.7491];
 
         // ========== INICIALIZACIÓN ==========
         function init() {
-            // Autenticación anónima
+            console.log('🚀 Iniciando Zaachila Moto Cliente...');
+            
+            // Verificar conexión a Firebase
+            database.ref('.info/connected').on('value', (snap) => {
+                if (snap.val() === true) {
+                    console.log('✅ Conectado a Firebase');
+                    isConnected = true;
+                    document.getElementById('connectionError').style.display = 'none';
+                    autenticar();
+                } else {
+                    console.log('❌ Desconectado de Firebase');
+                    isConnected = false;
+                    document.getElementById('connectionError').style.display = 'block';
+                }
+            });
+
+            initMap();
+            getCurrentLocation();
+        }
+
+        function autenticar() {
+            console.log('🔐 Iniciando autenticación anónima...');
+            
             auth.signInAnonymously()
                 .then((userCredential) => {
                     userId = userCredential.user.uid;
-                    console.log('✅ Cliente autenticado:', userId);
-                    initMap();
-                    getCurrentLocation();
+                    console.log('✅ Cliente autenticado:', userId.substring(0, 10) + '...');
                     cargarChoferesCercanos();
                     escucharServicioActivo();
+                    showToast('✅ Conectado al servicio');
                 })
                 .catch((error) => {
-                    console.error('Error de autenticación:', error);
-                    showToast('❌ Error de conexión');
+                    console.error('❌ Error de autenticación:', error.code, error.message);
+                    document.getElementById('connectionError').style.display = 'block';
+                    document.getElementById('connectionError').textContent = 
+                        '⚠️ Error: ' + error.message + '. Recarga la página.';
                 });
         }
 
@@ -882,7 +579,6 @@
                 attribution: '© OpenStreetMap'
             }).addTo(map);
 
-            // Marcador del usuario
             userMarker = L.marker(VILLA_ZAACHILA, {
                 icon: L.divIcon({
                     className: 'user-marker',
@@ -890,6 +586,8 @@
                     iconSize: [60, 28]
                 })
             }).addTo(map);
+
+            console.log('🗺️ Mapa inicializado');
         }
 
         // ========== GEOLOCALIZACIÓN ==========
@@ -901,35 +599,44 @@
                             lat: position.coords.latitude,
                             lng: position.coords.longitude
                         };
+                        console.log('📍 Ubicación obtenida:', userLocation.lat.toFixed(4), userLocation.lng.toFixed(4));
                         map.setView([userLocation.lat, userLocation.lng], 16);
                         userMarker.setLatLng([userLocation.lat, userLocation.lng]);
                         document.getElementById('pickupInput').value = '📍 Mi ubicación actual';
-                        updateEstimatedFare();
-                        cargarChoferesCercanos();
                     },
                     (error) => {
-                        console.log('Usando ubicación predeterminada');
+                        console.log('⚠️ Usando ubicación predeterminada:', error.message);
                         document.getElementById('pickupInput').value = '📍 Villa de Zaachila';
-                        updateEstimatedFare();
-                        cargarChoferesCercanos();
                     },
                     { enableHighAccuracy: true, timeout: 10000 }
                 );
             }
         }
 
-        // ========== CARGAR CHOFERES CERCANOS ==========
+        // ========== CHOFERES CERCANOS ==========
         function cargarChoferesCercanos() {
+            if (!isConnected) {
+                document.getElementById('nearbyDriversList').innerHTML = 
+                    '<div class="loading-indicator">Sin conexión al servidor</div>';
+                return;
+            }
+
+            console.log('🔍 Buscando choferes cercanos...');
+            
             database.ref('choferes').orderByChild('estado').equalTo('activo')
                 .on('value', (snapshot) => {
                     const choferes = snapshot.val();
-                    actualizarMarcadoresChoferes(choferes);
-                    actualizarListaChoferes(choferes);
+                    console.log('🏍️ Choferes activos encontrados:', choferes ? Object.keys(choferes).length : 0);
+                    actualizarMarcadores(choferes);
+                    actualizarLista(choferes);
+                }, (error) => {
+                    console.error('❌ Error al cargar choferes:', error);
+                    document.getElementById('nearbyDriversList').innerHTML = 
+                        '<div class="loading-indicator">Error al cargar. Reintentando...</div>';
                 });
         }
 
-        function actualizarMarcadoresChoferes(choferes) {
-            // Limpiar marcadores anteriores
+        function actualizarMarcadores(choferes) {
             driversMarkers.forEach(m => map.removeLayer(m));
             driversMarkers = [];
 
@@ -944,23 +651,18 @@
                             iconSize: [35, 25]
                         })
                     }).addTo(map);
-
-                    marker.bindPopup(`
-                        <b>${chofer.nombre || 'Chofer'}</b><br>
-                        ⭐ ${chofer.calificacion || 'Nuevo'}<br>
-                        🏍️ ${chofer.placa || ''}
-                    `);
-
+                    
+                    marker.bindPopup(`<b>${chofer.nombre || 'Chofer'}</b><br>⭐ ${chofer.calificacion || 'Nuevo'}<br>🏍️ ${chofer.placa || ''}`);
                     driversMarkers.push(marker);
                 }
             });
         }
 
-        function actualizarListaChoferes(choferes) {
+        function actualizarLista(choferes) {
             const container = document.getElementById('nearbyDriversList');
             
             if (!choferes || Object.keys(choferes).length === 0) {
-                container.innerHTML = '<div style="text-align:center;color:#999;padding:1rem;">No hay mototaxis disponibles</div>';
+                container.innerHTML = '<div class="loading-indicator">No hay mototaxis disponibles ahora</div>';
                 return;
             }
 
@@ -976,11 +678,11 @@
                     <div class="driver-card">
                         <div class="driver-photo">🏍️</div>
                         <div class="driver-info">
-                            <div class="driver-name">${chofer.nombre || 'Chofer'}</div>
-                            <div class="driver-distance">📍 A ${distancia.toFixed(1)} km de ti</div>
+                            <div class="driver-name">${chofer.nombre || 'Chofer ' + id.substring(0, 4)}</div>
+                            <div class="driver-distance">📍 A ${distancia.toFixed(1)} km</div>
                             <div class="driver-rating">⭐ ${chofer.calificacion || 'Nuevo'}</div>
                         </div>
-                        <div class="driver-status" style="color:#10B981;">● Disponible</div>
+                        <div class="driver-status">● Disp.</div>
                     </div>
                 `;
             });
@@ -993,13 +695,18 @@
             const destino = document.getElementById('destinyInput').value.trim();
             
             if (!destino) {
-                showToast('⚠️ Por favor indica tu destino');
+                showToast('⚠️ Indica tu destino');
                 return;
             }
 
-            if (confirm('🏍️ ¿Solicitar mototaxi ahora?\n\nTarifa estimada: $30 - $50 MXN\nPago en efectivo')) {
+            if (!isConnected) {
+                showToast('❌ Sin conexión al servidor');
+                return;
+            }
+
+            if (confirm('🏍️ ¿Solicitar mototaxi?\n\nTarifa: $30 - $50 MXN\nPago: Efectivo')) {
                 const serviceData = {
-                    clienteId: userId,
+                    clienteId: userId || 'anon',
                     origen: {
                         lat: userLocation.lat,
                         lng: userLocation.lng,
@@ -1015,55 +722,55 @@
                     timestamp: firebase.database.ServerValue.TIMESTAMP
                 };
 
+                console.log('📤 Enviando solicitud:', serviceData);
+
                 const newServiceRef = database.ref('servicios').push();
                 currentServiceId = newServiceRef.key;
                 
                 newServiceRef.set(serviceData)
                     .then(() => {
                         console.log('✅ Servicio solicitado:', currentServiceId);
-                        showToast('🔍 Buscando mototaxi cercano...');
+                        showToast('🔍 Buscando mototaxi...');
                         
-                        // Mostrar panel de búsqueda
-                        document.getElementById('requestPanel').style.display = 'none';
-                        document.getElementById('activeServicePanel').style.display = 'block';
+                        document.getElementById('requestPanel').classList.add('hidden');
+                        document.getElementById('activeServicePanel').classList.add('active');
                         
-                        // Escuchar cambios del servicio
                         escucharMiServicio(currentServiceId);
                         
-                        // Simular que un chofer acepta después de 5 segundos
-                        setTimeout(() => simularChoferAcepta(currentServiceId), 5000);
+                        // Simular aceptación
+                        setTimeout(() => simularAceptacion(currentServiceId), 5000);
                     })
                     .catch((error) => {
-                        console.error('Error:', error);
-                        showToast('❌ Error al solicitar');
+                        console.error('❌ Error al solicitar:', error);
+                        showToast('❌ Error: ' + error.message);
                     });
             }
         }
 
-        function simularChoferAcepta(serviceId) {
-            // Buscar un chofer activo
+        function simularAceptacion(serviceId) {
             database.ref('choferes').orderByChild('estado').equalTo('activo').limitToFirst(1)
                 .once('value', (snapshot) => {
-                    let choferId = 'chofer001';
-                    let choferName = 'Juan Pérez';
-                    let choferPlaca = 'XYZ-123';
-                    let choferRating = '4.8';
+                    let choferData = {
+                        choferId: 'chofer001',
+                        choferNombre: 'Juan Pérez',
+                        choferPlaca: 'XYZ-123',
+                        choferRating: '4.8'
+                    };
                     
                     if (snapshot.exists()) {
                         const choferes = snapshot.val();
-                        const firstChofer = Object.entries(choferes)[0];
-                        choferId = firstChofer[0];
-                        choferName = firstChofer[1].nombre || choferName;
-                        choferPlaca = firstChofer[1].placa || choferPlaca;
-                        choferRating = firstChofer[1].calificacion || choferRating;
+                        const first = Object.entries(choferes)[0];
+                        choferData = {
+                            choferId: first[0],
+                            choferNombre: first[1].nombre || 'Chofer',
+                            choferPlaca: first[1].placa || '---',
+                            choferRating: first[1].calificacion || 'Nuevo'
+                        };
                     }
                     
                     database.ref(`servicios/${serviceId}`).update({
-                        choferId: choferId,
-                        estado: 'aceptado',
-                        choferNombre: choferName,
-                        choferPlaca: choferPlaca,
-                        choferRating: choferRating
+                        ...choferData,
+                        estado: 'aceptado'
                     });
                 });
         }
@@ -1072,39 +779,41 @@
             database.ref(`servicios/${serviceId}`).on('value', (snapshot) => {
                 const servicio = snapshot.val();
                 if (!servicio) return;
+                
+                console.log('📋 Estado del servicio:', servicio.estado);
 
                 if (servicio.estado === 'aceptado') {
                     document.getElementById('activeDriverName').textContent = servicio.choferNombre || 'Chofer';
                     document.getElementById('activeDriverPlate').textContent = 'Placa: ' + (servicio.choferPlaca || '---');
                     document.getElementById('activeDriverRating').textContent = '⭐ ' + (servicio.choferRating || 'Nuevo');
-                    document.getElementById('step1').classList.add('active');
+                    document.getElementById('step1Icon').classList.add('active');
                     document.getElementById('etaDisplay').textContent = '3 minutos';
                     document.getElementById('fareDisplay').textContent = '$' + (servicio.tarifa_estimada || '40');
                     showToast('✅ ¡Chofer asignado!');
                 } else if (servicio.estado === 'en_camino') {
-                    document.getElementById('step2').classList.add('active');
-                    document.getElementById('etaDisplay').textContent = '1 minuto';
+                    document.getElementById('step2Icon').classList.add('active');
                 } else if (servicio.estado === 'en_servicio') {
-                    document.getElementById('step2').classList.add('active');
-                    document.getElementById('step3').classList.add('active');
-                    document.getElementById('etaDisplay').textContent = 'En viaje...';
+                    document.getElementById('step3Icon').classList.add('active');
+                    document.getElementById('etaDisplay').textContent = 'En camino...';
                 } else if (servicio.estado === 'completado') {
-                    document.getElementById('step3').classList.add('active');
+                    document.getElementById('step3Icon').classList.add('active');
                     showToast('✅ ¡Viaje completado!');
-                    mostrarCalificacion();
+                    setTimeout(resetearApp, 3000);
                 }
             });
         }
 
         function escucharServicioActivo() {
-            database.ref('servicios').orderByChild('clienteId').equalTo(userId || '')
+            if (!userId) return;
+            
+            database.ref('servicios').orderByChild('clienteId').equalTo(userId)
                 .limitToLast(1)
                 .on('child_added', (snapshot) => {
                     const servicio = snapshot.val();
                     if (servicio.estado !== 'completado' && servicio.estado !== 'cancelado') {
                         currentServiceId = snapshot.key;
-                        document.getElementById('requestPanel').style.display = 'none';
-                        document.getElementById('activeServicePanel').style.display = 'block';
+                        document.getElementById('requestPanel').classList.add('hidden');
+                        document.getElementById('activeServicePanel').classList.add('active');
                         escucharMiServicio(currentServiceId);
                     }
                 });
@@ -1112,56 +821,49 @@
 
         // ========== CHAT ==========
         function abrirChat() {
-            document.getElementById('chatModal').classList.add('active');
-            if (currentServiceId) {
-                database.ref(`chats/${currentServiceId}`).on('child_added', (snapshot) => {
-                    const msg = snapshot.val();
-                    const chatBody = document.getElementById('chatBody');
-                    const bubble = document.createElement('div');
-                    bubble.className = 'chat-bubble ' + (msg.remitente === 'cliente' ? 'sent' : 'received');
-                    bubble.textContent = msg.mensaje;
-                    chatBody.appendChild(bubble);
-                    chatBody.scrollTop = chatBody.scrollHeight;
-                });
-            }
-        }
-
-        function cerrarChat() {
-            document.getElementById('chatModal').classList.remove('active');
-        }
-
-        function enviarMensaje() {
-            const input = document.getElementById('chatMessageInput');
-            const mensaje = input.value.trim();
-            
+            const mensaje = prompt('💬 Mensaje para el chofer:');
             if (mensaje && currentServiceId) {
                 database.ref(`chats/${currentServiceId}`).push({
                     remitente: 'cliente',
                     userId: userId,
                     mensaje: mensaje,
                     timestamp: firebase.database.ServerValue.TIMESTAMP
+                }).then(() => {
+                    showToast('✅ Mensaje enviado');
+                }).catch((error) => {
+                    showToast('❌ Error: ' + error.message);
                 });
-                input.value = '';
             }
         }
 
-        // ========== REPORTE DE OBJETO ==========
-        function abrirReporteObjeto() {
-            document.getElementById('reportOverlay').classList.add('active');
-        }
-
-        function cerrarReporte() {
-            document.getElementById('reportOverlay').classList.remove('active');
-        }
-
-        function enviarReporte() {
-            const descripcion = document.getElementById('reportDescription').value.trim();
-            if (!descripcion) {
-                showToast('⚠️ Describe el objeto olvidado');
-                return;
+        // ========== EMERGENCIA ==========
+        function emergencia() {
+            if (confirm('🆘 ¿Activar alerta de emergencia?')) {
+                if (currentServiceId) {
+                    database.ref(`servicios/${currentServiceId}`).update({
+                        emergencia: true,
+                        timestamp_emergencia: firebase.database.ServerValue.TIMESTAMP
+                    });
+                }
+                showToast('🚨 Alerta activada');
             }
+        }
 
-            if (currentServiceId) {
+        function compartirUbicacion() {
+            if (navigator.share) {
+                navigator.share({
+                    title: 'Zaachila Moto',
+                    text: 'Estoy viajando en mototaxi',
+                    url: `https://maps.google.com/?q=${userLocation.lat},${userLocation.lng}`
+                }).catch(() => {});
+            } else {
+                prompt('📤 Comparte este enlace:', `https://maps.google.com/?q=${userLocation.lat},${userLocation.lng}`);
+            }
+        }
+
+        function reportarObjeto() {
+            const descripcion = prompt('📦 Describe el objeto olvidado:');
+            if (descripcion && currentServiceId) {
                 database.ref('reportes/objetos_olvidados').push({
                     servicioId: currentServiceId,
                     clienteId: userId,
@@ -1170,90 +872,20 @@
                     timestamp: firebase.database.ServerValue.TIMESTAMP
                 }).then(() => {
                     showToast('✅ Reporte enviado');
-                    cerrarReporte();
-                    document.getElementById('reportDescription').value = '';
-                });
-            }
-        }
-
-        // ========== CALIFICACIÓN ==========
-        function mostrarCalificacion() {
-            document.getElementById('ratingOverlay').classList.add('active');
-        }
-
-        function setRating(valor) {
-            calificacionSeleccionada = valor;
-            const stars = document.querySelectorAll('#ratingStars .star');
-            stars.forEach((star, index) => {
-                star.textContent = index < valor ? '★' : '☆';
-                star.classList.toggle('active', index < valor);
-            });
-        }
-
-        function enviarCalificacion() {
-            if (calificacionSeleccionada === 0) {
-                showToast('⚠️ Selecciona una calificación');
-                return;
-            }
-
-            if (currentServiceId) {
-                const comentario = document.getElementById('ratingComment').value.trim();
-                database.ref(`servicios/${currentServiceId}/calificacion`).set({
-                    puntuacion: calificacionSeleccionada,
-                    comentario: comentario
-                }).then(() => {
-                    showToast('⭐ ¡Gracias por calificar!');
-                    document.getElementById('ratingOverlay').classList.remove('active');
-                    resetearApp();
+                }).catch((error) => {
+                    showToast('❌ Error: ' + error.message);
                 });
             }
         }
 
         function resetearApp() {
             currentServiceId = null;
-            currentChoferId = null;
-            document.getElementById('requestPanel').style.display = 'block';
-            document.getElementById('activeServicePanel').style.display = 'none';
-            calificacionSeleccionada = 0;
-        }
-
-        // ========== EMERGENCIA ==========
-        function emergencia() {
-            if (confirm('🆘 ¿Activar alerta de emergencia?\n\nSe notificará al administrador.')) {
-                if (currentServiceId) {
-                    database.ref(`servicios/${currentServiceId}`).update({
-                        emergencia: true,
-                        timestamp_emergencia: firebase.database.ServerValue.TIMESTAMP
-                    });
-                }
-                showToast('🚨 Alerta de emergencia activada');
-            }
-        }
-
-        function compartirUbicacion() {
-            if (navigator.share) {
-                navigator.share({
-                    title: 'Mi ubicación - Zaachila Moto',
-                    text: 'Estoy viajando en Zaachila Moto',
-                    url: `https://maps.google.com/?q=${userLocation.lat},${userLocation.lng}`
-                }).catch(() => {});
-            } else {
-                showToast('📍 Ubicación: ' + userLocation.lat.toFixed(4) + ', ' + userLocation.lng.toFixed(4));
-            }
+            document.getElementById('requestPanel').classList.remove('hidden');
+            document.getElementById('activeServicePanel').classList.remove('active');
+            document.querySelectorAll('.status-icon-step').forEach(el => el.classList.remove('active'));
         }
 
         // ========== UTILIDADES ==========
-        function updateEstimatedFare() {
-            const destino = document.getElementById('destinyInput').value.trim();
-            if (destino) {
-                const fare = Math.floor(Math.random() * 20) + 30;
-                document.getElementById('estimatedFare').style.display = 'block';
-                document.getElementById('fareAmount').textContent = '$' + fare + ' MXN';
-            } else {
-                document.getElementById('estimatedFare').style.display = 'none';
-            }
-        }
-
         function calcularDistancia(lat1, lon1, lat2, lon2) {
             const R = 6371;
             const dLat = (lat2 - lat1) * Math.PI / 180;
@@ -1266,43 +898,19 @@
             map.setView([userLocation.lat, userLocation.lng], 16);
         }
 
-        function setDestino(direccion) {
-            document.getElementById('destinyInput').value = direccion;
-            updateEstimatedFare();
-            switchScreen('main', document.querySelector('.nav-item'));
-        }
-
-        function agregarFavorito() {
-            const direccion = prompt('📍 Nueva dirección favorita (Ej: Casa - Calle Principal #123):');
-            if (direccion) {
-                showToast('⭐ Favorito agregado: ' + direccion);
-            }
-        }
-
-        function switchScreen(screenName, element) {
-            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-            
-            const screen = document.getElementById('screen-' + screenName);
-            if (screen) screen.classList.add('active');
-            if (element) element.classList.add('active');
-        }
-
         function showToast(mensaje) {
             const toast = document.createElement('div');
             toast.className = 'toast';
             toast.textContent = mensaje;
             document.body.appendChild(toast);
-            
-            setTimeout(() => {
-                toast.remove();
-            }, 3000);
+            setTimeout(() => toast.remove(), 3000);
         }
 
-        // ========== INICIAR APP ==========
-        window.addEventListener('DOMContentLoaded', init);
-        console.log('🏍️ Zaachila Moto - Cliente App Listo');
-        console.log('🔥 Conectado a Firebase:', firebaseConfig.projectId);
+        // ========== INICIAR ==========
+        window.addEventListener('DOMContentLoaded', () => {
+            console.log('🏍️ Zaachila Moto - Cliente iniciando...');
+            init();
+        });
     </script>
 </body>
 </html>
