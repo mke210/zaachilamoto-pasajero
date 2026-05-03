@@ -5,6 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <meta name="theme-color" content="#0a0a0f">
     <title>Zaachila Moto</title>
+    
+    <!-- PWA -->
+    <link rel="manifest" href="/manifest.json">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="apple-mobile-web-app-title" content="Zaachila Moto">
+    <link rel="apple-touch-icon" href="/icon-192.png">
+    <link rel="icon" href="/icon-192.png">
+    
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
@@ -28,8 +37,7 @@
         .sheet{background:var(--bg2);border-radius:var(--r2) var(--r2) 0 0;padding:.7rem .9rem;border:1px solid var(--bd);border-bottom:none;flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;min-height:0}
         .sheet-handle{width:30px;height:3px;background:var(--bd);border-radius:2px;margin:0 auto .5rem}
         .inp-group{background:var(--card);border:1px solid var(--bd);border-radius:var(--r);padding:.5rem .7rem;margin-bottom:.4rem;display:flex;align-items:center;gap:.5rem}
-        .inp-group i{font-size:.7rem;width:16px;text-align:center}.inp-group input{flex:1;background:0;border:0;color:var(--txt);font-size:.8rem;outline:0}
-        .inp-group input::placeholder{color:var(--txt3)}
+        .inp-group i{font-size:.7rem;width:16px;text-align:center}.inp-group input{flex:1;background:0;border:0;color:var(--txt);font-size:.8rem;outline:0}.inp-group input::placeholder{color:var(--txt3)}
         .btn{width:100%;padding:.6rem;border-radius:var(--r);font-weight:700;font-size:.8rem;cursor:pointer;border:0;margin-top:.3rem;transition:.2s}
         .btn-p{background:var(--acc);color:#fff}.btn-p:disabled{opacity:.4}
         .btn-o{background:0;border:1px solid var(--bd);color:var(--txt2)}
@@ -89,11 +97,8 @@
 </div>
 <script>
 const fb={apiKey:"AIzaSyCBXBPMz2OZ3U2KfTaU-uHCBhwmbnR7O40",authDomain:"zaachilamoto.firebaseapp.com",databaseURL:"https://zaachilamoto-default-rtdb.firebaseio.com",projectId:"zaachilamoto",storageBucket:"zaachilamoto.firebasestorage.app",messagingSenderId:"559788509526",appId:"1:559788509526:web:c751d8d22068f09041aef7"};
-firebase.initializeApp(fb);
-const auth=firebase.auth(),db=firebase.database();
-let map,um,uid,sid,pos={lat:16.9516,lng:-96.7491},drM=[],chatOpen=false,rating=0,rated=false,vChId=null;
-const ZA=[16.9516,-96.7491];
-
+firebase.initializeApp(fb);const auth=firebase.auth(),db=firebase.database();
+let map,um,uid,sid,pos={lat:16.9516,lng:-96.7491},drM=[],chatOpen=false,rating=0,rated=false,vChId=null;const ZA=[16.9516,-96.7491];
 db.ref('.info/connected').on('value',s=>{const el=document.getElementById('connStatus');if(s.val()){el.className='status';el.textContent='Conectado';auth.signInAnonymously().then(u=>{uid=u.user.uid;loadDrivers();listenActive()}).catch(e=>console.error(e))}else{el.className='status off';el.textContent='Sin conexión'}});
 function initMap(){setTimeout(()=>{const c=document.getElementById('clientMap');if(!c||c.offsetHeight===0)c.style.height='250px';map=L.map('clientMap',{zoomControl:false,attributionControl:false}).setView(ZA,15);L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OSM'}).addTo(map);um=L.marker(ZA,{icon:L.divIcon({html:'<div style="background:#6C5CE7;width:12px;height:12px;border-radius:50%;border:2px solid #fff;box-shadow:0 0 15px rgba(108,92,231,.6);"></div>',iconSize:[16,16],iconAnchor:[8,8]})}).addTo(map);setTimeout(()=>map.invalidateSize(),300)},500)}
 function getLoc(){if(navigator.geolocation)navigator.geolocation.getCurrentPosition(p=>{pos={lat:p.coords.latitude,lng:p.coords.longitude};if(um)um.setLatLng([pos.lat,pos.lng]);if(map)map.setView([pos.lat,pos.lng],16);document.getElementById('pickup').value='Ubicación actual'},()=>document.getElementById('pickup').value='Villa de Zaachila',{enableHighAccuracy:true})}
@@ -102,33 +107,8 @@ function loadDrivers(){db.ref('choferes').orderByChild('estado').equalTo('activo
 function requestRide(){const dest=document.getElementById('destiny').value.trim();if(!dest){toast('Indica tu destino');return}const btn=document.getElementById('reqBtn');btn.disabled=true;btn.textContent='Buscando...';const data={clienteId:uid,origen:{lat:pos.lat,lng:pos.lng,direccion:document.getElementById('pickup').value},destino:{lat:pos.lat+.001,lng:pos.lng+.001,direccion:dest},estado:'buscando',timestamp:firebase.database.ServerValue.TIMESTAMP};const ref=db.ref('servicios').push();sid=ref.key;ref.set(data).then(()=>{document.getElementById('requestSheet').style.display='none';document.getElementById('activeSheet').style.display='block';listenService(sid)}).catch(()=>{btn.disabled=false;btn.textContent='Solicitar Mototaxi'})}
 function listenService(id){db.ref(`servicios/${id}`).on('value',s=>{const v=s.val();if(!v)return;if(v.choferId)vChId=v.choferId;if(v.estado==='tarifa_propuesta'){document.getElementById('aName').textContent=v.choferNombre||'Chofer';document.getElementById('aPlate').textContent=(v.choferColor||'')+' · '+v.choferPlaca+' · U.'+(v.choferUnidad||'---');document.getElementById('iFare').textContent='$'+(v.tarifa_propuesta||'0');showFare(id,v)}else if(v.estado==='aceptado'){document.getElementById('s1').classList.add('on');document.getElementById('iEta').textContent='3-5 min';document.getElementById('iDist').textContent='~1 km';toast('✅ Chofer en camino')}else if(v.estado==='en_camino'){document.getElementById('s1').classList.add('done');document.getElementById('s2').classList.add('on')}else if(v.estado==='en_servicio'){document.getElementById('s2').classList.add('done');document.getElementById('s3').classList.add('on')}else if(v.estado==='completado'){document.getElementById('s3').classList.add('done');toast('✅ Completado');showRating(id,v)}else if(v.estado==='cancelado'||v.estado==='rechazado'){toast('No disponible');reset()}});db.ref(`chats/${id}`).on('child_added',snap=>{const m=snap.val();if(m.remitente==='chofer'&&!chatOpen){document.getElementById('chatBadge').style.display='inline-block';playSound('msg');if(navigator.vibrate)navigator.vibrate(80)}})}
 function listenActive(){if(!uid)return;db.ref('servicios').orderByChild('clienteId').equalTo(uid).limitToLast(1).on('child_added',s=>{const v=s.val();if(v.estado!=='completado'&&v.estado!=='cancelado'){sid=s.key;document.getElementById('requestSheet').style.display='none';document.getElementById('activeSheet').style.display='block';listenService(sid)}})}
-
-// ✅ Modal con datos completos del chofer
-function showFare(id,v){
-    if(document.querySelector('.modal-overlay'))return;
-    document.querySelectorAll('.modal-overlay').forEach(m=>m.remove());
-    const fare=v.tarifa_propuesta||'0';
-    const color=v.choferColor||'No especificado';
-    const colorHex=getColorHex(color);
-    const m=document.createElement('div');m.className='modal-overlay';m.id='fareModal';
-    m.innerHTML=`<div class="modal-box"><div style="font-size:2.5rem">🏍️</div><h3>${v.choferNombre||'Chofer'}</h3>
-        <div class="driver-detail-box">
-            <div><span class="color-dot" style="background:${colorHex}"></span> <b>Color:</b> ${color}</div>
-            <div>📋 <b>Placa:</b> ${v.choferPlaca||'---'}</div>
-            <div>🔢 <b>Unidad:</b> ${v.choferUnidad||'---'}</div>
-            <div>📱 <b>Tel:</b> ${v.choferTelefono||'---'}</div>
-            <div>⭐ <b>Calif:</b> ${v.choferRating||'Nuevo'}</div>
-        </div>
-        <div class="price">$${fare}<span style="font-size:.7rem;color:var(--txt2)"> MXN</span></div>
-        <p style="font-size:.6rem;color:var(--warn);margin:.3rem 0">El chofer propone esta tarifa. ¿Aceptas?</p>
-        <button class="btn btn-p" id="btnOk">✅ Aceptar tarifa</button>
-        <button class="btn btn-r" id="btnNo" style="margin-top:.3rem">❌ Rechazar</button></div>`;
-    document.body.appendChild(m);
-    m.querySelector('#btnOk').onclick=()=>{m.remove();db.ref(`servicios/${id}`).update({estado:'aceptado',cliente_acepta_tarifa:true,ts:firebase.database.ServerValue.TIMESTAMP})};
-    m.querySelector('#btnNo').onclick=()=>{m.remove();db.ref(`servicios/${id}`).update({estado:'cancelado',motivo:'Cliente rechazó'});toast('Cancelado');reset()};
-}
+function showFare(id,v){if(document.querySelector('.modal-overlay'))return;document.querySelectorAll('.modal-overlay').forEach(m=>m.remove());const fare=v.tarifa_propuesta||'0';const color=v.choferColor||'No especificado';const colorHex=getColorHex(color);const m=document.createElement('div');m.className='modal-overlay';m.id='fareModal';m.innerHTML=`<div class="modal-box"><div style="font-size:2.5rem">🏍️</div><h3>${v.choferNombre||'Chofer'}</h3><div class="driver-detail-box"><div><span class="color-dot" style="background:${colorHex}"></span><b>Color:</b> ${color}</div><div>📋 <b>Placa:</b> ${v.choferPlaca||'---'}</div><div>🔢 <b>Unidad:</b> ${v.choferUnidad||'---'}</div><div>📱 <b>Tel:</b> ${v.choferTelefono||'---'}</div><div>⭐ <b>Calif:</b> ${v.choferRating||'Nuevo'}</div></div><div class="price">$${fare}<span style="font-size:.7rem;color:var(--txt2)"> MXN</span></div><p style="font-size:.6rem;color:var(--warn);margin:.3rem 0">El chofer propone esta tarifa. ¿Aceptas?</p><button class="btn btn-p" id="btnOk">✅ Aceptar tarifa</button><button class="btn btn-r" id="btnNo" style="margin-top:.3rem">❌ Rechazar</button></div>`;document.body.appendChild(m);m.querySelector('#btnOk').onclick=()=>{m.remove();db.ref(`servicios/${id}`).update({estado:'aceptado',cliente_acepta_tarifa:true,ts:firebase.database.ServerValue.TIMESTAMP})};m.querySelector('#btnNo').onclick=()=>{m.remove();db.ref(`servicios/${id}`).update({estado:'cancelado',motivo:'Cliente rechazó'});toast('Cancelado');reset()}}
 function getColorHex(c){const colors={rojo:'#FF4757',azul:'#3B82F6',verde:'#00C897',negro:'#333',blanco:'#FFF',gris:'#888',amarillo:'#FFA502',naranja:'#FF6B35',rosa:'#FF6B81',morado:'#6C5CE7'};return colors[(c||'').toLowerCase()]||'#FFF'}
-
 function showRating(id,v){if(rated)return;rated=true;document.querySelectorAll('.modal-overlay').forEach(m=>m.remove());db.ref(`servicios/${id}`).off();const m=document.createElement('div');m.className='modal-overlay';m.id='ratingModal';m.innerHTML=`<div class="modal-box"><div style="font-size:2.5rem">⭐</div><h3>Califica tu viaje</h3><p style="font-size:.7rem;color:var(--txt2);margin:.3rem 0">${v.choferNombre||'Chofer'}<br>${v.choferPlaca||''}</p><div class="stars" id="stars"><span onclick="setR(1)">☆</span><span onclick="setR(2)">☆</span><span onclick="setR(3)">☆</span><span onclick="setR(4)">☆</span><span onclick="setR(5)">☆</span></div><textarea id="rateCm" placeholder="Comentario" style="width:100%;padding:.5rem;background:var(--card);border:1px solid var(--bd);border-radius:var(--r);color:var(--txt);font-size:.7rem;outline:0;margin:.5rem 0;resize:none;font-family:inherit" rows="2"></textarea><button class="btn btn-p" onclick="sendR('${id}')">✅ Enviar</button><button class="btn btn-r" onclick="skipR()" style="margin-top:.3rem">Omitir</button></div>`;document.body.appendChild(m);window.setR=function(r){rating=r;document.querySelectorAll('#stars span').forEach((s,i)=>{s.textContent=i<r?'★':'☆';s.style.color=i<r?'var(--warn)':'var(--bd)'})}}
 window.sendR=function(id){if(rating===0){const s=document.getElementById('stars');if(s){s.style.animation='shake .5s ease';setTimeout(()=>s.style.animation='',500)}return}const cm=document.getElementById('rateCm')?.value||'';const md=document.getElementById('ratingModal');db.ref(`servicios/${id}/calificacion`).set({puntuacion:rating,comentario:cm,timestamp:firebase.database.ServerValue.TIMESTAMP}).then(()=>{if(vChId){db.ref(`choferes/${vChId}`).once('value',sn=>{const c=sn.val()||{};const t=c.total_servicios||0;const ca=c.calificacion||0;db.ref(`choferes/${vChId}`).update({calificacion:Math.round(((ca*t)+rating)/(t+1)*10)/10})})}if(md)md.remove();rated=false;rating=0;toast('⭐ Gracias');reset()})}
 window.skipR=function(){const m=document.getElementById('ratingModal');if(m)m.remove();rated=false;rating=0;toast('Omitido');reset()}
@@ -141,6 +121,11 @@ function calcDist(l1,l2,lo1,lo2){const R=6371,dLa=(l2-l1)*Math.PI/180,dLo=(lo2-l
 function toast(m){const t=document.createElement('div');t.className='toast';t.textContent=m;document.body.appendChild(t);setTimeout(()=>t.remove(),2500)}
 window.addEventListener('DOMContentLoaded',()=>{initMap();getLoc()});
 window.addEventListener('resize',()=>{if(map)setTimeout(()=>map.invalidateSize(),200)});
+</script>
+<!-- PWA Register -->
+<script>
+if('serviceWorker'in navigator){window.addEventListener('load',()=>{navigator.serviceWorker.register('/service-worker.js').then(reg=>console.log('✅ SW')).catch(err=>console.log('SW:',err))})}
+let deferredPrompt;window.addEventListener('beforeinstallprompt',(e)=>{e.preventDefault();deferredPrompt=e;setTimeout(()=>{if(deferredPrompt){const btn=document.createElement('button');btn.textContent='📲 Instalar App';btn.style.cssText='position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#FF8F00;color:#000;border:none;padding:12px 24px;border-radius:25px;font-weight:700;font-size:14px;z-index:9999;cursor:pointer;box-shadow:0 4px 20px rgba(255,143,0,.5);animation:pulse 2s infinite';btn.onclick=async()=>{deferredPrompt.prompt();await deferredPrompt.userChoice;deferredPrompt=null;btn.remove()};document.body.appendChild(btn);setTimeout(()=>{if(btn.parentNode)btn.remove()},15000)}},3000)});
 </script>
 </body>
 </html>
