@@ -17,185 +17,71 @@
     <style>
         :root{--bg:#0a0a0f;--bg2:#13111a;--card:#1a1722;--acc:#6C5CE7;--green:#00C897;--red:#FF4757;--warn:#FFA502;--txt:#fff;--txt2:#aaa;--txt3:#666;--bd:#252130;--r:12px;--r2:18px}
         *{margin:0;padding:0;box-sizing:border-box}
-        
-        html, body {
-            height: 100%;
-            width: 100%;
-            overflow: hidden;
-        }
-        
-        body {
-            font-family:'Inter','Segoe UI',sans-serif;
-            background:#000;
-            color:var(--txt);
-        }
-        
-        .app {
-            width: 100%;
-            max-width: 430px;
-            height: 100vh;
-            height: 100dvh;
-            margin:0 auto;
-            background:var(--bg);
-            display:flex;
-            flex-direction:column;
-        }
-        
-        @media(min-width:431px){
-            body{display:flex;justify-content:center;align-items:center;padding:20px}
-            .app{border-radius:30px;height:90vh;max-height:800px;box-shadow:0 0 50px rgba(108,92,231,.1)}
-        }
+        html,body{height:100%;width:100%;overflow:hidden}
+        body{font-family:'Inter','Segoe UI',sans-serif;background:#000;color:var(--txt)}
+        .app{width:100%;max-width:430px;height:100vh;height:100dvh;margin:0 auto;background:var(--bg);display:flex;flex-direction:column}
+        @media(min-width:431px){body{display:flex;justify-content:center;align-items:center;padding:20px}.app{border-radius:30px;height:90vh;max-height:800px;box-shadow:0 0 50px rgba(108,92,231,.1)}}
 
-        .topbar{
-            background:var(--bg2);padding:.5rem .8rem;
-            display:flex;align-items:center;justify-content:space-between;
-            border-bottom:1px solid var(--bd);flex-shrink:0;z-index:10;
-        }
-        .topbar h1{font-size:.9rem}
-        .topbar h1 span{color:var(--acc)}
+        .topbar{background:var(--bg2);padding:.5rem .8rem;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--bd);flex-shrink:0;z-index:10}
+        .topbar h1{font-size:.9rem}.topbar h1 span{color:var(--acc)}
         .status{font-size:.6rem;display:flex;align-items:center;gap:.3rem;color:var(--txt2)}
         .status::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--green)}
         .status.off::before{background:var(--red)}
 
-        /* MAPA - Tamaño fijo */
-        .map-container {
-            flex: 1;
-            min-height: 200px;
-            position: relative;
-            z-index: 1;
-        }
-        
-        #clientMap {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-        }
-        
-        .map-btns{
-            position:absolute;top:10px;right:10px;z-index:5;
-            display:flex;flex-direction:column;gap:4px;
-        }
-        .map-btns button{
-            width:30px;height:30px;border-radius:8px;
-            background:var(--card);border:1px solid var(--bd);
-            color:var(--txt);cursor:pointer;font-size:.7rem;
-        }
+        .map-container{flex:1;min-height:200px;position:relative;z-index:1}
+        #clientMap{position:absolute;top:0;left:0;width:100%;height:100%}
+        .map-btns{position:absolute;top:10px;right:10px;z-index:5;display:flex;flex-direction:column;gap:4px}
+        .map-btns button{width:30px;height:30px;border-radius:8px;background:var(--card);border:1px solid var(--bd);color:var(--txt);cursor:pointer;font-size:.7rem}
 
-        .sheet{
-            background:var(--bg2);border-radius:var(--r2) var(--r2) 0 0;
-            padding:.7rem .9rem;border:1px solid var(--bd);border-bottom:none;
-            flex-shrink:0;max-height:45vh;overflow-y:auto;
-        }
+        .sheet{background:var(--bg2);border-radius:var(--r2) var(--r2) 0 0;padding:.7rem .9rem;border:1px solid var(--bd);border-bottom:none;flex-shrink:0;max-height:45vh;overflow-y:auto}
         .sheet-handle{width:30px;height:3px;background:var(--bd);border-radius:2px;margin:0 auto .5rem}
 
-        .inp-group{
-            background:var(--card);border:1px solid var(--bd);border-radius:var(--r);
-            padding:.5rem .7rem;margin-bottom:.4rem;display:flex;align-items:center;gap:.5rem;
-        }
+        .inp-group{background:var(--card);border:1px solid var(--bd);border-radius:var(--r);padding:.5rem .7rem;margin-bottom:.4rem;display:flex;align-items:center;gap:.5rem}
         .inp-group i{font-size:.7rem;width:16px;text-align:center}
         .inp-group input{flex:1;background:0;border:0;color:var(--txt);font-size:.8rem;outline:0}
         .inp-group input::placeholder{color:var(--txt3)}
 
-        .btn{width:100%;padding:.6rem;border-radius:var(--r);font-weight:700;font-size:.8rem;cursor:pointer;border:0;margin-top:.3rem}
-        .btn-p{background:var(--acc);color:#fff}
-        .btn-p:disabled{opacity:.4}
+        .btn{width:100%;padding:.6rem;border-radius:var(--r);font-weight:700;font-size:.8rem;cursor:pointer;border:0;margin-top:.3rem;transition:.2s}
+        .btn-p{background:var(--acc);color:#fff}.btn-p:disabled{opacity:.4}
         .btn-o{background:0;border:1px solid var(--bd);color:var(--txt2)}
         .btn-r{background:rgba(255,71,87,.1);color:var(--red);border:1px solid rgba(255,71,87,.3)}
+        .btn-g{background:var(--green);color:#000}
 
-        .d-item{
-            background:var(--card);border:1px solid var(--bd);border-radius:var(--r);
-            padding:.5rem;display:flex;align-items:center;gap:.5rem;margin-bottom:.3rem;
-        }
-        .d-avatar{
-            width:32px;height:32px;border-radius:50%;background:var(--acc);
-            display:flex;align-items:center;justify-content:center;font-size:.8rem;flex-shrink:0;
-        }
-        .d-info{flex:1;min-width:0}
-        .d-name{font-size:.75rem;font-weight:600}
-        .d-meta{font-size:.6rem;color:var(--txt3)}
-        .d-badge{
-            font-size:.55rem;padding:.15rem .4rem;border-radius:8px;
-            background:rgba(0,200,151,.1);color:var(--green);font-weight:700;
-        }
+        .d-item{background:var(--card);border:1px solid var(--bd);border-radius:var(--r);padding:.5rem;display:flex;align-items:center;gap:.5rem;margin-bottom:.3rem}
+        .d-avatar{width:32px;height:32px;border-radius:50%;background:var(--acc);display:flex;align-items:center;justify-content:center;font-size:.8rem;flex-shrink:0}
+        .d-info{flex:1;min-width:0}.d-name{font-size:.75rem;font-weight:600}.d-meta{font-size:.6rem;color:var(--txt3)}
+        .d-badge{font-size:.55rem;padding:.15rem .4rem;border-radius:8px;background:rgba(0,200,151,.1);color:var(--green);font-weight:700}
 
         .steps{display:flex;gap:.3rem;margin:.5rem 0}
-        .step{
-            flex:1;text-align:center;padding:.4rem;background:var(--bg2);
-            border-radius:var(--r);border:1px solid var(--bd);font-size:.6rem;
-        }
-        .step.on{border-color:var(--acc);background:rgba(108,92,231,.1)}
-        .step.done{border-color:var(--green)}
+        .step{flex:1;text-align:center;padding:.4rem;background:var(--bg2);border-radius:var(--r);border:1px solid var(--bd);font-size:.6rem}
+        .step.on{border-color:var(--acc);background:rgba(108,92,231,.1)}.step.done{border-color:var(--green)}
         .step .sn{font-size:.8rem;font-weight:700}
-        
         .info-row{display:flex;justify-content:space-around;text-align:center;margin:.5rem 0}
-        .info-row .v{font-weight:700;font-size:.8rem}
-        .info-row .l{font-size:.55rem;color:var(--txt3)}
+        .info-row .v{font-weight:700;font-size:.8rem}.info-row .l{font-size:.55rem;color:var(--txt3)}
 
-        /* MODALES */
-        .modal-overlay{
-            position:fixed;top:0;left:0;width:100%;height:100%;
-            background:rgba(0,0,0,.9);z-index:999;
-            display:flex;align-items:center;justify-content:center;
-        }
-        .modal-box{
-            background:var(--bg2);border:1px solid var(--bd);border-radius:var(--r2);
-            padding:1.2rem;width:90%;max-width:320px;text-align:center;
-        }
+        .modal-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.9);z-index:999;display:flex;align-items:center;justify-content:center}
+        .modal-box{background:var(--bg2);border:1px solid var(--bd);border-radius:var(--r2);padding:1.2rem;width:90%;max-width:320px;text-align:center}
         .modal-box .price{font-size:2rem;font-weight:800;color:var(--acc);margin:.4rem 0}
 
-        .chat-modal{
-            position:fixed;top:0;left:0;width:100%;height:100%;
-            background:rgba(0,0,0,.95);z-index:999;
-            display:flex;flex-direction:column;
-        }
-        .chat-header{
-            background:var(--bg2);padding:.6rem .9rem;
-            display:flex;align-items:center;justify-content:space-between;
-            border-bottom:1px solid var(--bd);
-        }
-        .chat-body{
-            flex:1;overflow-y:auto;padding:.7rem;
-            display:flex;flex-direction:column;gap:.4rem;
-        }
+        .chat-modal{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.95);z-index:999;display:flex;flex-direction:column}
+        .chat-header{background:var(--bg2);padding:.6rem .9rem;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--bd)}
+        .chat-body{flex:1;overflow-y:auto;padding:.7rem;display:flex;flex-direction:column;gap:.4rem}
         .msg{max-width:80%;padding:.5rem .6rem;border-radius:12px;font-size:.7rem}
-        .msg.sent{background:var(--acc);align-self:flex-end}
-        .msg.recv{background:var(--card);align-self:flex-start;border:1px solid var(--bd)}
-        .chat-input-wrap{
-            padding:.5rem;display:flex;gap:.3rem;
-            border-top:1px solid var(--bd);background:var(--bg2);
-        }
-        .chat-input-wrap input{
-            flex:1;padding:.5rem;background:var(--card);border:1px solid var(--bd);
-            border-radius:var(--r);color:var(--txt);outline:0;font-size:.75rem;
-        }
-        .chat-input-wrap button{
-            padding:.5rem .8rem;background:var(--acc);color:#fff;
-            border:0;border-radius:var(--r);font-weight:700;cursor:pointer;
-        }
+        .msg.sent{background:var(--acc);align-self:flex-end}.msg.recv{background:var(--card);align-self:flex-start;border:1px solid var(--bd)}
+        .chat-input-wrap{padding:.5rem;display:flex;gap:.3rem;border-top:1px solid var(--bd);background:var(--bg2)}
+        .chat-input-wrap input{flex:1;padding:.5rem;background:var(--card);border:1px solid var(--bd);border-radius:var(--r);color:var(--txt);outline:0;font-size:.75rem}
+        .chat-input-wrap button{padding:.5rem .8rem;background:var(--acc);color:#fff;border:0;border-radius:var(--r);font-weight:700;cursor:pointer}
 
         .stars{display:flex;justify-content:center;gap:.3rem;margin:.8rem 0}
         .stars span{font-size:2rem;cursor:pointer;color:var(--bd);transition:.2s}
         .stars span.sel{color:var(--warn)}
 
-        .toast{
-            position:fixed;top:15px;left:50%;transform:translateX(-50%);
-            background:var(--card);border:1px solid var(--bd);padding:.5rem .8rem;
-            border-radius:var(--r);z-index:9999;font-size:.7rem;font-weight:600;
-            animation:ti 2.5s ease forwards;pointer-events:none;
-        }
-        @keyframes ti{
-            0%{opacity:0;transform:translateX(-50%) translateY(-10px)}
-            10%{opacity:1;transform:translateX(-50%) translateY(0)}
-            80%{opacity:1}100%{opacity:0}
-        }
+        .toast{position:fixed;top:15px;left:50%;transform:translateX(-50%);background:var(--card);border:1px solid var(--bd);padding:.5rem .8rem;border-radius:var(--r);z-index:9999;font-size:.7rem;font-weight:600;animation:ti 2.5s ease forwards;pointer-events:none}
+        @keyframes ti{0%{opacity:0;transform:translateX(-50%) translateY(-10px)}10%{opacity:1;transform:translateX(-50%) translateY(0)}80%{opacity:1}100%{opacity:0}}
+        @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
 
         .empty{text-align:center;color:var(--txt3);padding:1rem;font-size:.75rem}
-        .badge-new{
-            background:var(--red);color:#fff;padding:2px 6px;
-            border-radius:10px;font-size:.55rem;animation:pulse 1.5s infinite;
-        }
+        .badge-new{background:var(--red);color:#fff;padding:2px 6px;border-radius:10px;font-size:.55rem;animation:pulse 1.5s infinite}
         @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
     </style>
 </head>
@@ -206,7 +92,6 @@
         <div class="status" id="connStatus">Conectado</div>
     </header>
 
-    <!-- MAPA -->
     <div class="map-container">
         <div id="clientMap"></div>
         <div class="map-btns">
@@ -216,33 +101,19 @@
         </div>
     </div>
 
-    <!-- SOLICITUD -->
     <div class="sheet" id="requestSheet">
         <div class="sheet-handle"></div>
-        <div class="inp-group">
-            <i class="fa-solid fa-circle" style="color:var(--green)"></i>
-            <input id="pickup" placeholder="Tu ubicación" readonly>
-        </div>
-        <div class="inp-group">
-            <i class="fa-solid fa-location-dot" style="color:var(--red)"></i>
-            <input id="destiny" placeholder="¿A dónde vas?">
-        </div>
+        <div class="inp-group"><i class="fa-solid fa-circle" style="color:var(--green)"></i><input id="pickup" placeholder="Tu ubicación" readonly></div>
+        <div class="inp-group"><i class="fa-solid fa-location-dot" style="color:var(--red)"></i><input id="destiny" placeholder="¿A dónde vas?"></div>
         <button class="btn btn-p" id="reqBtn" onclick="requestRide()">Solicitar Mototaxi</button>
-        <div style="margin-top:.8rem">
-            <h4 style="font-size:.65rem;color:var(--txt3);text-transform:uppercase;letter-spacing:1px;margin-bottom:.4rem">Disponibles</h4>
-            <div id="driversList"><div class="empty">Cargando...</div></div>
-        </div>
+        <div style="margin-top:.8rem"><h4 style="font-size:.65rem;color:var(--txt3);text-transform:uppercase;letter-spacing:1px;margin-bottom:.4rem">Disponibles</h4><div id="driversList"><div class="empty">Cargando...</div></div></div>
     </div>
 
-    <!-- ACTIVO -->
     <div class="sheet" id="activeSheet" style="display:none">
         <div class="sheet-handle"></div>
         <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.5rem">
             <div style="width:36px;height:36px;border-radius:50%;background:var(--acc);display:flex;align-items:center;justify-content:center;font-size:1rem">🏍️</div>
-            <div>
-                <div style="font-weight:700;font-size:.8rem" id="aName">---</div>
-                <div style="font-size:.6rem;color:var(--txt2)" id="aPlate">---</div>
-            </div>
+            <div><div style="font-weight:700;font-size:.8rem" id="aName">---</div><div style="font-size:.6rem;color:var(--txt2)" id="aPlate">---</div></div>
         </div>
         <div class="steps">
             <div class="step on" id="s1"><div class="sn">1</div>En camino</div>
@@ -263,361 +134,125 @@
 const fb={apiKey:"AIzaSyCBXBPMz2OZ3U2KfTaU-uHCBhwmbnR7O40",authDomain:"zaachilamoto.firebaseapp.com",databaseURL:"https://zaachilamoto-default-rtdb.firebaseio.com",projectId:"zaachilamoto",storageBucket:"zaachilamoto.firebasestorage.app",messagingSenderId:"559788509526",appId:"1:559788509526:web:c751d8d22068f09041aef7"};
 firebase.initializeApp(fb);
 const auth=firebase.auth(),db=firebase.database();
-let map,um,uid,sid,pos={lat:16.9516,lng:-96.7491},drM=[],chatOpen=false,rating=0;
+let map,um,uid,sid,pos={lat:16.9516,lng:-96.7491},drM=[],chatOpen=false,rating=0,ratingShown=false,vChoferId=null;
 const ZA=[16.9516,-96.7491];
 
-// ========== CONEXIÓN ==========
 db.ref('.info/connected').on('value',s=>{
     const el=document.getElementById('connStatus');
     if(s.val()){el.className='status';el.textContent='Conectado';auth.signInAnonymously().then(u=>{uid=u.user.uid;loadDrivers();listenActive()}).catch(e=>console.error(e))}
     else{el.className='status off';el.textContent='Sin conexión'}
 });
 
-// ========== MAPA ==========
 function initMap(){
-    // Esperar a que el DOM esté listo y el contenedor tenga tamaño
     setTimeout(()=>{
-        const container=document.getElementById('clientMap');
-        if(!container||container.offsetHeight===0){
-            // Si no tiene altura, forzar altura
-            container.style.height='300px';
-        }
-        
-        map=L.map('clientMap',{
-            zoomControl:false,
-            attributionControl:false
-        }).setView(ZA,15);
-        
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
-            attribution:'© OpenStreetMap'
-        }).addTo(map);
-        
-        um=L.marker(ZA,{
-            icon:L.divIcon({
-                html:'<div style="background:#6C5CE7;width:12px;height:12px;border-radius:50%;border:2px solid #fff;box-shadow:0 0 15px rgba(108,92,231,.6);"></div>',
-                iconSize:[16,16],
-                iconAnchor:[8,8]
-            })
-        }).addTo(map);
-        
-        // Forzar redibujado del mapa
+        const c=document.getElementById('clientMap');if(!c||c.offsetHeight===0)c.style.height='300px';
+        map=L.map('clientMap',{zoomControl:false,attributionControl:false}).setView(ZA,15);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OSM'}).addTo(map);
+        um=L.marker(ZA,{icon:L.divIcon({html:'<div style="background:#6C5CE7;width:12px;height:12px;border-radius:50%;border:2px solid #fff;box-shadow:0 0 15px rgba(108,92,231,.6);"></div>',iconSize:[16,16],iconAnchor:[8,8]})}).addTo(map);
         setTimeout(()=>map.invalidateSize(),300);
     },500);
 }
 
 function getLoc(){
-    if(navigator.geolocation){
-        navigator.geolocation.getCurrentPosition(
-            p=>{
-                pos={lat:p.coords.latitude,lng:p.coords.longitude};
-                if(um)um.setLatLng([pos.lat,pos.lng]);
-                if(map)map.setView([pos.lat,pos.lng],16);
-                document.getElementById('pickup').value='Ubicación actual';
-            },
-            ()=>{
-                document.getElementById('pickup').value='Villa de Zaachila, Oaxaca';
-            },
-            {enableHighAccuracy:true,timeout:10000}
-        );
-    }
+    if(navigator.geolocation)navigator.geolocation.getCurrentPosition(p=>{pos={lat:p.coords.latitude,lng:p.coords.longitude};if(um)um.setLatLng([pos.lat,pos.lng]);if(map)map.setView([pos.lat,pos.lng],16);document.getElementById('pickup').value='Ubicación actual'},()=>document.getElementById('pickup').value='Villa de Zaachila, Oaxaca',{enableHighAccuracy:true,timeout:10000});
 }
 
 function centerMap(){if(map)map.setView([pos.lat,pos.lng],16)}
 
-// ========== CHOFERES ==========
 function loadDrivers(){
     db.ref('choferes').orderByChild('estado').equalTo('activo').on('value',s=>{
-        const d=s.val();
-        if(drM.length)drM.forEach(m=>map.removeLayer(m));
-        drM=[];
-        let h='';
-        
-        if(!d||!Object.keys(d).length){
-            document.getElementById('driversList').innerHTML='<div class="empty">Sin mototaxis disponibles</div>';
-            return;
-        }
-        
+        const d=s.val();if(drM.length)drM.forEach(m=>map.removeLayer(m));drM=[];let h='';
+        if(!d||!Object.keys(d).length){document.getElementById('driversList').innerHTML='<div class="empty">Sin mototaxis disponibles</div>';return}
         Object.entries(d).forEach(([id,c])=>{
-            if(c.ubicacion&&map){
-                const m=L.marker([c.ubicacion.lat,c.ubicacion.lng],{
-                    icon:L.divIcon({
-                        html:'<div style="background:#00C897;color:#000;padding:2px 6px;border-radius:8px;font-size:10px;font-weight:700">🏍️</div>',
-                        iconSize:[26,16],
-                        iconAnchor:[13,8]
-                    })
-                }).addTo(map);
-                drM.push(m);
-            }
+            if(c.ubicacion&&map){const m=L.marker([c.ubicacion.lat,c.ubicacion.lng],{icon:L.divIcon({html:'<div style="background:#00C897;color:#000;padding:2px 6px;border-radius:8px;font-size:10px;font-weight:700">🏍️</div>',iconSize:[26,16],iconAnchor:[13,8]})}).addTo(map);drM.push(m)}
             const dist=calcDist(pos.lat,pos.lng,c.ubicacion?.lat||ZA[0],c.ubicacion?.lng||ZA[1]);
-            h+=`<div class="d-item">
-                <div class="d-avatar">🏍️</div>
-                <div class="d-info">
-                    <div class="d-name">${c.nombre||'Chofer'}</div>
-                    <div class="d-meta">📍${dist.toFixed(1)}km · ⭐${c.calificacion||'Nuevo'}</div>
-                </div>
-                <span class="d-badge">DISP</span>
-            </div>`;
+            h+=`<div class="d-item"><div class="d-avatar">🏍️</div><div class="d-info"><div class="d-name">${c.nombre||'Chofer'}</div><div class="d-meta">📍${dist.toFixed(1)}km · ⭐${c.calificacion||'Nuevo'}</div></div><span class="d-badge">DISP</span></div>`
         });
-        document.getElementById('driversList').innerHTML=h;
+        document.getElementById('driversList').innerHTML=h
     });
 }
 
-// ========== SOLICITAR ==========
 function requestRide(){
-    const dest=document.getElementById('destiny').value.trim();
-    if(!dest){toast('Indica tu destino');return}
-    
-    const btn=document.getElementById('reqBtn');
-    btn.disabled=true;btn.textContent='Buscando...';
-    
-    const data={
-        clienteId:uid,
-        origen:{lat:pos.lat,lng:pos.lng,direccion:document.getElementById('pickup').value},
-        destino:{lat:pos.lat+.001,lng:pos.lng+.001,direccion:dest},
-        tarifa_estimada:Math.floor(Math.random()*25)+30,
-        estado:'buscando',
-        timestamp:firebase.database.ServerValue.TIMESTAMP
-    };
-    
-    const ref=db.ref('servicios').push();
-    sid=ref.key;
-    
-    ref.set(data).then(()=>{
-        document.getElementById('requestSheet').style.display='none';
-        document.getElementById('activeSheet').style.display='block';
-        listenService(sid);
-    }).catch(()=>{
-        btn.disabled=false;
-        btn.textContent='Solicitar Mototaxi';
-        toast('Error al solicitar');
-    });
+    const dest=document.getElementById('destiny').value.trim();if(!dest){toast('Indica tu destino');return}
+    const btn=document.getElementById('reqBtn');btn.disabled=true;btn.textContent='Buscando...';
+    const data={clienteId:uid,origen:{lat:pos.lat,lng:pos.lng,direccion:document.getElementById('pickup').value},destino:{lat:pos.lat+.001,lng:pos.lng+.001,direccion:dest},tarifa_estimada:Math.floor(Math.random()*25)+30,estado:'buscando',timestamp:firebase.database.ServerValue.TIMESTAMP};
+    const ref=db.ref('servicios').push();sid=ref.key;
+    ref.set(data).then(()=>{document.getElementById('requestSheet').style.display='none';document.getElementById('activeSheet').style.display='block';listenService(sid)}).catch(()=>{btn.disabled=false;btn.textContent='Solicitar Mototaxi';toast('Error al solicitar')});
 }
 
-// ========== ESCUCHAR SERVICIO ==========
 function listenService(id){
     db.ref(`servicios/${id}`).on('value',s=>{
-        const v=s.val();
-        if(!v)return;
-        
-        if(v.estado==='tarifa_propuesta'){
-            document.getElementById('aName').textContent=v.choferNombre||'Chofer';
-            document.getElementById('aPlate').textContent=v.choferPlaca||'---';
-            document.getElementById('iFare').textContent='$'+(v.tarifa_propuesta||v.tarifa_estimada);
-            showFareModal(id,v);
-        }else if(v.estado==='aceptado'){
-            document.getElementById('s1').classList.add('on');
-            document.getElementById('iEta').textContent='3-5 min';
-            document.getElementById('iDist').textContent='~1 km';
-            toast('✅ Chofer en camino');
-        }else if(v.estado==='en_camino'){
-            document.getElementById('s1').classList.add('done');
-            document.getElementById('s2').classList.add('on');
-        }else if(v.estado==='en_servicio'){
-            document.getElementById('s2').classList.add('done');
-            document.getElementById('s3').classList.add('on');
-        }else if(v.estado==='completado'){
-            document.getElementById('s3').classList.add('done');
-            toast('✅ Completado');
-            showRating(id,v);
-        }else if(v.estado==='cancelado'||v.estado==='rechazado'){
-            toast('Servicio no disponible');
-            reset();
-        }
+        const v=s.val();if(!v)return;
+        if(v.choferId)vChoferId=v.choferId;
+        if(v.estado==='tarifa_propuesta'){document.getElementById('aName').textContent=v.choferNombre||'Chofer';document.getElementById('aPlate').textContent=v.choferPlaca||'---';document.getElementById('iFare').textContent='$'+(v.tarifa_propuesta||v.tarifa_estimada);showFareModal(id,v)}
+        else if(v.estado==='aceptado'){document.getElementById('s1').classList.add('on');document.getElementById('iEta').textContent='3-5 min';document.getElementById('iDist').textContent='~1 km';toast('✅ Chofer en camino')}
+        else if(v.estado==='en_camino'){document.getElementById('s1').classList.add('done');document.getElementById('s2').classList.add('on')}
+        else if(v.estado==='en_servicio'){document.getElementById('s2').classList.add('done');document.getElementById('s3').classList.add('on')}
+        else if(v.estado==='completado'){document.getElementById('s3').classList.add('done');toast('✅ Completado');showRating(id,v)}
+        else if(v.estado==='cancelado'||v.estado==='rechazado'){toast('No disponible');reset()}
     });
-    
-    // Chat
-    db.ref(`chats/${id}`).on('child_added',snap=>{
-        const m=snap.val();
-        if(m.remitente==='chofer'&&!chatOpen){
-            document.getElementById('chatBadge').style.display='inline-block';
-            playSound('msg');
-        }
-    });
+    db.ref(`chats/${id}`).on('child_added',snap=>{const m=snap.val();if(m.remitente==='chofer'&&!chatOpen){document.getElementById('chatBadge').style.display='inline-block';playSound('msg')}});
 }
 
-function listenActive(){
-    if(!uid)return;
-    db.ref('servicios').orderByChild('clienteId').equalTo(uid).limitToLast(1)
-        .on('child_added',s=>{
-            const v=s.val();
-            if(v.estado!=='completado'&&v.estado!=='cancelado'){
-                sid=s.key;
-                document.getElementById('requestSheet').style.display='none';
-                document.getElementById('activeSheet').style.display='block';
-                listenService(sid);
-            }
-        });
-}
+function listenActive(){if(!uid)return;db.ref('servicios').orderByChild('clienteId').equalTo(uid).limitToLast(1).on('child_added',s=>{const v=s.val();if(v.estado!=='completado'&&v.estado!=='cancelado'){sid=s.key;document.getElementById('requestSheet').style.display='none';document.getElementById('activeSheet').style.display='block';listenService(sid)}})}
 
-// ========== MODAL TARIFA ==========
 function showFareModal(id,v){
     document.querySelectorAll('.modal-overlay').forEach(m=>m.remove());
     const fare=v.tarifa_propuesta||v.tarifa_estimada||40;
     const m=document.createElement('div');m.className='modal-overlay';
-    m.innerHTML=`<div class="modal-box">
-        <div style="font-size:2.5rem">🏍️</div>
-        <h3>${v.choferNombre||'Chofer'}</h3>
-        <p style="font-size:.7rem;color:var(--txt2)">${v.choferPlaca} · ⭐${v.choferRating}</p>
-        <div class="price">$${fare}<span style="font-size:.7rem;color:var(--txt2)"> MXN</span></div>
-        <p style="font-size:.6rem;color:var(--warn);margin:.3rem 0">Confirma para que el chofer vaya a recogerte</p>
-        <button class="btn btn-p" id="btnOk">✅ Aceptar tarifa</button>
-        <button class="btn btn-r" id="btnNo" style="margin-top:.3rem">❌ Rechazar</button>
-    </div>`;
+    m.innerHTML=`<div class="modal-box"><div style="font-size:2.5rem">🏍️</div><h3>${v.choferNombre||'Chofer'}</h3><p style="font-size:.7rem;color:var(--txt2)">${v.choferPlaca} · ⭐${v.choferRating}</p><div class="price">$${fare}<span style="font-size:.7rem;color:var(--txt2)"> MXN</span></div><p style="font-size:.6rem;color:var(--warn);margin:.3rem 0">Confirma para que el chofer vaya a recogerte</p><button class="btn btn-p" id="btnOk">✅ Aceptar tarifa</button><button class="btn btn-r" id="btnNo" style="margin-top:.3rem">❌ Rechazar</button></div>`;
     document.body.appendChild(m);
-    
-    m.querySelector('#btnOk').onclick=()=>{
-        m.remove();
-        db.ref(`servicios/${id}`).update({
-            estado:'aceptado',
-            cliente_acepta_tarifa:true,
-            ts:firebase.database.ServerValue.TIMESTAMP
-        });
-    };
-    
-    m.querySelector('#btnNo').onclick=()=>{
-        m.remove();
-        db.ref(`servicios/${id}`).update({estado:'cancelado',motivo:'Cliente rechazó tarifa'});
-        toast('Cancelado');reset();
-    };
+    m.querySelector('#btnOk').onclick=()=>{m.remove();db.ref(`servicios/${id}`).update({estado:'aceptado',cliente_acepta_tarifa:true,ts:firebase.database.ServerValue.TIMESTAMP})};
+    m.querySelector('#btnNo').onclick=()=>{m.remove();db.ref(`servicios/${id}`).update({estado:'cancelado',motivo:'Cliente rechazó'});toast('Cancelado');reset()};
 }
 
-// ========== CALIFICACIÓN ==========
 function showRating(id,v){
+    if(ratingShown)return;ratingShown=true;
     document.querySelectorAll('.modal-overlay').forEach(m=>m.remove());
-    const m=document.createElement('div');m.className='modal-overlay';
-    m.innerHTML=`<div class="modal-box">
-        <h3>⭐ Califica tu viaje</h3>
-        <p style="font-size:.7rem;color:var(--txt2);margin:.3rem 0">${v.choferNombre||'Chofer'}</p>
-        <div class="stars" id="stars">${[1,2,3,4,5].map(i=>`<span onclick="setRating(${i})">☆</span>`).join('')}</div>
-        <input type="text" id="rateComment" placeholder="Comentario (opcional)" style="width:100%;padding:.5rem;background:var(--card);border:1px solid var(--bd);border-radius:var(--r);color:var(--txt);font-size:.7rem;outline:0;margin-bottom:.5rem">
-        <button class="btn btn-p" onclick="sendRating('${id}','${v.choferId}')">Enviar calificación</button>
-    </div>`;
+    db.ref(`servicios/${id}`).off();
+    const m=document.createElement('div');m.className='modal-overlay';m.id='ratingModal';
+    m.innerHTML=`<div class="modal-box"><div style="font-size:2.5rem;margin-bottom:.3rem">⭐</div><h3>Califica tu viaje</h3><p style="font-size:.7rem;color:var(--txt2);margin:.3rem 0">${v.choferNombre||'Chofer'}<br><span style="font-size:.6rem">${v.choferPlaca||''}</span></p><div class="stars" id="stars"><span onclick="setRating(1)">☆</span><span onclick="setRating(2)">☆</span><span onclick="setRating(3)">☆</span><span onclick="setRating(4)">☆</span><span onclick="setRating(5)">☆</span></div><textarea id="rateComment" placeholder="Comentario (opcional)" style="width:100%;padding:.5rem;background:var(--card);border:1px solid var(--bd);border-radius:var(--r);color:var(--txt);font-size:.7rem;outline:0;margin:.5rem 0;resize:none;font-family:inherit" rows="2"></textarea><button class="btn btn-p" onclick="sendRating('${id}')">✅ Enviar calificación</button><button class="btn btn-r" onclick="skipRating()" style="margin-top:.3rem">Omitir</button></div>`;
     document.body.appendChild(m);
-    
-    window.setRating=function(r){
-        rating=r;
-        document.querySelectorAll('#stars span').forEach((s,i)=>{
-            s.textContent=i<r?'★':'☆';
-            s.classList.toggle('sel',i<r);
-        });
-    };
+    window.setRating=function(r){rating=r;document.querySelectorAll('#stars span').forEach((s,i)=>{s.textContent=i<r?'★':'☆';s.style.color=i<r?'var(--warn)':'var(--bd)'})};
 }
 
-window.sendRating=function(id,chId){
-    if(rating===0){toast('Selecciona una calificación');return}
+window.sendRating=function(id){
+    if(rating===0){const s=document.getElementById('stars');if(s){s.style.animation='shake .5s ease';setTimeout(()=>s.style.animation='',500)}return}
     const comment=document.getElementById('rateComment')?.value||'';
-    db.ref(`servicios/${id}/calificacion`).set({
-        puntuacion:rating,
-        comentario:comment,
-        ts:firebase.database.ServerValue.TIMESTAMP
-    });
-    document.querySelector('.modal-overlay')?.remove();
-    toast('⭐ ¡Gracias por calificar!');
-    reset();
+    const modal=document.getElementById('ratingModal');
+    db.ref(`servicios/${id}/calificacion`).set({puntuacion:rating,comentario:comment,timestamp:firebase.database.ServerValue.TIMESTAMP}).then(()=>{
+        if(vChoferId){db.ref(`choferes/${vChoferId}`).once('value',snap=>{const c=snap.val()||{};const t=c.total_servicios||0;const ca=c.calificacion||0;const nc=Math.round(((ca*t)+rating)/(t+1)*10)/10;db.ref(`choferes/${vChoferId}`).update({calificacion:nc})})}
+        if(modal)modal.remove();ratingShown=false;rating=0;toast('⭐ ¡Gracias!');reset();
+    }).catch(e=>{console.error(e);toast('Error')});
 };
 
-// ========== CHAT ==========
+window.skipRating=function(){const m=document.getElementById('ratingModal');if(m)m.remove();ratingShown=false;rating=0;toast('Omitido');reset()};
+
 function openChat(){
-    if(!sid)return;
-    document.getElementById('chatBadge').style.display='none';
-    chatOpen=true;
-    
+    if(!sid)return;document.getElementById('chatBadge').style.display='none';chatOpen=true;
     const d=document.createElement('div');d.className='chat-modal';
-    d.innerHTML=`<div class="chat-header">
-        <span>💬 Chat con el chofer</span>
-        <button onclick="this.closest('.chat-modal').remove();chatOpen=false" style="background:none;border:none;color:var(--txt);font-size:1.2rem;cursor:pointer">✕</button>
-    </div>
-    <div class="chat-body" id="chatMsgs"></div>
-    <div class="chat-input-wrap">
-        <input type="text" id="chatInput" placeholder="Escribe un mensaje..." onkeypress="if(event.key==='Enter')sendMsg()">
-        <button onclick="sendMsg()">Enviar</button>
-    </div>`;
+    d.innerHTML=`<div class="chat-header"><span>💬 Chat con el chofer</span><button onclick="this.closest('.chat-modal').remove();chatOpen=false" style="background:none;border:none;color:var(--txt);font-size:1.2rem;cursor:pointer">✕</button></div><div class="chat-body" id="chatMsgs"></div><div class="chat-input-wrap"><input type="text" id="chatInput" placeholder="Escribe..." onkeypress="if(event.key==='Enter')sendMsg()"><button onclick="sendMsg()">Enviar</button></div>`;
     document.body.appendChild(d);
-    
-    db.ref(`chats/${sid}`).on('child_added',s=>{
-        const m=s.val();
-        const el=document.getElementById('chatMsgs');
-        if(el){
-            el.innerHTML+=`<div class="msg ${m.remitente==='cliente'?'sent':'recv'}">${m.mensaje}</div>`;
-            el.scrollTop=el.scrollHeight;
-        }
-    });
+    db.ref(`chats/${sid}`).on('child_added',s=>{const m=s.val();const el=document.getElementById('chatMsgs');if(el){el.innerHTML+=`<div class="msg ${m.remitente==='cliente'?'sent':'recv'}">${m.mensaje}</div>`;el.scrollTop=el.scrollHeight}});
 }
 
-window.sendMsg=function(){
-    const i=document.getElementById('chatInput');
-    const m=i?.value.trim();
-    if(m&&sid){
-        db.ref(`chats/${sid}`).push({
-            remitente:'cliente',
-            userId:uid,
-            mensaje:m,
-            ts:firebase.database.ServerValue.TIMESTAMP
-        });
-        i.value='';
-    }
-};
+window.sendMsg=function(){const i=document.getElementById('chatInput');const m=i?.value.trim();if(m&&sid){db.ref(`chats/${sid}`).push({remitente:'cliente',userId:uid,mensaje:m,ts:firebase.database.ServerValue.TIMESTAMP});i.value=''}};
 
-// ========== ACCIONES ==========
-function cancel(){
-    if(!sid)return;
-    if(confirm('¿Cancelar este servicio?')){
-        db.ref(`servicios/${sid}`).update({
-            estado:'cancelado',
-            ts:firebase.database.ServerValue.TIMESTAMP
-        });
-        reset();
-        toast('Servicio cancelado');
-    }
-}
+function cancel(){if(!sid)return;if(confirm('¿Cancelar?')){db.ref(`servicios/${sid}`).update({estado:'cancelado',ts:firebase.database.ServerValue.TIMESTAMP});reset();toast('Cancelado')}}
 
 function reset(){
-    sid=null;rating=0;
-    document.getElementById('requestSheet').style.display='block';
-    document.getElementById('activeSheet').style.display='none';
-    document.getElementById('destiny').value='';
-    document.getElementById('reqBtn').disabled=false;
-    document.getElementById('reqBtn').textContent='Solicitar Mototaxi';
-    document.querySelectorAll('.step').forEach(s=>s.className='step');
-    document.getElementById('s1').classList.add('on');
+    sid=null;rating=0;ratingShown=false;vChoferId=null;
+    document.getElementById('requestSheet').style.display='block';document.getElementById('activeSheet').style.display='none';
+    document.getElementById('destiny').value='';document.getElementById('reqBtn').disabled=false;document.getElementById('reqBtn').textContent='Solicitar Mototaxi';
+    document.querySelectorAll('.step').forEach(s=>s.className='step');document.getElementById('s1').classList.add('on');
 }
 
-// ========== UTILIDADES ==========
-function playSound(t){
-    try{
-        const c=new(window.AudioContext||window.webkitAudioContext)();
-        const o=c.createOscillator(),g=c.createGain();
-        o.connect(g);g.connect(c.destination);
-        o.frequency.value=t==='msg'?1000:600;
-        g.gain.value=.15;o.start();o.stop(c.currentTime+.1);
-    }catch(e){}
-}
+function playSound(t){try{const c=new(window.AudioContext||window.webkitAudioContext)();const o=c.createOscillator(),g=c.createGain();o.connect(g);g.connect(c.destination);o.frequency.value=t==='msg'?1000:600;g.gain.value=.15;o.start();o.stop(c.currentTime+.1)}catch(e){}}
+function calcDist(l1,l2,lo1,lo2){const R=6371,dLa=(l2-l1)*Math.PI/180,dLo=(lo2-lo1)*Math.PI/180;const a=Math.sin(dLa/2)**2+Math.cos(l1*Math.PI/180)*Math.cos(l2*Math.PI/180)*Math.sin(dLo/2)**2;return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a))}
+function toast(m){const t=document.createElement('div');t.className='toast';t.textContent=m;document.body.appendChild(t);setTimeout(()=>t.remove(),2500)}
 
-function calcDist(lat1,lon1,lat2,lon2){
-    const R=6371;
-    const dLat=(lat2-lat1)*Math.PI/180;
-    const dLon=(lon2-lon1)*Math.PI/180;
-    const a=Math.sin(dLat/2)**2+Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLon/2)**2;
-    return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
-}
-
-function toast(m){
-    const t=document.createElement('div');
-    t.className='toast';t.textContent=m;
-    document.body.appendChild(t);
-    setTimeout(()=>t.remove(),2500);
-}
-
-// ========== INICIAR ==========
-window.addEventListener('DOMContentLoaded',()=>{
-    initMap();
-    getLoc();
-    console.log('🏍️ Zaachila Moto Cliente listo');
-});
-
-window.addEventListener('resize',()=>{
-    if(map)setTimeout(()=>map.invalidateSize(),200);
-});
+window.addEventListener('DOMContentLoaded',()=>{initMap();getLoc()});
+window.addEventListener('resize',()=>{if(map)setTimeout(()=>map.invalidateSize(),200)});
 </script>
 </body>
 </html>
