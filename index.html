@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <meta name="theme-color" content="#0a0a0f">
-    <title>Zaachila Moto</title>
+    <title>Zaachila Moto - Pasajero</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='48' fill='%236C5CE7'/><text x='50' y='65' text-anchor='middle' font-size='45'>🛺</text></svg>">
     <link rel="manifest" href="/manifest.json">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -17,142 +17,174 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
     <style>
-        :root{--bg:#0a0a0f;--bg2:#13111a;--card:#1a1722;--acc:#6C5CE7;--green:#00C897;--red:#FF4757;--warn:#FFA502;--txt:#fff;--txt2:#aaa;--txt3:#666;--bd:#252130;--r:12px;--r2:18px}
+        :root{--bg:#0a0a0f;--bg2:#13111a;--card:#1a1722;--acc:#6C5CE7;--acc2:#9B8FFF;--green:#00C897;--red:#FF4757;--warn:#FFA502;--txt:#fff;--txt2:#aaa;--txt3:#666;--bd:#252130;--r:14px;--r2:20px}
         *{margin:0;padding:0;box-sizing:border-box}html,body{height:100%;overflow:hidden}
         body{font-family:'Inter','Segoe UI',sans-serif;background:#000;color:var(--txt)}
-        .app{max-width:430px;margin:0 auto;height:100vh;background:var(--bg);display:flex;flex-direction:column}
-        @media(min-width:431px){body{display:flex;justify-content:center;align-items:center;padding:20px}.app{border-radius:30px;height:90vh;max-height:800px;box-shadow:0 0 50px rgba(108,92,231,.1)}}
-        .topbar{background:var(--bg2);padding:.5rem .8rem;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--bd);flex-shrink:0;z-index:10}
-        .topbar h1{font-size:.9rem}.topbar h1 span{color:var(--acc)}
-        .status{font-size:.6rem;display:flex;align-items:center;gap:.3rem;color:var(--txt2)}
-        .status::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--green)}.status.off::before{background:var(--red)}
-        .map-container{flex:0 0 220px;position:relative;z-index:1}
+        .app{max-width:430px;margin:0 auto;height:100vh;background:linear-gradient(180deg,var(--bg) 0%,#0d0b15 100%);display:flex;flex-direction:column}
+        @media(min-width:431px){body{display:flex;justify-content:center;align-items:center;padding:20px}.app{border-radius:30px;height:90vh;max-height:800px;box-shadow:0 0 60px rgba(108,92,231,.15)}}
+        
+        /* Header mejorado */
+        .topbar{background:linear-gradient(135deg,var(--acc),#4834d4);padding:.6rem 1rem;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;z-index:10;box-shadow:0 4px 15px rgba(108,92,231,.3)}
+        .topbar-brand{display:flex;align-items:center;gap:.5rem}
+        .topbar-logo{width:34px;height:34px;background:rgba(255,255,255,.2);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.2rem}
+        .topbar h1{font-size:.85rem;font-weight:700;line-height:1.1}
+        .topbar h1 span{font-size:.6rem;opacity:.8;display:block;font-weight:400}
+        .status{font-size:.6rem;display:flex;align-items:center;gap:.3rem;color:rgba(255,255,255,.8);background:rgba(0,0,0,.2);padding:.25rem .6rem;border-radius:12px}
+        .status::before{content:'';width:5px;height:5px;border-radius:50%;background:#0f0;box-shadow:0 0 6px #0f0}.status.off::before{background:var(--red);box-shadow:0 0 6px var(--red)}
+        
+        /* Mapa */
+        .map-container{flex:0 0 230px;position:relative;z-index:1;border-bottom:2px solid var(--acc)}
         #clientMap{position:absolute;top:0;left:0;width:100%;height:100%}
-        .map-btns{position:absolute;top:10px;right:10px;z-index:5;display:flex;flex-direction:column;gap:4px}
-        .map-btns button{width:30px;height:30px;border-radius:8px;background:var(--card);border:1px solid var(--bd);color:var(--txt);cursor:pointer;font-size:.7rem}
-        .bottom-nav{display:flex;background:var(--bg2);border-top:1px solid var(--bd);flex-shrink:0}
-        .bottom-nav button{flex:1;padding:.5rem;background:0;border:0;color:var(--txt3);font-size:.65rem;cursor:pointer;transition:.2s}
-        .bottom-nav button.on{color:var(--acc);border-top:2px solid var(--acc)}
-        .sheet{background:var(--bg2);padding:.7rem .9rem;flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;min-height:0}
-        .inp-group{background:var(--card);border:1px solid var(--bd);border-radius:var(--r);padding:.5rem .7rem;margin-bottom:.4rem;display:flex;align-items:center;gap:.5rem}
-        .inp-group i{font-size:.7rem;width:16px;text-align:center}.inp-group input{flex:1;background:0;border:0;color:var(--txt);font-size:.8rem;outline:0}.inp-group input::placeholder{color:var(--txt3)}
-        .btn{width:100%;padding:.6rem;border-radius:var(--r);font-weight:700;font-size:.8rem;cursor:pointer;border:0;margin-top:.3rem;transition:.2s}
-        .btn-p{background:var(--acc);color:#fff}.btn-p:disabled{opacity:.4}
-        .btn-o{background:0;border:1px solid var(--bd);color:var(--txt2)}
-        .btn-r{background:rgba(255,71,87,.1);color:var(--red);border:1px solid rgba(255,71,87,.3)}
-        .d-item{background:var(--card);border:1px solid var(--bd);border-radius:var(--r);padding:.5rem;display:flex;align-items:center;gap:.5rem;margin-bottom:.3rem}
-        .d-avatar{width:32px;height:32px;border-radius:50%;background:var(--acc);display:flex;align-items:center;justify-content:center;font-size:.8rem;flex-shrink:0}
+        .map-btns{position:absolute;top:10px;right:10px;z-index:5;display:flex;flex-direction:column;gap:5px}
+        .map-btns button{width:32px;height:32px;border-radius:10px;background:rgba(26,23,34,.9);border:1px solid var(--bd);color:var(--txt);cursor:pointer;font-size:.7rem;backdrop-filter:blur(5px)}
+        
+        /* Bottom nav */
+        .bottom-nav{display:flex;background:var(--bg2);border-top:1px solid var(--bd);flex-shrink:0;padding:.3rem 0}
+        .bottom-nav button{flex:1;padding:.5rem;background:0;border:0;color:var(--txt3);font-size:.65rem;cursor:pointer;transition:.2s;display:flex;flex-direction:column;align-items:center;gap:.2rem}
+        .bottom-nav button.on{color:var(--acc);font-weight:700}
+        .bottom-nav button i{font-size:1.1rem}
+        .bottom-nav button.on i{text-shadow:0 0 10px rgba(108,92,231,.5)}
+        
+        /* Content */
+        .sheet{background:var(--bg2);padding:.8rem 1rem;flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;min-height:0}
+        .section-title{font-size:.6rem;color:var(--txt3);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:.4rem;display:flex;align-items:center;gap:.4rem}
+        .section-title::after{content:'';flex:1;height:1px;background:var(--bd)}
+        
+        .inp-group{background:var(--card);border:1px solid var(--bd);border-radius:var(--r);padding:.6rem .8rem;margin-bottom:.5rem;display:flex;align-items:center;gap:.5rem;transition:.2s}
+        .inp-group:focus-within{border-color:var(--acc);box-shadow:0 0 0 3px rgba(108,92,231,.1)}
+        .inp-group i{font-size:.7rem;width:16px;text-align:center}
+        .inp-group input{flex:1;background:0;border:0;color:var(--txt);font-size:.8rem;outline:0}.inp-group input::placeholder{color:var(--txt3)}
+        
+        .btn{width:100%;padding:.7rem;border-radius:var(--r);font-weight:700;font-size:.8rem;cursor:pointer;border:0;margin-top:.4rem;transition:.2s;letter-spacing:.3px}
+        .btn-p{background:linear-gradient(135deg,var(--acc),#4834d4);color:#fff;box-shadow:0 4px 15px rgba(108,92,231,.3)}
+        .btn-p:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(108,92,231,.4)}
+        .btn-p:disabled{opacity:.4;transform:none}
+        .btn-o{background:transparent;border:1px solid var(--bd);color:var(--txt2)}
+        .btn-r{background:rgba(255,71,87,.1);color:var(--red);border:1px solid rgba(255,71,87,.2)}
+        
+        .d-item{background:var(--card);border:1px solid var(--bd);border-radius:var(--r);padding:.6rem .7rem;display:flex;align-items:center;gap:.5rem;margin-bottom:.3rem;transition:.2s}
+        .d-item:hover{border-color:var(--acc)}
+        .d-avatar{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--acc),#4834d4);display:flex;align-items:center;justify-content:center;font-size:.8rem;flex-shrink:0}
         .d-info{flex:1}.d-name{font-size:.75rem;font-weight:600}.d-meta{font-size:.6rem;color:var(--txt3)}
-        .d-badge{font-size:.55rem;padding:.15rem .4rem;border-radius:8px;background:rgba(0,200,151,.1);color:var(--green);font-weight:700}
+        .d-badge{font-size:.55rem;padding:.15rem .5rem;border-radius:8px;background:rgba(0,200,151,.15);color:var(--green);font-weight:700;border:1px solid rgba(0,200,151,.3)}
+        
         .steps{display:flex;gap:.3rem;margin:.5rem 0}
-        .step{flex:1;text-align:center;padding:.4rem;background:var(--bg2);border-radius:var(--r);border:1px solid var(--bd);font-size:.6rem}
-        .step.on{border-color:var(--acc);background:rgba(108,92,231,.1)}.step.done{border-color:var(--green)}.step .sn{font-size:.8rem;font-weight:700}
-        .info-row{display:flex;justify-content:space-around;text-align:center;margin:.5rem 0}
-        .info-row .v{font-weight:700;font-size:.8rem}.info-row .l{font-size:.55rem;color:var(--txt3)}
-        .modal-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.9);z-index:999;display:flex;align-items:center;justify-content:center}
-        .modal-box{background:var(--bg2);border:1px solid var(--bd);border-radius:var(--r2);padding:1.2rem;width:90%;max-width:340px;text-align:center}
-        .modal-box .price{font-size:2rem;font-weight:800;color:var(--acc);margin:.4rem 0}
-        .driver-detail-box{background:var(--card);border-radius:var(--r);padding:.6rem;margin:.5rem 0;text-align:left;font-size:.7rem;line-height:1.7}
+        .step{flex:1;text-align:center;padding:.5rem;background:var(--card);border-radius:var(--r);border:1px solid var(--bd);font-size:.6rem;transition:.3s}
+        .step.on{border-color:var(--acc);background:rgba(108,92,231,.1);box-shadow:0 0 15px rgba(108,92,231,.15)}.step.done{border-color:var(--green);background:rgba(0,200,151,.05)}.step .sn{font-size:.9rem;font-weight:700}
+        .info-row{display:flex;justify-content:space-around;text-align:center;margin:.6rem 0;background:var(--card);border-radius:var(--r);padding:.6rem}
+        .info-row .v{font-weight:700;font-size:.85rem}.info-row .l{font-size:.55rem;color:var(--txt3)}
+        
+        .modal-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.9);z-index:999;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(5px)}
+        .modal-box{background:var(--bg2);border:1px solid var(--bd);border-radius:var(--r2);padding:1.5rem;width:90%;max-width:340px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.5)}
+        .modal-box .price{font-size:2.2rem;font-weight:800;color:var(--acc2);margin:.4rem 0}
+        .driver-detail-box{background:var(--card);border-radius:var(--r);padding:.7rem;margin:.5rem 0;text-align:left;font-size:.7rem;line-height:1.8}
         .driver-detail-box div{display:flex;align-items:center;gap:.4rem}
-        .color-dot{width:12px;height:12px;border-radius:50%;display:inline-block;flex-shrink:0}
-        .chat-modal{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.95);z-index:999;display:flex;flex-direction:column}
-        .chat-header{background:var(--bg2);padding:.6rem .9rem;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--bd)}
-        .chat-body{flex:1;overflow-y:auto;padding:.7rem;display:flex;flex-direction:column;gap:.4rem}
-        .msg{max-width:80%;padding:.5rem .6rem;border-radius:12px;font-size:.7rem}
-        .msg.sent{background:var(--acc);align-self:flex-end}.msg.recv{background:var(--card);align-self:flex-start;border:1px solid var(--bd)}
-        .chat-input-wrap{padding:.5rem;display:flex;gap:.3rem;border-top:1px solid var(--bd);background:var(--bg2)}
-        .chat-input-wrap input{flex:1;padding:.5rem;background:var(--card);border:1px solid var(--bd);border-radius:var(--r);color:var(--txt);outline:0;font-size:.75rem}
-        .chat-input-wrap button{padding:.5rem .8rem;background:var(--acc);color:#fff;border:0;border-radius:var(--r);font-weight:700;cursor:pointer}
-        .stars{display:flex;justify-content:center;gap:.3rem;margin:.8rem 0}
-        .stars span{font-size:2rem;cursor:pointer;color:var(--bd);transition:.2s}.stars span.sel{color:var(--warn)}
-        .history-item{background:var(--card);border:1px solid var(--bd);border-radius:var(--r);padding:.6rem;margin-bottom:.4rem;display:flex;justify-content:space-between;align-items:center}
-        .history-item .info{flex:1;font-size:.7rem}.history-item .price{font-weight:700;color:var(--green)}
-        .history-item .btn-sm{padding:.3rem .5rem;border-radius:6px;font-size:.6rem;background:var(--warn);color:#000;border:0;cursor:pointer}
-        .toast{position:fixed;top:15px;left:50%;transform:translateX(-50%);background:var(--card);border:1px solid var(--bd);padding:.5rem .8rem;border-radius:var(--r);z-index:9999;font-size:.7rem;font-weight:600;animation:ti 2.5s ease forwards;pointer-events:none}
+        .color-dot{width:10px;height:10px;border-radius:50%;display:inline-block;flex-shrink:0;box-shadow:0 0 6px}
+        
+        .chat-modal{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.97);z-index:999;display:flex;flex-direction:column}
+        .chat-header{background:linear-gradient(135deg,var(--acc),#4834d4);padding:.7rem 1rem;display:flex;align-items:center;justify-content:space-between}
+        .chat-body{flex:1;overflow-y:auto;padding:.8rem;display:flex;flex-direction:column;gap:.5rem}
+        .msg{max-width:80%;padding:.6rem .8rem;border-radius:16px;font-size:.72rem;line-height:1.4}
+        .msg.sent{background:linear-gradient(135deg,var(--acc),#4834d4);align-self:flex-end;border-bottom-right-radius:4px}.msg.recv{background:var(--card);align-self:flex-start;border:1px solid var(--bd);border-bottom-left-radius:4px}
+        .chat-input-wrap{padding:.6rem;display:flex;gap:.4rem;background:var(--bg2);border-top:1px solid var(--bd)}
+        .chat-input-wrap input{flex:1;padding:.6rem;background:var(--card);border:1px solid var(--bd);border-radius:20px;color:var(--txt);outline:0;font-size:.75rem}
+        .chat-input-wrap button{padding:.6rem 1rem;background:var(--acc);color:#fff;border:0;border-radius:20px;font-weight:700;cursor:pointer}
+        
+        .stars{display:flex;justify-content:center;gap:.4rem;margin:.8rem 0}
+        .stars span{font-size:2.2rem;cursor:pointer;color:var(--bd);transition:.2s}.stars span.sel{color:var(--warn);text-shadow:0 0 10px rgba(255,165,2,.5)}
+        
+        .history-item{background:var(--card);border:1px solid var(--bd);border-radius:var(--r);padding:.7rem;margin-bottom:.4rem;display:flex;justify-content:space-between;align-items:center;transition:.2s}
+        .history-item:hover{border-color:var(--acc)}.history-item .info{flex:1;font-size:.7rem}.history-item .price{font-weight:700;color:var(--green)}.history-item .btn-sm{padding:.35rem .6rem;border-radius:8px;font-size:.6rem;background:var(--warn);color:#000;border:0;cursor:pointer;font-weight:700}
+        
+        .toast{position:fixed;top:15px;left:50%;transform:translateX(-50%);background:var(--card);border:1px solid var(--bd);padding:.6rem 1rem;border-radius:20px;z-index:9999;font-size:.7rem;font-weight:600;animation:ti 2.5s ease forwards;pointer-events:none;box-shadow:0 5px 20px rgba(0,0,0,.4)}
         @keyframes ti{0%{opacity:0;transform:translateX(-50%) translateY(-10px)}10%{opacity:1;transform:translateX(-50%) translateY(0)}80%{opacity:1}100%{opacity:0}}
         @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
-        .empty{text-align:center;color:var(--txt3);padding:1rem;font-size:.75rem}
-        .badge-new{background:var(--red);color:#fff;padding:2px 6px;border-radius:10px;font-size:.55rem;animation:pulse 1.5s infinite}
+        .empty{text-align:center;color:var(--txt3);padding:1.5rem;font-size:.75rem}
+        .badge-new{background:var(--red);color:#fff;padding:3px 7px;border-radius:10px;font-size:.55rem;animation:pulse 1.5s infinite;font-weight:700}
         @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
         
-        /* NOTIFICACIONES MEJORADAS */
-        .notif-banner{background:linear-gradient(135deg,var(--acc),#4834d4);color:#fff;padding:.7rem 1rem;text-align:center;font-size:.75rem;font-weight:700;animation:slideDown .4s ease;display:flex;align-items:center;justify-content:center;gap:.5rem;border-bottom:2px solid rgba(255,255,255,.2)}
+        .notif-banner{background:linear-gradient(135deg,var(--acc),#4834d4);color:#fff;padding:.8rem 1rem;text-align:center;font-size:.75rem;font-weight:700;animation:slideDown .4s ease;display:flex;align-items:center;justify-content:center;gap:.5rem;border-bottom:2px solid rgba(255,255,255,.3)}
         .notif-banner.error{background:linear-gradient(135deg,var(--red),#c0392b)}
         .notif-banner.success{background:linear-gradient(135deg,var(--green),#00a86b)}
         @keyframes slideDown{from{transform:translateY(-100%);opacity:0}to{transform:translateY(0);opacity:1}}
         
-        .chat-notif{position:fixed;bottom:80px;right:15px;background:var(--acc);color:#fff;padding:.6rem 1rem;border-radius:20px;font-size:.7rem;font-weight:700;z-index:999;animation:bounceIn .5s ease;box-shadow:0 5px 20px rgba(108,92,231,.5);cursor:pointer;display:flex;align-items:center;gap:.4rem;max-width:250px}
+        .chat-notif{position:fixed;bottom:80px;right:15px;background:var(--acc);color:#fff;padding:.7rem 1rem;border-radius:20px;font-size:.7rem;font-weight:700;z-index:999;animation:bounceIn .5s ease;box-shadow:0 5px 25px rgba(108,92,231,.5);cursor:pointer;display:flex;align-items:center;gap:.4rem;max-width:250px}
         @keyframes bounceIn{0%{transform:scale(0)}50%{transform:scale(1.1)}100%{transform:scale(1)}}
     </style>
 </head>
 <body>
 <div class="app">
-    <header class="topbar"><h1>🛺 Zaachila <span>Moto</span></h1><div class="status" id="connStatus">Conectado</div></header>
-    <div class="map-container" id="mapContainer"><div id="clientMap"></div><div class="map-btns"><button onclick="centerMap()"><i class="fa-solid fa-location-crosshairs"></i></button><button onclick="map.zoomIn()">+</button><button onclick="map.zoomOut()">-</button></div></div>
+    <header class="topbar">
+        <div class="topbar-brand">
+            <div class="topbar-logo">🛺</div>
+            <h1>Zaachila Moto<span>Pasajero</span></h1>
+        </div>
+        <div class="status" id="connStatus">Conectado</div>
+    </header>
+    <div class="map-container"><div id="clientMap"></div><div class="map-btns"><button onclick="centerMap()"><i class="fa-solid fa-location-crosshairs"></i></button><button onclick="map.zoomIn()">+</button><button onclick="map.zoomOut()">-</button></div></div>
     <div id="notifBanner" style="display:none" class="notif-banner"></div>
+    
     <div class="sheet" id="screenInicio">
         <div id="requestSheet">
+            <div class="section-title">📍 Tu ubicación</div>
             <div class="inp-group"><i class="fa-solid fa-circle" style="color:var(--green)"></i><input id="pickup" placeholder="Tu ubicación" readonly></div>
+            <div class="section-title">🎯 Destino</div>
             <div class="inp-group"><i class="fa-solid fa-location-dot" style="color:var(--red)"></i><input id="destiny" placeholder="¿A dónde vas?"></div>
-            <button class="btn btn-p" id="reqBtn" onclick="requestRide()">Solicitar Mototaxi</button>
-            <div style="margin-top:.8rem"><h4 style="font-size:.65rem;color:var(--txt3);text-transform:uppercase;letter-spacing:1px;margin-bottom:.4rem">Disponibles</h4><div id="driversList"><div class="empty">Cargando...</div></div></div>
+            <button class="btn btn-p" id="reqBtn" onclick="requestRide()">🛺 Solicitar Mototaxi</button>
+            <div style="margin-top:1rem">
+                <div class="section-title">Mototaxis disponibles</div>
+                <div id="driversList"><div class="empty">Cargando...</div></div>
+            </div>
         </div>
         <div id="activeSheet" style="display:none">
-            <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.5rem"><div style="width:36px;height:36px;border-radius:50%;background:var(--acc);display:flex;align-items:center;justify-content:center;font-size:1rem">🛺</div><div><div style="font-weight:700;font-size:.8rem" id="aName">---</div><div style="font-size:.6rem;color:var(--txt2)" id="aPlate">---</div></div></div>
+            <div class="section-title">🛺 Servicio Activo</div>
+            <div style="display:flex;align-items:center;gap:.6rem;margin-bottom:.6rem;background:var(--card);padding:.6rem;border-radius:var(--r)">
+                <div style="width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,var(--acc),#4834d4);display:flex;align-items:center;justify-content:center;font-size:1.2rem">🛺</div>
+                <div><div style="font-weight:700;font-size:.8rem" id="aName">---</div><div style="font-size:.6rem;color:var(--txt2)" id="aPlate">---</div></div>
+            </div>
             <div class="steps"><div class="step on" id="s1"><div class="sn">1</div>En camino</div><div class="step" id="s2"><div class="sn">2</div>Recogida</div><div class="step" id="s3"><div class="sn">3</div>Destino</div></div>
             <div class="info-row"><div><div class="v" id="iEta">---</div><div class="l">Llegada</div></div><div><div class="v" id="iFare">$0</div><div class="l">Tarifa</div></div><div><div class="v" id="iDist">---</div><div class="l">Distancia</div></div></div>
             <button class="btn btn-o" onclick="openChat()">💬 Chat <span id="chatBadge" class="badge-new" style="display:none">Nuevo</span></button>
-            <button class="btn btn-r" onclick="cancel()">Cancelar servicio</button>
+            <button class="btn btn-r" onclick="cancel()">✕ Cancelar servicio</button>
         </div>
     </div>
+    
     <div class="sheet" id="screenHistorial" style="display:none">
-        <h3 style="font-size:.85rem;margin-bottom:.8rem">📋 Últimos viajes</h3>
+        <div class="section-title">📋 Últimos viajes</div>
         <div id="historyList"><div class="empty">Cargando...</div></div>
     </div>
+    
     <div class="bottom-nav">
-        <button class="on" onclick="showScreen('inicio',this)">🏠 Inicio</button>
-        <button onclick="showScreen('historial',this)">📋 Historial</button>
+        <button class="on" onclick="showScreen('inicio',this)"><i class="fa-solid fa-house"></i> Inicio</button>
+        <button onclick="showScreen('historial',this)"><i class="fa-solid fa-clock-rotate-left"></i> Historial</button>
     </div>
 </div>
 <script>
 const fb={apiKey:"AIzaSyCBXBPMz2OZ3U2KfTaU-uHCBhwmbnR7O40",authDomain:"zaachilamoto.firebaseapp.com",databaseURL:"https://zaachilamoto-default-rtdb.firebaseio.com",projectId:"zaachilamoto",storageBucket:"zaachilamoto.firebasestorage.app",messagingSenderId:"559788509526",appId:"1:559788509526:web:c751d8d22068f09041aef7"};
 firebase.initializeApp(fb);const auth=firebase.auth(),db=firebase.database();
 let map,um,uid,sid,pos={lat:16.9516,lng:-96.7491},drM=[],chatOpen=false,rating=0,rated=false,vChId=null;const ZA=[16.9516,-96.7491];
-db.ref('.info/connected').on('value',s=>{const el=document.getElementById('connStatus');if(s.val()){el.className='status';el.textContent='Conectado';auth.signInAnonymously().then(u=>{uid=u.user.uid;loadDrivers();listenActive()}).catch(e=>console.error(e))}else{el.className='status off';el.textContent='Sin conexión'}});
-function initMap(){setTimeout(()=>{const c=document.getElementById('clientMap');if(!c||c.offsetHeight===0)c.style.height='220px';map=L.map('clientMap',{zoomControl:false,attributionControl:false}).setView(ZA,15);L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OSM'}).addTo(map);um=L.marker(ZA,{icon:L.divIcon({html:'<div style="background:#6C5CE7;width:12px;height:12px;border-radius:50%;border:2px solid #fff;box-shadow:0 0 15px rgba(108,92,231,.6);"></div>',iconSize:[16,16],iconAnchor:[8,8]})}).addTo(map);setTimeout(()=>map.invalidateSize(),300)},500)}
+db.ref('.info/connected').on('value',s=>{const el=document.getElementById('connStatus');if(s.val()){el.className='status';el.textContent='En línea';auth.signInAnonymously().then(u=>{uid=u.user.uid;loadDrivers();listenActive()}).catch(e=>console.error(e))}else{el.className='status off';el.textContent='Sin conexión'}});
+function initMap(){setTimeout(()=>{const c=document.getElementById('clientMap');if(!c||c.offsetHeight===0)c.style.height='230px';map=L.map('clientMap',{zoomControl:false,attributionControl:false}).setView(ZA,15);L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{attribution:'© CartoDB'}).addTo(map);um=L.marker(ZA,{icon:L.divIcon({html:'<div style="background:#6C5CE7;width:14px;height:14px;border-radius:50%;border:3px solid #fff;box-shadow:0 0 20px rgba(108,92,231,.8);"></div>',iconSize:[20,20],iconAnchor:[10,10]})}).addTo(map);setTimeout(()=>map.invalidateSize(),300)},500)}
 function getLoc(){if(navigator.geolocation)navigator.geolocation.getCurrentPosition(p=>{pos={lat:p.coords.latitude,lng:p.coords.longitude};if(um)um.setLatLng([pos.lat,pos.lng]);if(map)map.setView([pos.lat,pos.lng],16);document.getElementById('pickup').value='Ubicación actual'},()=>document.getElementById('pickup').value='Villa de Zaachila',{enableHighAccuracy:true})}
 function centerMap(){if(map)map.setView([pos.lat,pos.lng],16)}
 function showScreen(name,el){document.getElementById('screenInicio').style.display=name==='inicio'?'block':'none';document.getElementById('screenHistorial').style.display=name==='historial'?'block':'none';document.querySelectorAll('.bottom-nav button').forEach(b=>b.classList.remove('on'));el.classList.add('on');if(name==='historial')loadHistory()}
-function loadDrivers(){db.ref('choferes').orderByChild('estado').equalTo('activo').on('value',s=>{const d=s.val();drM.forEach(m=>map.removeLayer(m));drM=[];let h='';if(!d||!Object.keys(d).length){document.getElementById('driversList').innerHTML='<div class="empty">Sin disponibles</div>';return}Object.entries(d).forEach(([id,c])=>{if(c.ubicacion&&map){const m=L.marker([c.ubicacion.lat,c.ubicacion.lng],{icon:L.divIcon({html:'<div style="background:#00C897;color:#000;padding:2px 6px;border-radius:8px;font-size:10px;font-weight:700">🛺</div>',iconSize:[26,16],iconAnchor:[13,8]})}).addTo(map);drM.push(m)}const dist=calcDist(pos.lat,pos.lng,c.ubicacion?.lat||ZA[0],c.ubicacion?.lng||ZA[1]);h+=`<div class="d-item"><div class="d-avatar">🛺</div><div class="d-info"><div class="d-name">${c.nombre||'Chofer'}</div><div class="d-meta">📍${dist.toFixed(1)}km · ⭐${c.calificacion||'Nuevo'}</div></div><span class="d-badge">DISP</span></div>`});document.getElementById('driversList').innerHTML=h})}
-function requestRide(){const dest=document.getElementById('destiny').value.trim();if(!dest){toast('Indica tu destino');return}const btn=document.getElementById('reqBtn');btn.disabled=true;btn.textContent='Buscando...';const data={clienteId:uid,origen:{lat:pos.lat,lng:pos.lng,direccion:document.getElementById('pickup').value},destino:{lat:pos.lat+.001,lng:pos.lng+.001,direccion:dest},estado:'buscando',timestamp:firebase.database.ServerValue.TIMESTAMP};const ref=db.ref('servicios').push();sid=ref.key;ref.set(data).then(()=>{document.getElementById('requestSheet').style.display='none';document.getElementById('activeSheet').style.display='block';listenService(sid)}).catch(()=>{btn.disabled=false;btn.textContent='Solicitar Mototaxi'})}
+function loadDrivers(){db.ref('choferes').orderByChild('estado').equalTo('activo').on('value',s=>{const d=s.val();drM.forEach(m=>map.removeLayer(m));drM=[];let h='';if(!d||!Object.keys(d).length){document.getElementById('driversList').innerHTML='<div class="empty">Sin mototaxis disponibles</div>';return}Object.entries(d).forEach(([id,c])=>{if(c.ubicacion&&map){const m=L.marker([c.ubicacion.lat,c.ubicacion.lng],{icon:L.divIcon({html:'<div style="background:#00C897;color:#000;padding:3px 7px;border-radius:10px;font-size:10px;font-weight:700;box-shadow:0 0 10px rgba(0,200,151,.5)">🛺</div>',iconSize:[30,20],iconAnchor:[15,10]})}).addTo(map);drM.push(m)}const dist=calcDist(pos.lat,pos.lng,c.ubicacion?.lat||ZA[0],c.ubicacion?.lng||ZA[1]);h+=`<div class="d-item"><div class="d-avatar">🛺</div><div class="d-info"><div class="d-name">${c.nombre||'Chofer'}</div><div class="d-meta">📍${dist.toFixed(1)}km · ⭐${c.calificacion||'Nuevo'}</div></div><span class="d-badge">DISP</span></div>`});document.getElementById('driversList').innerHTML=h})}
+function requestRide(){const dest=document.getElementById('destiny').value.trim();if(!dest){toast('Indica tu destino');return}const btn=document.getElementById('reqBtn');btn.disabled=true;btn.textContent='🔍 Buscando...';const data={clienteId:uid,origen:{lat:pos.lat,lng:pos.lng,direccion:document.getElementById('pickup').value},destino:{lat:pos.lat+.001,lng:pos.lng+.001,direccion:dest},estado:'buscando',timestamp:firebase.database.ServerValue.TIMESTAMP};const ref=db.ref('servicios').push();sid=ref.key;ref.set(data).then(()=>{document.getElementById('requestSheet').style.display='none';document.getElementById('activeSheet').style.display='block';listenService(sid)}).catch(()=>{btn.disabled=false;btn.textContent='🛺 Solicitar Mototaxi'})}
 function showNotif(msg,type='info'){const b=document.getElementById('notifBanner');b.innerHTML=msg;b.className='notif-banner '+type;b.style.display='flex';playSound('notif');if(navigator.vibrate)navigator.vibrate([100,50,100]);setTimeout(()=>b.style.display='none',4000)}
 function showChatPopup(msg){const exist=document.querySelector('.chat-notif');if(exist)exist.remove();const popup=document.createElement('div');popup.className='chat-notif';popup.innerHTML=`💬 <b>Chofer:</b> ${msg.substring(0,30)}${msg.length>30?'...':''}`;popup.onclick=()=>{popup.remove();openChat()};document.body.appendChild(popup);setTimeout(()=>{if(popup.parentNode)popup.remove()},4000)}
-function listenService(id){
-    db.ref(`servicios/${id}`).on('value',s=>{
-        const v=s.val();if(!v)return;
-        if(v.choferId)vChId=v.choferId;
-        if(v.estado==='tarifa_propuesta'){document.getElementById('aName').textContent=v.choferNombre||'Chofer';document.getElementById('aPlate').textContent=(v.choferColor||'')+' · '+v.choferPlaca+' · U.'+(v.choferUnidad||'---');document.getElementById('iFare').textContent='$'+(v.tarifa_propuesta||'0');showFare(id,v)}
-        else if(v.estado==='aceptado'){document.getElementById('s1').classList.add('on');document.getElementById('iEta').textContent='3-5 min';document.getElementById('iDist').textContent='~1 km';showNotif('✅ Chofer aceptó y va en camino 🛺','success')}
-        else if(v.estado==='en_camino'){document.getElementById('s1').classList.add('done');document.getElementById('s2').classList.add('on');showNotif('🛺 Chofer viene en camino a recogerte','info')}
-        else if(v.estado==='en_servicio'){document.getElementById('s2').classList.add('done');document.getElementById('s3').classList.add('on');showNotif('🚀 Viaje iniciado hacia tu destino','info')}
-        else if(v.estado==='completado'){document.getElementById('s3').classList.add('done');showNotif('✅ Viaje completado','success');showRating(id,v)}
-        else if(v.estado==='cancelado_chofer'){showNotif('❌ El chofer canceló el viaje. Solicita otro.','error');toast('El chofer canceló');reset()}
-        else if(v.estado==='cancelado'||v.estado==='rechazado'){toast('No disponible');reset()}
-    });
-    db.ref(`chats/${id}`).on('child_added',snap=>{const m=snap.val();if(m.remitente==='chofer'&&!chatOpen){document.getElementById('chatBadge').style.display='inline-block';playSound('msg');if(navigator.vibrate)navigator.vibrate([150,100,150]);showChatPopup(m.mensaje)}});
-}
+function listenService(id){db.ref(`servicios/${id}`).on('value',s=>{const v=s.val();if(!v)return;if(v.choferId)vChId=v.choferId;if(v.estado==='tarifa_propuesta'){document.getElementById('aName').textContent=v.choferNombre||'Chofer';document.getElementById('aPlate').textContent=(v.choferColor||'')+' · '+v.choferPlaca+' · U.'+(v.choferUnidad||'---');document.getElementById('iFare').textContent='$'+(v.tarifa_propuesta||'0');showFare(id,v)}else if(v.estado==='aceptado'){document.getElementById('s1').classList.add('on');document.getElementById('iEta').textContent='3-5 min';document.getElementById('iDist').textContent='~1 km';showNotif('✅ Chofer aceptó y va en camino 🛺','success')}else if(v.estado==='en_camino'){document.getElementById('s1').classList.add('done');document.getElementById('s2').classList.add('on');showNotif('🛺 Chofer viene en camino a recogerte','info')}else if(v.estado==='en_servicio'){document.getElementById('s2').classList.add('done');document.getElementById('s3').classList.add('on');showNotif('🚀 Viaje iniciado hacia tu destino','info')}else if(v.estado==='completado'){document.getElementById('s3').classList.add('done');showNotif('✅ Viaje completado','success');showRating(id,v)}else if(v.estado==='cancelado_chofer'){showNotif('❌ El chofer canceló el viaje. Solicita otro.','error');toast('El chofer canceló');reset()}else if(v.estado==='cancelado'||v.estado==='rechazado'){toast('No disponible');reset()}});db.ref(`chats/${id}`).on('child_added',snap=>{const m=snap.val();if(m.remitente==='chofer'&&!chatOpen){document.getElementById('chatBadge').style.display='inline-block';playSound('msg');if(navigator.vibrate)navigator.vibrate([150,100,150]);showChatPopup(m.mensaje)}})}
 function listenActive(){if(!uid)return;db.ref('servicios').orderByChild('clienteId').equalTo(uid).limitToLast(1).on('child_added',s=>{const v=s.val();if(v.estado!=='completado'&&v.estado!=='cancelado'&&v.estado!=='cancelado_chofer'){sid=s.key;document.getElementById('requestSheet').style.display='none';document.getElementById('activeSheet').style.display='block';listenService(sid)}})}
-function showFare(id,v){if(document.querySelector('.modal-overlay'))return;document.querySelectorAll('.modal-overlay').forEach(m=>m.remove());const fare=v.tarifa_propuesta||'0';const color=v.choferColor||'No especificado';const colorHex=getColorHex(color);const m=document.createElement('div');m.className='modal-overlay';m.id='fareModal';m.innerHTML=`<div class="modal-box"><div style="font-size:2.5rem">🛺</div><h3>${v.choferNombre||'Chofer'}</h3><div class="driver-detail-box"><div><span class="color-dot" style="background:${colorHex}"></span><b>Color:</b> ${color}</div><div>📋 <b>Placa:</b> ${v.choferPlaca||'---'}</div><div>🔢 <b>Unidad:</b> ${v.choferUnidad||'---'}</div><div>📱 <b>Tel:</b> ${v.choferTelefono||'---'}</div></div><div class="price">$${fare}<span style="font-size:.7rem;color:var(--txt2)"> MXN</span></div><p style="font-size:.6rem;color:var(--warn);margin:.3rem 0">El chofer propone esta tarifa. ¿Aceptas?</p><button class="btn btn-p" id="btnOk">✅ Aceptar</button><button class="btn btn-r" id="btnNo" style="margin-top:.3rem">❌ Rechazar</button></div>`;document.body.appendChild(m);m.querySelector('#btnOk').onclick=()=>{m.remove();db.ref(`servicios/${id}`).update({estado:'aceptado',cliente_acepta_tarifa:true,ts:firebase.database.ServerValue.TIMESTAMP})};m.querySelector('#btnNo').onclick=()=>{m.remove();db.ref(`servicios/${id}`).update({estado:'cancelado',motivo:'Cliente rechazó'});toast('Cancelado');reset()}}
-function getColorHex(c){const colors={rojo:'#FF4757',azul:'#3B82F6',verde:'#00C897',negro:'#333',blanco:'#FFF',gris:'#888',amarillo:'#FFA502',naranja:'#FF6B35',rosa:'#FF6B81',morado:'#6C5CE7'};return colors[(c||'').toLowerCase()]||'#FFF'}
-function showRating(id,v){if(rated)return;rated=true;document.querySelectorAll('.modal-overlay').forEach(m=>m.remove());db.ref(`servicios/${id}`).off();const m=document.createElement('div');m.className='modal-overlay';m.id='ratingModal';m.innerHTML=`<div class="modal-box"><div style="font-size:2.5rem">⭐</div><h3>Califica tu viaje</h3><p style="font-size:.7rem;color:var(--txt2);margin:.3rem 0">${v.choferNombre||'Chofer'}</p><div class="stars" id="stars"><span onclick="setR(1)">☆</span><span onclick="setR(2)">☆</span><span onclick="setR(3)">☆</span><span onclick="setR(4)">☆</span><span onclick="setR(5)">☆</span></div><textarea id="rateCm" placeholder="Comentario" style="width:100%;padding:.5rem;background:var(--card);border:1px solid var(--bd);border-radius:var(--r);color:var(--txt);font-size:.7rem;outline:0;margin:.5rem 0;resize:none;font-family:inherit" rows="2"></textarea><button class="btn btn-p" onclick="sendR('${id}')">✅ Enviar</button><button class="btn btn-r" onclick="skipR()" style="margin-top:.3rem">Omitir</button></div>`;document.body.appendChild(m);window.setR=function(r){rating=r;document.querySelectorAll('#stars span').forEach((s,i)=>{s.textContent=i<r?'★':'☆';s.style.color=i<r?'var(--warn)':'var(--bd)'})}}
-window.sendR=function(id){if(rating===0){const s=document.getElementById('stars');if(s){s.style.animation='shake .5s ease';setTimeout(()=>s.style.animation='',500)}return}const cm=document.getElementById('rateCm')?.value||'';const md=document.getElementById('ratingModal');db.ref(`servicios/${id}/calificacion`).set({puntuacion:rating,comentario:cm,timestamp:firebase.database.ServerValue.TIMESTAMP}).then(()=>{if(vChId){db.ref(`choferes/${vChId}`).once('value',sn=>{const c=sn.val()||{};const t=c.total_servicios||0;const ca=c.calificacion||0;db.ref(`choferes/${vChId}`).update({calificacion:Math.round(((ca*t)+rating)/(t+1)*10)/10})})}if(md)md.remove();rated=false;rating=0;toast('⭐ Gracias');reset()})}
+function showFare(id,v){if(document.querySelector('.modal-overlay'))return;document.querySelectorAll('.modal-overlay').forEach(m=>m.remove());const fare=v.tarifa_propuesta||'0';const color=v.choferColor||'No especificado';const colorHex=getColorHex(color);const m=document.createElement('div');m.className='modal-overlay';m.id='fareModal';m.innerHTML=`<div class="modal-box"><div style="font-size:3rem">🛺</div><h3>${v.choferNombre||'Chofer'}</h3><div class="driver-detail-box"><div><span class="color-dot" style="background:${colorHex}"></span><b>Color:</b> ${color}</div><div>📋 <b>Placa:</b> ${v.choferPlaca||'---'}</div><div>🔢 <b>Unidad:</b> ${v.choferUnidad||'---'}</div><div>📱 <b>Tel:</b> ${v.choferTelefono||'---'}</div></div><div class="price">$${fare}<span style="font-size:.7rem;color:var(--txt2)"> MXN</span></div><p style="font-size:.65rem;color:var(--warn);margin:.3rem 0">El chofer propone esta tarifa. ¿Aceptas?</p><button class="btn btn-p" id="btnOk">✅ Aceptar tarifa</button><button class="btn btn-r" id="btnNo" style="margin-top:.3rem">❌ Rechazar</button></div>`;document.body.appendChild(m);m.querySelector('#btnOk').onclick=()=>{m.remove();db.ref(`servicios/${id}`).update({estado:'aceptado',cliente_acepta_tarifa:true,ts:firebase.database.ServerValue.TIMESTAMP})};m.querySelector('#btnNo').onclick=()=>{m.remove();db.ref(`servicios/${id}`).update({estado:'cancelado',motivo:'Cliente rechazó'});toast('Cancelado');reset()}}
+function getColorHex(c){const colors={rojo:'#FF4757',azul:'#3B82F6',verde:'#00C897',negro:'#333',blanco:'#FFF',gris:'#888',amarillo:'#FFA502',naranja:'#FF8F00',rosa:'#FF6B81',morado:'#6C5CE7'};return colors[(c||'').toLowerCase()]||'#FFF'}
+function showRating(id,v){if(rated)return;rated=true;document.querySelectorAll('.modal-overlay').forEach(m=>m.remove());db.ref(`servicios/${id}`).off();const m=document.createElement('div');m.className='modal-overlay';m.id='ratingModal';m.innerHTML=`<div class="modal-box"><div style="font-size:2.5rem">⭐</div><h3>Califica tu viaje</h3><p style="font-size:.7rem;color:var(--txt2);margin:.3rem 0">${v.choferNombre||'Chofer'}</p><div class="stars" id="stars"><span onclick="setR(1)">☆</span><span onclick="setR(2)">☆</span><span onclick="setR(3)">☆</span><span onclick="setR(4)">☆</span><span onclick="setR(5)">☆</span></div><textarea id="rateCm" placeholder="Comentario (opcional)" style="width:100%;padding:.5rem;background:var(--card);border:1px solid var(--bd);border-radius:var(--r);color:var(--txt);font-size:.7rem;outline:0;margin:.5rem 0;resize:none;font-family:inherit" rows="2"></textarea><button class="btn btn-p" onclick="sendR('${id}')">✅ Enviar calificación</button><button class="btn btn-r" onclick="skipR()" style="margin-top:.3rem">Omitir</button></div>`;document.body.appendChild(m);window.setR=function(r){rating=r;document.querySelectorAll('#stars span').forEach((s,i)=>{s.textContent=i<r?'★':'☆';s.style.color=i<r?'var(--warn)':'var(--bd)'})}}
+window.sendR=function(id){if(rating===0){const s=document.getElementById('stars');if(s){s.style.animation='shake .5s ease';setTimeout(()=>s.style.animation='',500)}return}const cm=document.getElementById('rateCm')?.value||'';const md=document.getElementById('ratingModal');db.ref(`servicios/${id}/calificacion`).set({puntuacion:rating,comentario:cm,timestamp:firebase.database.ServerValue.TIMESTAMP}).then(()=>{if(vChId){db.ref(`choferes/${vChId}`).once('value',sn=>{const c=sn.val()||{};const t=c.total_servicios||0;const ca=c.calificacion||0;db.ref(`choferes/${vChId}`).update({calificacion:Math.round(((ca*t)+rating)/(t+1)*10)/10})})}if(md)md.remove();rated=false;rating=0;toast('⭐ ¡Gracias!');reset()})}
 window.skipR=function(){const m=document.getElementById('ratingModal');if(m)m.remove();rated=false;rating=0;toast('Omitido');reset()}
-function openChat(){if(!sid)return;document.getElementById('chatBadge').style.display='none';chatOpen=true;const d=document.createElement('div');d.className='chat-modal';d.innerHTML=`<div class="chat-header"><span>💬 Chat</span><button onclick="this.closest('.chat-modal').remove();chatOpen=false" style="background:none;border:none;color:var(--txt);font-size:1.2rem;cursor:pointer">✕</button></div><div class="chat-body" id="chatMsgs"></div><div class="chat-input-wrap"><input type="text" id="chatInput" placeholder="Escribe..." onkeypress="if(event.key==='Enter')sendMsg()"><button onclick="sendMsg()">Enviar</button></div>`;document.body.appendChild(d);db.ref(`chats/${sid}`).on('child_added',s=>{const m=s.val();const el=document.getElementById('chatMsgs');if(el){el.innerHTML+=`<div class="msg ${m.remitente==='cliente'?'sent':'recv'}">${m.mensaje}</div>`;el.scrollTop=el.scrollHeight}})}
+function openChat(){if(!sid)return;document.getElementById('chatBadge').style.display='none';chatOpen=true;const d=document.createElement('div');d.className='chat-modal';d.innerHTML=`<div class="chat-header"><span>💬 Chat con el chofer</span><button onclick="this.closest('.chat-modal').remove();chatOpen=false" style="background:none;border:none;color:var(--txt);font-size:1.2rem;cursor:pointer">✕</button></div><div class="chat-body" id="chatMsgs"></div><div class="chat-input-wrap"><input type="text" id="chatInput" placeholder="Escribe un mensaje..." onkeypress="if(event.key==='Enter')sendMsg()"><button onclick="sendMsg()">Enviar</button></div>`;document.body.appendChild(d);db.ref(`chats/${sid}`).on('child_added',s=>{const m=s.val();const el=document.getElementById('chatMsgs');if(el){el.innerHTML+=`<div class="msg ${m.remitente==='cliente'?'sent':'recv'}">${m.mensaje}</div>`;el.scrollTop=el.scrollHeight}})}
 window.sendMsg=function(){const i=document.getElementById('chatInput');const m=i?.value.trim();if(m&&sid){db.ref(`chats/${sid}`).push({remitente:'cliente',userId:uid,mensaje:m,ts:firebase.database.ServerValue.TIMESTAMP});i.value=''}}
-function cancel(){if(!sid)return;if(confirm('¿Cancelar?')){db.ref(`servicios/${sid}`).update({estado:'cancelado',ts:firebase.database.ServerValue.TIMESTAMP});reset();toast('Cancelado')}}
-function reset(){sid=null;rating=0;rated=false;vChId=null;document.getElementById('requestSheet').style.display='block';document.getElementById('activeSheet').style.display='none';document.getElementById('destiny').value='';document.getElementById('reqBtn').disabled=false;document.getElementById('reqBtn').textContent='Solicitar Mototaxi';document.querySelectorAll('.step').forEach(s=>s.className='step');document.getElementById('s1').classList.add('on')}
-function loadHistory(){if(!uid)return;db.ref('servicios').orderByChild('clienteId').equalTo(uid).limitToLast(5).once('value',s=>{const d=s.val();let h='';if(!d){document.getElementById('historyList').innerHTML='<div class="empty">Sin viajes</div>';return}Object.entries(d).reverse().forEach(([id,v])=>{h+=`<div class="history-item"><div class="info"><div style="font-weight:700">${(v.origen?.direccion||'').substring(0,15)} → ${(v.destino?.direccion||'').substring(0,15)}</div><div style="font-size:.6rem;color:var(--txt3)">${v.fecha||'-'} · ${v.estado}</div></div><div class="price">$${v.cobro||v.tarifa_estimada||0}</div><button class="btn-sm" onclick="reportFromHistory('${id}')">📦</button></div>`});document.getElementById('historyList').innerHTML=h})}
-window.reportFromHistory=function(id){const d=prompt('Describe el objeto olvidado:');if(d){db.ref('reportes/objetos_olvidados').push({servicioId:id,clienteId:uid,descripcion:d,estado:'pendiente',timestamp:firebase.database.ServerValue.TIMESTAMP}).then(()=>toast('✅ Reportado'))}}
+function cancel(){if(!sid)return;if(confirm('¿Cancelar este servicio?')){db.ref(`servicios/${sid}`).update({estado:'cancelado',ts:firebase.database.ServerValue.TIMESTAMP});reset();toast('Cancelado')}}
+function reset(){sid=null;rating=0;rated=false;vChId=null;document.getElementById('requestSheet').style.display='block';document.getElementById('activeSheet').style.display='none';document.getElementById('destiny').value='';document.getElementById('reqBtn').disabled=false;document.getElementById('reqBtn').textContent='🛺 Solicitar Mototaxi';document.querySelectorAll('.step').forEach(s=>s.className='step');document.getElementById('s1').classList.add('on')}
+function loadHistory(){if(!uid)return;db.ref('servicios').orderByChild('clienteId').equalTo(uid).limitToLast(5).once('value',s=>{const d=s.val();let h='';if(!d){document.getElementById('historyList').innerHTML='<div class="empty">Sin viajes aún</div>';return}Object.entries(d).reverse().forEach(([id,v])=>{h+=`<div class="history-item"><div class="info"><div style="font-weight:700;font-size:.75rem">${(v.origen?.direccion||'').substring(0,18)} → ${(v.destino?.direccion||'').substring(0,18)}</div><div style="font-size:.6rem;color:var(--txt3)">${v.fecha||'-'} · ${v.estado==='completado'?'✅ Completado':v.estado}</div></div><div class="price">$${v.cobro||v.tarifa_estimada||0}</div><button class="btn-sm" onclick="reportFromHistory('${id}')" title="Reportar objeto">📦</button></div>`});document.getElementById('historyList').innerHTML=h})}
+window.reportFromHistory=function(id){const d=prompt('Describe el objeto olvidado:');if(d){db.ref('reportes/objetos_olvidados').push({servicioId:id,clienteId:uid,descripcion:d,estado:'pendiente',timestamp:firebase.database.ServerValue.TIMESTAMP}).then(()=>toast('✅ Reporte enviado'))}}
 function playSound(t){try{const c=new(window.AudioContext||window.webkitAudioContext)();const o=c.createOscillator(),g=c.createGain();o.connect(g);g.connect(c.destination);if(t==='msg'){o.frequency.value=1000;g.gain.value=.15;o.start();o.stop(c.currentTime+.1)}else if(t==='notif'){o.frequency.value=600;g.gain.value=.2;o.start();o.stop(c.currentTime+.3)}}catch(e){}}
 function calcDist(l1,l2,lo1,lo2){const R=6371,dLa=(l2-l1)*Math.PI/180,dLo=(lo2-lo1)*Math.PI/180;return R*2*Math.atan2(Math.sqrt(Math.sin(dLa/2)**2+Math.cos(l1*Math.PI/180)*Math.cos(l2*Math.PI/180)*Math.sin(dLo/2)**2),Math.sqrt(1-Math.sin(dLa/2)**2-Math.cos(l1*Math.PI/180)*Math.cos(l2*Math.PI/180)*Math.sin(dLo/2)**2))}
 function toast(m){const t=document.createElement('div');t.className='toast';t.textContent=m;document.body.appendChild(t);setTimeout(()=>t.remove(),2500)}
