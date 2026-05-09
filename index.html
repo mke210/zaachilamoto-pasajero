@@ -28,10 +28,11 @@
         .topbar h1{font-size:.85rem;font-weight:700;line-height:1.1}.topbar h1 span{font-size:.6rem;opacity:.8;display:block;font-weight:400}
         .status{font-size:.6rem;display:flex;align-items:center;gap:.3rem;color:rgba(255,255,255,.8);background:rgba(0,0,0,.2);padding:.25rem .6rem;border-radius:12px}
         .status::before{content:'';width:5px;height:5px;border-radius:50%;background:#0f0;box-shadow:0 0 6px #0f0}.status.off::before{background:var(--red)}
-        .map-container{flex:0 0 200px;position:relative;z-index:1;border-bottom:2px solid var(--acc)}
+        .map-container{flex:0 0 250px;position:relative;z-index:1;border-bottom:2px solid var(--acc)}
         #clientMap{position:absolute;top:0;left:0;width:100%;height:100%}
         .map-btns{position:absolute;top:10px;right:10px;z-index:5;display:flex;flex-direction:column;gap:5px}
-        .map-btns button{width:32px;height:32px;border-radius:10px;background:rgba(26,23,34,.9);border:1px solid var(--bd);color:var(--txt);cursor:pointer;font-size:.7rem}
+        .map-btns button{width:32px;height:32px;border-radius:10px;background:rgba(26,23,34,.9);border:1px solid var(--bd);color:var(--txt);cursor:pointer;font-size:.7rem;backdrop-filter:blur(5px)}
+        .map-btns button.active{background:var(--red);color:#fff;border-color:var(--red)}
         .bottom-nav{display:flex;background:var(--bg2);border-top:1px solid var(--bd);flex-shrink:0;padding:.3rem 0}
         .bottom-nav button{flex:1;padding:.5rem;background:0;border:0;color:var(--txt3);font-size:.65rem;cursor:pointer;transition:.2s;display:flex;flex-direction:column;align-items:center;gap:.2rem}
         .bottom-nav button.on{color:var(--acc);font-weight:700}.bottom-nav button i{font-size:1.1rem}
@@ -49,23 +50,16 @@
         .steps{display:flex;gap:.3rem;margin:.5rem 0}
         .step{flex:1;text-align:center;padding:.5rem;background:var(--card);border-radius:var(--r);border:1px solid var(--bd);font-size:.6rem;transition:.3s}.step.on{border-color:var(--acc);background:rgba(108,92,231,.1)}.step.done{border-color:var(--green)}.step .sn{font-size:.9rem;font-weight:700}
         .info-row{display:flex;justify-content:space-around;text-align:center;margin:.6rem 0;background:var(--card);border-radius:var(--r);padding:.6rem}.info-row .v{font-weight:700;font-size:.85rem}.info-row .l{font-size:.55rem;color:var(--txt3)}
-        
-        /* BUSCANDO */
         .searching-box{text-align:center;padding:2rem;background:var(--card);border-radius:var(--r2);border:1px solid var(--acc);margin:.5rem 0;animation:pulse-border 2s infinite}
         @keyframes pulse-border{0%,100%{border-color:var(--acc)}50%{border-color:var(--green)}}
         .searching-box .icon{font-size:3rem;animation:bounce 1s infinite}
         @keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
-        .searching-box h3{font-size:.9rem;margin:.5rem 0;color:var(--acc2)}
-        .searching-box p{font-size:.7rem;color:var(--txt2)}
-        
-        /* TARJETA CHOFER */
         .chofer-card{background:linear-gradient(135deg,#1a1a2e,#211d2a);border:2px solid var(--acc);border-radius:var(--r2);padding:1rem;margin:.5rem 0;box-shadow:0 8px 25px rgba(108,92,231,.2)}
         .chofer-card-header{display:flex;align-items:center;gap:.8rem;margin-bottom:.8rem}
         .chofer-card-avatar{width:50px;height:50px;border-radius:50%;background:linear-gradient(135deg,var(--acc),#4834d4);display:flex;align-items:center;justify-content:center;font-size:1.5rem;flex-shrink:0}
         .chofer-card-info{flex:1}.chofer-card-name{font-weight:800;font-size:.95rem;color:var(--acc2)}.chofer-card-plate{font-size:.7rem;color:var(--txt2)}
         .chofer-card-details{display:grid;grid-template-columns:1fr 1fr;gap:.5rem;background:var(--card);border-radius:var(--r);padding:.7rem}
         .chofer-detail-item{display:flex;align-items:center;gap:.4rem;font-size:.7rem}.chofer-detail-item i{color:var(--acc);width:16px;text-align:center;font-size:.75rem}.chofer-detail-item b{color:var(--txt)}
-        
         .modal-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.9);z-index:999;display:flex;align-items:center;justify-content:center}
         .modal-box{background:var(--bg2);border:1px solid var(--bd);border-radius:var(--r2);padding:1.5rem;width:90%;max-width:340px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.5)}
         .modal-box .price{font-size:2.2rem;font-weight:800;color:var(--acc2);margin:.4rem 0}
@@ -96,14 +90,14 @@
 <body>
 <div class="app">
     <header class="topbar"><div class="topbar-brand"><div class="topbar-logo">🛺</div><h1>Zaachila Moto<span>Pasajero</span></h1></div><div class="status" id="connStatus">Conectado</div></header>
-    <div class="map-container"><div id="clientMap"></div><div class="map-btns"><button onclick="centerMap()"><i class="fa-solid fa-location-crosshairs"></i></button><button onclick="map.zoomIn()">+</button><button onclick="map.zoomOut()">-</button></div></div>
+    <div class="map-container"><div id="clientMap"></div><div class="map-btns"><button onclick="centerMap()"><i class="fa-solid fa-location-crosshairs"></i></button><button onclick="map.zoomIn()">+</button><button onclick="map.zoomOut()">-</button><button id="btnSelectDest" onclick="toggleSelectDestino()" title="Seleccionar destino en mapa">🎯</button></div></div>
     <div id="notifBanner" style="display:none" class="notif-banner"></div>
     <div class="sheet" id="screenInicio">
         <div id="requestSheet">
             <div class="section-title">📍 Tu ubicación</div>
             <div class="inp-group"><i class="fa-solid fa-circle" style="color:var(--green)"></i><input id="pickup" placeholder="Tu ubicación" readonly></div>
-            <div class="section-title">🎯 Destino</div>
-            <div class="inp-group"><i class="fa-solid fa-location-dot" style="color:var(--red)"></i><input id="destiny" placeholder="¿A dónde vas?"></div>
+            <div class="section-title">🎯 Destino <span style="font-size:.55rem;color:var(--acc)">(escribe o selecciona en mapa 🎯)</span></div>
+            <div class="inp-group"><i class="fa-solid fa-location-dot" style="color:var(--red)"></i><input id="destiny" placeholder="¿A dónde vas? O toca 🎯 en el mapa"></div>
             <div class="section-title">👥 Pasajeros extra</div>
             <div class="inp-group"><i class="fa-solid fa-people-group" style="color:var(--warn)"></i><input id="passengers" type="number" placeholder="¿Pasajeros extra? (0-3)" min="0" max="3" value="0"></div>
             <button class="btn btn-p" id="reqBtn" onclick="requestRide()">🛺 Solicitar Mototaxi</button>
@@ -111,33 +105,13 @@
         </div>
         <div id="activeSheet" style="display:none">
             <div class="section-title">🛺 Estado del Servicio</div>
-            
-            <!-- PANTALLA BUSCANDO -->
-            <div id="searchingView" class="searching-box">
-                <div class="icon">🔍</div>
-                <h3>Buscando mototaxi...</h3>
-                <p>Espera a que un chofer cercano acepte tu solicitud</p>
-            </div>
-            
-            <!-- DATOS DEL CHOFER (oculto hasta que acepte) -->
+            <div id="searchingView" class="searching-box"><div class="icon">🔍</div><h3>Buscando mototaxi...</h3><p>Espera a que un chofer cercano acepte tu solicitud</p></div>
             <div id="choferInfoView" style="display:none">
                 <div class="chofer-card">
-                    <div class="chofer-card-header">
-                        <div class="chofer-card-avatar">🛺</div>
-                        <div class="chofer-card-info">
-                            <div class="chofer-card-name" id="aName">---</div>
-                            <div class="chofer-card-plate" id="aPlate">---</div>
-                        </div>
-                    </div>
-                    <div class="chofer-card-details">
-                        <div class="chofer-detail-item"><i class="fa-solid fa-palette"></i><span>Color:</span><b id="aColor">---</b></div>
-                        <div class="chofer-detail-item"><i class="fa-solid fa-hashtag"></i><span>Placa:</span><b id="aPlaca">---</b></div>
-                        <div class="chofer-detail-item"><i class="fa-solid fa-tag"></i><span>Unidad:</span><b id="aUnidad">---</b></div>
-                        <div class="chofer-detail-item"><i class="fa-solid fa-phone"></i><span>Tel:</span><b id="aTelefono">---</b></div>
-                    </div>
+                    <div class="chofer-card-header"><div class="chofer-card-avatar">🛺</div><div class="chofer-card-info"><div class="chofer-card-name" id="aName">---</div><div class="chofer-card-plate" id="aPlate">---</div></div></div>
+                    <div class="chofer-card-details"><div class="chofer-detail-item"><i class="fa-solid fa-palette"></i><span>Color:</span><b id="aColor">---</b></div><div class="chofer-detail-item"><i class="fa-solid fa-hashtag"></i><span>Placa:</span><b id="aPlaca">---</b></div><div class="chofer-detail-item"><i class="fa-solid fa-tag"></i><span>Unidad:</span><b id="aUnidad">---</b></div><div class="chofer-detail-item"><i class="fa-solid fa-phone"></i><span>Tel:</span><b id="aTelefono">---</b></div></div>
                 </div>
             </div>
-            
             <div class="steps"><div class="step on" id="s1"><div class="sn">1</div>En camino</div><div class="step" id="s2"><div class="sn">2</div>Recogida</div><div class="step" id="s3"><div class="sn">3</div>Destino</div></div>
             <div class="info-row"><div><div class="v" id="iEta">---</div><div class="l">Llegada</div></div><div><div class="v" id="iFare">$0</div><div class="l">Tarifa</div></div><div><div class="v" id="iDist">---</div><div class="l">Distancia</div></div></div>
             <button class="btn btn-o" onclick="openChat()">💬 Chat <span id="chatBadge" class="badge-new" style="display:none">Nuevo</span></button>
@@ -150,58 +124,53 @@
 <script>
 const fb={apiKey:"AIzaSyCBXBPMz2OZ3U2KfTaU-uHCBhwmbnR7O40",authDomain:"zaachilamoto.firebaseapp.com",databaseURL:"https://zaachilamoto-default-rtdb.firebaseio.com",projectId:"zaachilamoto",storageBucket:"zaachilamoto.firebasestorage.app",messagingSenderId:"559788509526",appId:"1:559788509526:web:c751d8d22068f09041aef7"};
 firebase.initializeApp(fb);const auth=firebase.auth(),db=firebase.database();
-let map,um,uid,sid,pos={lat:16.9516,lng:-96.7491},drM=[],chatOpen=false,rating=0,rated=false,vChId=null;const ZA=[16.9516,-96.7491];
+let map,um,uid,sid,pos={lat:16.9516,lng:-96.7491},drM=[],chatOpen=false,rating=0,rated=false,vChId=null;
+let destinoMarker=null,seleccionandoDestino=false,destinoSeleccionado=null;
+const ZA=[16.9516,-96.7491];
 db.ref('.info/connected').on('value',s=>{const el=document.getElementById('connStatus');if(s.val()){el.className='status';el.textContent='En línea';auth.signInAnonymously().then(u=>{uid=u.user.uid;loadDrivers();listenActive()}).catch(e=>console.error(e))}else{el.className='status off';el.textContent='Sin conexión'}});
-function initMap(){setTimeout(()=>{const c=document.getElementById('clientMap');if(!c||c.offsetHeight===0)c.style.height='200px';map=L.map('clientMap',{zoomControl:false,attributionControl:false}).setView(ZA,15);L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OpenStreetMap'}).addTo(map);um=L.marker(ZA,{icon:L.divIcon({html:'<div style="background:#6C5CE7;width:14px;height:14px;border-radius:50%;border:3px solid #fff;box-shadow:0 0 20px rgba(108,92,231,.8);"></div>',iconSize:[20,20],iconAnchor:[10,10]})}).addTo(map);setTimeout(()=>map.invalidateSize(),300)},500)}
+
+function initMap(){setTimeout(()=>{const c=document.getElementById('clientMap');if(!c||c.offsetHeight===0)c.style.height='250px';map=L.map('clientMap',{zoomControl:false,attributionControl:false}).setView(ZA,15);L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OpenStreetMap'}).addTo(map);um=L.marker(ZA,{icon:L.divIcon({html:'<div style="background:#6C5CE7;width:14px;height:14px;border-radius:50%;border:3px solid #fff;box-shadow:0 0 20px rgba(108,92,231,.8);"></div>',iconSize:[20,20],iconAnchor:[10,10]})}).addTo(map);
+    // ✅ SELECCIONAR DESTINO EN MAPA
+    map.on('click',function(e){
+        if(!seleccionandoDestino)return;
+        if(destinoMarker){map.removeLayer(destinoMarker);destinoMarker=null}
+        destinoSeleccionado={lat:e.latlng.lat,lng:e.latlng.lng};
+        destinoMarker=L.marker([e.latlng.lat,e.latlng.lng],{icon:L.divIcon({html:'<div style="background:#FF4757;width:14px;height:14px;border-radius:50%;border:3px solid #fff;box-shadow:0 0 15px rgba(255,71,87,.8);font-size:10px;text-align:center;line-height:14px">📍</div>',iconSize:[20,20],iconAnchor:[10,10]}),draggable:true}).addTo(map);
+        destinoMarker.on('dragend',function(){const p=destinoMarker.getLatLng();destinoSeleccionado={lat:p.lat,lng:p.lng}});
+        document.getElementById('destiny').value='📍 Destino en mapa';
+        document.getElementById('btnSelectDest').classList.add('active');
+        seleccionandoDestino=false;
+        toast('✅ Destino seleccionado en el mapa');
+    });
+    setTimeout(()=>map.invalidateSize(),300)},500)}
+
+function toggleSelectDestino(){
+    seleccionandoDestino=!seleccionandoDestino;
+    const btn=document.getElementById('btnSelectDest');
+    if(seleccionandoDestino){btn.classList.add('active');toast('🗺️ Toca el mapa para seleccionar tu destino')}
+    else{btn.classList.remove('active');toast('Cancelado')}
+}
+
 function getLoc(){if(navigator.geolocation)navigator.geolocation.getCurrentPosition(p=>{pos={lat:p.coords.latitude,lng:p.coords.longitude};if(um)um.setLatLng([pos.lat,pos.lng]);if(map)map.setView([pos.lat,pos.lng],16);document.getElementById('pickup').value='Ubicación actual'},()=>document.getElementById('pickup').value='Villa de Zaachila',{enableHighAccuracy:true})}
 function centerMap(){if(map)map.setView([pos.lat,pos.lng],16)}
 function showScreen(name,el){document.getElementById('screenInicio').style.display=name==='inicio'?'block':'none';document.getElementById('screenHistorial').style.display=name==='historial'?'block':'none';document.querySelectorAll('.bottom-nav button').forEach(b=>b.classList.remove('on'));el.classList.add('on');if(name==='historial')loadHistory()}
 function loadDrivers(){db.ref('choferes').orderByChild('estado').equalTo('activo').on('value',s=>{const d=s.val();drM.forEach(m=>map.removeLayer(m));drM=[];let h='';if(!d||!Object.keys(d).length){document.getElementById('driversList').innerHTML='<div class="empty">Sin mototaxis disponibles</div>';return}Object.entries(d).forEach(([id,c])=>{if(c.ubicacion&&map){const m=L.marker([c.ubicacion.lat,c.ubicacion.lng],{icon:L.divIcon({html:'<div style="background:#00C897;color:#000;padding:3px 7px;border-radius:10px;font-size:10px;font-weight:700;box-shadow:0 0 10px rgba(0,200,151,.5)">🛺</div>',iconSize:[30,20],iconAnchor:[15,10]})}).addTo(map);drM.push(m)}const dist=calcDist(pos.lat,pos.lng,c.ubicacion?.lat||ZA[0],c.ubicacion?.lng||ZA[1]);h+=`<div class="d-item"><div class="d-avatar">🛺</div><div class="d-info"><div class="d-name">${c.nombre||'Chofer'}</div><div class="d-meta">📍${dist.toFixed(1)}km · ⭐${c.calificacion||'Nuevo'}</div></div><span class="d-badge">DISP</span></div>`});document.getElementById('driversList').innerHTML=h})}
-function requestRide(){const dest=document.getElementById('destiny').value.trim();if(!dest){toast('Indica tu destino');return}const btn=document.getElementById('reqBtn');btn.disabled=true;btn.textContent='🔍 Buscando...';const pax=parseInt(document.getElementById('passengers').value)||0;const data={clienteId:uid,origen:{lat:pos.lat,lng:pos.lng,direccion:document.getElementById('pickup').value},destino:{lat:pos.lat+.001,lng:pos.lng+.001,direccion:dest},pasajeros_extra:pax,estado:'buscando',timestamp:firebase.database.ServerValue.TIMESTAMP};const ref=db.ref('servicios').push();sid=ref.key;ref.set(data).then(()=>{document.getElementById('requestSheet').style.display='none';document.getElementById('activeSheet').style.display='block';document.getElementById('searchingView').style.display='block';document.getElementById('choferInfoView').style.display='none';listenService(sid)}).catch(()=>{btn.disabled=false;btn.textContent='🛺 Solicitar Mototaxi'})}
+
+// ✅ SOLICITAR CON DESTINO DEL MAPA
+function requestRide(){
+    const destText=document.getElementById('destiny').value.trim();
+    let destLat=pos.lat+.001,destLng=pos.lng+.001,destDireccion=destText;
+    if(destinoSeleccionado){destLat=destinoSeleccionado.lat;destLng=destinoSeleccionado.lng;destDireccion='📍 Destino en mapa'}
+    if(!destText&&!destinoSeleccionado){toast('Indica tu destino o selecciónalo en el mapa 🎯');return}
+    const btn=document.getElementById('reqBtn');btn.disabled=true;btn.textContent='🔍 Buscando...';
+    const pax=parseInt(document.getElementById('passengers').value)||0;
+    const data={clienteId:uid,origen:{lat:pos.lat,lng:pos.lng,direccion:document.getElementById('pickup').value},destino:{lat:destLat,lng:destLng,direccion:destDireccion},pasajeros_extra:pax,estado:'buscando',timestamp:firebase.database.ServerValue.TIMESTAMP};
+    const ref=db.ref('servicios').push();sid=ref.key;
+    ref.set(data).then(()=>{document.getElementById('requestSheet').style.display='none';document.getElementById('activeSheet').style.display='block';document.getElementById('searchingView').style.display='block';document.getElementById('choferInfoView').style.display='none';listenService(sid)}).catch(()=>{btn.disabled=false;btn.textContent='🛺 Solicitar Mototaxi'})}
+
 function showNotif(msg,type='info'){const b=document.getElementById('notifBanner');b.innerHTML=msg;b.className='notif-banner '+type;b.style.display='flex';playSound('notif');if(navigator.vibrate)navigator.vibrate([100,50,100]);setTimeout(()=>b.style.display='none',4000)}
 function showChatPopup(msg){const exist=document.querySelector('.chat-notif');if(exist)exist.remove();const popup=document.createElement('div');popup.className='chat-notif';popup.innerHTML=`💬 <b>Chofer:</b> ${msg.substring(0,30)}${msg.length>30?'...':''}`;popup.onclick=()=>{popup.remove();openChat()};document.body.appendChild(popup);setTimeout(()=>{if(popup.parentNode)popup.remove()},4000)}
-
-// ✅ CORREGIDO: Solo mostrar datos del chofer cuando estado='tarifa_propuesta'
-function listenService(id){
-    db.ref(`servicios/${id}`).on('value',s=>{
-        const v=s.val();if(!v)return;
-        console.log('📋 Estado:', v.estado);
-        if(v.choferId)vChId=v.choferId;
-        
-        if(v.estado==='tarifa_propuesta'){
-            // MOSTRAR DATOS DEL CHOFER SOLO CUANDO PROPONE TARIFA
-            document.getElementById('searchingView').style.display='none';
-            document.getElementById('choferInfoView').style.display='block';
-            document.getElementById('aName').textContent=v.choferNombre||'Chofer';
-            document.getElementById('aPlate').textContent=v.choferPlaca||'---';
-            document.getElementById('aColor').textContent=v.choferColor||'---';
-            document.getElementById('aPlaca').textContent=v.choferPlaca||'---';
-            document.getElementById('aUnidad').textContent=v.choferUnidad||'---';
-            document.getElementById('aTelefono').textContent=v.choferTelefono||'---';
-            document.getElementById('iFare').textContent='$'+(v.tarifa_propuesta||'0');
-            showFare(id,v);
-        }else if(v.estado==='aceptado'){
-            document.getElementById('s1').classList.add('on');
-            document.getElementById('iEta').textContent='3-5 min';
-            document.getElementById('iDist').textContent='~1 km';
-            showNotif('✅ Chofer aceptó y va en camino 🛺','success');
-        }else if(v.estado==='en_camino'){
-            document.getElementById('s1').classList.add('done');document.getElementById('s2').classList.add('on');
-            showNotif('🛺 Chofer viene en camino a recogerte','info');
-        }else if(v.estado==='en_servicio'){
-            document.getElementById('s2').classList.add('done');document.getElementById('s3').classList.add('on');
-            showNotif('🚀 Viaje iniciado hacia tu destino','info');
-        }else if(v.estado==='completado'){
-            document.getElementById('s3').classList.add('done');
-            showNotif('✅ Viaje completado','success');showRating(id,v);
-        }else if(v.estado==='cancelado_chofer'){
-            showNotif('❌ El chofer canceló el viaje','error');toast('El chofer canceló');reset();
-        }else if(v.estado==='cancelado'||v.estado==='rechazado'){
-            toast('No disponible');reset();
-        }
-    });
-    db.ref(`chats/${id}`).on('child_added',snap=>{const m=snap.val();if(m.remitente==='chofer'&&!chatOpen){document.getElementById('chatBadge').style.display='inline-block';playSound('msg');if(navigator.vibrate)navigator.vibrate([150,100,150]);showChatPopup(m.mensaje)}});
-}
+function listenService(id){db.ref(`servicios/${id}`).on('value',s=>{const v=s.val();if(!v)return;if(v.choferId)vChId=v.choferId;if(v.estado==='tarifa_propuesta'){document.getElementById('searchingView').style.display='none';document.getElementById('choferInfoView').style.display='block';document.getElementById('aName').textContent=v.choferNombre||'Chofer';document.getElementById('aPlate').textContent=v.choferPlaca||'---';document.getElementById('aColor').textContent=v.choferColor||'---';document.getElementById('aPlaca').textContent=v.choferPlaca||'---';document.getElementById('aUnidad').textContent=v.choferUnidad||'---';document.getElementById('aTelefono').textContent=v.choferTelefono||'---';document.getElementById('iFare').textContent='$'+(v.tarifa_propuesta||'0');showFare(id,v)}else if(v.estado==='aceptado'){document.getElementById('s1').classList.add('on');document.getElementById('iEta').textContent='3-5 min';document.getElementById('iDist').textContent='~1 km';showNotif('✅ Chofer aceptó y va en camino 🛺','success')}else if(v.estado==='en_camino'){document.getElementById('s1').classList.add('done');document.getElementById('s2').classList.add('on');showNotif('🛺 Chofer viene en camino','info')}else if(v.estado==='en_servicio'){document.getElementById('s2').classList.add('done');document.getElementById('s3').classList.add('on');showNotif('🚀 Viaje iniciado','info')}else if(v.estado==='completado'){document.getElementById('s3').classList.add('done');showNotif('✅ Viaje completado','success');showRating(id,v)}else if(v.estado==='cancelado_chofer'){showNotif('❌ El chofer canceló el viaje','error');toast('El chofer canceló');reset()}else if(v.estado==='cancelado'||v.estado==='rechazado'){toast('No disponible');reset()}});db.ref(`chats/${id}`).on('child_added',snap=>{const m=snap.val();if(m.remitente==='chofer'&&!chatOpen){document.getElementById('chatBadge').style.display='inline-block';playSound('msg');if(navigator.vibrate)navigator.vibrate([150,100,150]);showChatPopup(m.mensaje)}})}
 function listenActive(){if(!uid)return;db.ref('servicios').orderByChild('clienteId').equalTo(uid).limitToLast(1).on('child_added',s=>{const v=s.val();if(v.estado!=='completado'&&v.estado!=='cancelado'&&v.estado!=='cancelado_chofer'){sid=s.key;document.getElementById('requestSheet').style.display='none';document.getElementById('activeSheet').style.display='block';document.getElementById('searchingView').style.display='block';document.getElementById('choferInfoView').style.display='none';listenService(sid)}})}
 function showFare(id,v){if(document.querySelector('.modal-overlay'))return;document.querySelectorAll('.modal-overlay').forEach(m=>m.remove());const fare=v.tarifa_propuesta||'0';const m=document.createElement('div');m.className='modal-overlay';m.id='fareModal';m.innerHTML=`<div class="modal-box"><div style="font-size:3rem">🛺</div><h3>${v.choferNombre||'Chofer'}</h3><div class="driver-detail-box"><div><span class="color-dot" style="background:${getColorHex(v.choferColor||'')}"></span><b>Color:</b> ${v.choferColor||'---'}</div><div>📋 <b>Placa:</b> ${v.choferPlaca||'---'}</div><div>🔢 <b>Unidad:</b> ${v.choferUnidad||'---'}</div><div>📱 <b>Tel:</b> ${v.choferTelefono||'---'}</div></div><div class="price">$${fare}<span style="font-size:.7rem;color:var(--txt2)"> MXN</span></div><p style="font-size:.65rem;color:var(--warn);margin:.3rem 0">El chofer propone esta tarifa. ¿Aceptas?</p><button class="btn btn-p" id="btnOk">✅ Aceptar tarifa</button><button class="btn btn-r" id="btnNo" style="margin-top:.3rem">❌ Rechazar</button></div>`;document.body.appendChild(m);m.querySelector('#btnOk').onclick=()=>{m.remove();db.ref(`servicios/${id}`).update({estado:'aceptado',cliente_acepta_tarifa:true,ts:firebase.database.ServerValue.TIMESTAMP})};m.querySelector('#btnNo').onclick=()=>{m.remove();db.ref(`servicios/${id}`).update({estado:'cancelado',motivo:'Cliente rechazó'});toast('Cancelado');reset()}}
 function getColorHex(c){const colors={rojo:'#FF4757',azul:'#3B82F6',verde:'#00C897',negro:'#333',blanco:'#FFF',gris:'#888',amarillo:'#FFA502',naranja:'#FF8F00',rosa:'#FF6B81',morado:'#6C5CE7'};return colors[(c||'').toLowerCase()]||'#FFF'}
@@ -211,7 +180,7 @@ window.skipR=function(){const m=document.getElementById('ratingModal');if(m)m.re
 function openChat(){if(!sid)return;document.getElementById('chatBadge').style.display='none';chatOpen=true;const d=document.createElement('div');d.className='chat-modal';d.innerHTML=`<div class="chat-header"><span>💬 Chat</span><button onclick="this.closest('.chat-modal').remove();chatOpen=false" style="background:none;border:none;color:var(--txt);font-size:1.2rem;cursor:pointer">✕</button></div><div class="chat-body" id="chatMsgs"></div><div class="chat-input-wrap"><input type="text" id="chatInput" placeholder="Escribe..." onkeypress="if(event.key==='Enter')sendMsg()"><button onclick="sendMsg()">Enviar</button></div>`;document.body.appendChild(d);db.ref(`chats/${sid}`).on('child_added',s=>{const m=s.val();const el=document.getElementById('chatMsgs');if(el){el.innerHTML+=`<div class="msg ${m.remitente==='cliente'?'sent':'recv'}">${m.mensaje}</div>`;el.scrollTop=el.scrollHeight}})}
 window.sendMsg=function(){const i=document.getElementById('chatInput');const m=i?.value.trim();if(m&&sid){db.ref(`chats/${sid}`).push({remitente:'cliente',userId:uid,mensaje:m,ts:firebase.database.ServerValue.TIMESTAMP});i.value=''}}
 function cancel(){if(!sid)return;if(confirm('¿Cancelar?')){db.ref(`servicios/${sid}`).update({estado:'cancelado',ts:firebase.database.ServerValue.TIMESTAMP});reset();toast('Cancelado')}}
-function reset(){sid=null;rating=0;rated=false;vChId=null;document.getElementById('requestSheet').style.display='block';document.getElementById('activeSheet').style.display='none';document.getElementById('destiny').value='';document.getElementById('passengers').value='0';document.getElementById('reqBtn').disabled=false;document.getElementById('reqBtn').textContent='🛺 Solicitar Mototaxi';document.querySelectorAll('.step').forEach(s=>s.className='step');document.getElementById('s1').classList.add('on');document.getElementById('searchingView').style.display='block';document.getElementById('choferInfoView').style.display='none'}
+function reset(){sid=null;rating=0;rated=false;vChId=null;destinoSeleccionado=null;if(destinoMarker){map.removeLayer(destinoMarker);destinoMarker=null}document.getElementById('requestSheet').style.display='block';document.getElementById('activeSheet').style.display='none';document.getElementById('destiny').value='';document.getElementById('passengers').value='0';document.getElementById('reqBtn').disabled=false;document.getElementById('reqBtn').textContent='🛺 Solicitar Mototaxi';document.querySelectorAll('.step').forEach(s=>s.className='step');document.getElementById('s1').classList.add('on');document.getElementById('searchingView').style.display='block';document.getElementById('choferInfoView').style.display='none';document.getElementById('btnSelectDest').classList.remove('active');seleccionandoDestino=false}
 function loadHistory(){if(!uid)return;db.ref('servicios').orderByChild('clienteId').equalTo(uid).limitToLast(5).once('value',s=>{const d=s.val();let h='';if(!d){document.getElementById('historyList').innerHTML='<div class="empty">Sin viajes</div>';return}Object.entries(d).reverse().forEach(([id,v])=>{h+=`<div class="history-item"><div class="info"><div style="font-weight:700;font-size:.75rem">${(v.origen?.direccion||'').substring(0,18)} → ${(v.destino?.direccion||'').substring(0,18)}</div><div style="font-size:.6rem;color:var(--txt3)">${v.fecha||'-'} · ${v.estado}</div></div><div class="price">$${v.cobro||v.tarifa_estimada||0}</div><button class="btn-sm" onclick="reportFromHistory('${id}')">📦</button></div>`});document.getElementById('historyList').innerHTML=h})}
 window.reportFromHistory=function(id){const d=prompt('Describe el objeto:');if(d){db.ref('reportes/objetos_olvidados').push({servicioId:id,clienteId:uid,descripcion:d,estado:'pendiente',timestamp:firebase.database.ServerValue.TIMESTAMP}).then(()=>toast('✅ Reportado'))}}
 function playSound(t){try{const c=new(window.AudioContext||window.webkitAudioContext)();const o=c.createOscillator(),g=c.createGain();o.connect(g);g.connect(c.destination);if(t==='msg'){o.frequency.value=1000;g.gain.value=.15;o.start();o.stop(c.currentTime+.1)}else if(t==='notif'){o.frequency.value=600;g.gain.value=.2;o.start();o.stop(c.currentTime+.3)}}catch(e){}}
