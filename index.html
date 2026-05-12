@@ -164,7 +164,6 @@ function cancel(){if(!sid)return;if(confirm('¿Cancelar?')){db.ref(`servicios/${
 function reset(){sid=null;rating=0;rated=false;vChId=null;destinoSeleccionado=null;if(destinoMarker){map.removeLayer(destinoMarker);destinoMarker=null}document.getElementById('requestSheet').style.display='block';document.getElementById('activeSheet').style.display='none';document.getElementById('destiny').value='';document.getElementById('passengers').value='0';document.getElementById('reqBtn').disabled=false;document.getElementById('reqBtn').textContent='🛺 Solicitar Mototaxi';document.querySelectorAll('.step').forEach(s=>s.className='step');document.getElementById('s1').classList.add('on');document.getElementById('btnSelectDest').classList.remove('active');document.getElementById('btnSelectDest').textContent='🗺️ TOCA AQUÍ PARA SELECCIONAR EN MAPA';seleccionandoDestino=false}
 function loadHistory(){if(!uid)return;db.ref('servicios').orderByChild('clienteId').equalTo(uid).limitToLast(5).once('value',s=>{const d=s.val();let h='';if(!d){document.getElementById('historyList').innerHTML='<div class="empty">Sin viajes</div>';return}Object.entries(d).reverse().forEach(([id,v])=>{h+=`<div class="history-item"><div class="info"><div style="font-weight:700;font-size:.75rem">${(v.origen?.direccion||'').substring(0,18)} → ${(v.destino?.direccion||'').substring(0,18)}</div><div style="font-size:.6rem;color:var(--txt3)">${v.fecha||'-'} · ${v.estado}</div></div><div class="price">$${v.cobro||v.tarifa_estimada||0}</div><button class="btn-sm" onclick="reportFromHistory('${id}')">📦</button></div>`});document.getElementById('historyList').innerHTML=h})}
 
-// ✅ reportFromHistory con nombre de pasajero incluido
 window.reportFromHistory=function(id){
     const d=prompt('Describe el objeto olvidado:');
     if(!d)return;
@@ -194,6 +193,13 @@ function calcDist(l1,l2,lo1,lo2){const R=6371,dLa=(l2-l1)*Math.PI/180,dLo=(lo2-l
 function toast(m){const t=document.createElement('div');t.className='toast';t.textContent=m;document.body.appendChild(t);setTimeout(()=>t.remove(),2500)}
 window.addEventListener('DOMContentLoaded',()=>{initMap();getLoc()});
 window.addEventListener('resize',()=>{if(map)setTimeout(()=>map.invalidateSize(),200)});
+
+// REGISTRAR SERVICE WORKER para PWA
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/service-worker.js')
+    .then(reg => console.log('✅ SW registrado', reg.scope))
+    .catch(err => console.log('SW error:', err));
+}
 </script>
 </body>
 </html>
